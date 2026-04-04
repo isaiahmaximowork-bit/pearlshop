@@ -36,11 +36,15 @@ const TikTokVideoCard = ({ videoId, thumbnail, showBadge, saleValue }: TikTokVid
         />
       ) : (
         <>
-          <img 
-            src={thumbnail} 
-            className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-700" 
-            alt="TikTok Video" 
-          />
+          {thumbnail ? (
+            <img 
+              src={thumbnail} 
+              className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-700" 
+              alt="TikTok Video" 
+            />
+          ) : (
+            <div className="w-full h-full bg-zinc-900" />
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-center justify-center">
             <div className="bg-white/10 backdrop-blur-md rounded-full p-3">
               <Play size={16} className="fill-white text-white" />
