@@ -27,13 +27,23 @@ const tiktokVideos = [
   },
 ];
 
-const videoAssets = [
-  "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=600",
-  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600",
-  "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=600",
-  "https://images.unsplash.com/photo-1491553895911-0055eca6402d?auto=format&fit=crop&q=80&w=600",
-  "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=600",
-  "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&q=80&w=600",
+const tiktokVideosDown = [
+  {
+    videoId: "7584518645519273237",
+    thumbnail: "",
+  },
+  {
+    videoId: "7619299281052585236",
+    thumbnail: "",
+  },
+  {
+    videoId: "7621282092948753672",
+    thumbnail: "",
+  },
+  {
+    videoId: "7602353355461020936",
+    thumbnail: "",
+  },
 ];
 
 const Index = () => {
