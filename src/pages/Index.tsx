@@ -8,6 +8,7 @@ import TikTokVideoCard from '@/components/TikTokVideoCard';
 import OperationalFlowSection from '@/components/OperationalFlowSection';
 import AvatarSection from '@/components/AvatarSection';
 import BannerSection from '@/components/BannerSection';
+import ReviewSection from '@/components/ReviewSection';
 import logo from '@/assets/logo.png';
 
 const platformNames = ["Instagram", "Facebook", "YouTube", "TikTok", "Loja Virtual"];
@@ -279,7 +280,10 @@ const Index = () => {
       {/* SEÇÃO 2: OPERATIONAL FLOW */}
       <OperationalFlowSection />
 
-      {/* SEÇÃO 3: AVATARES IA */}
+      {/* SEÇÃO 3: REVIEWS */}
+      <ReviewSection />
+
+      {/* SEÇÃO 4: AVATARES IA */}
       <AvatarSection />
 
       {/* SEÇÃO 4: BANNER CTA */}
