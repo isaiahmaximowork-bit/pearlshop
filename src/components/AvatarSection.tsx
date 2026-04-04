@@ -1,0 +1,158 @@
+import { Camera, Sparkles, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+const StepBadge = ({ step, icon: Icon }: { step: string; icon: React.ElementType }) => (
+  <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-purple-500/10 border border-purple-500/20 mb-4 w-fit">
+    <Icon size={12} className="text-purple-500" />
+    <span className="text-[10px] font-black text-purple-500 uppercase tracking-widest">Passo {step}</span>
+  </div>
+);
+
+const AvatarCard = ({ step, icon, title, description, visual, delay }: {
+  step: string;
+  icon: React.ElementType;
+  title: string;
+  description: string;
+  visual: React.ReactNode;
+  delay: number;
+}) => (
+  <motion.div
+    initial={{ opacity: 0, y: 30 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ duration: 0.8, delay }}
+    className="flex-1 bg-white rounded-[2.5rem] p-8 md:p-10 flex flex-col shadow-2xl relative overflow-hidden group"
+  >
+    <StepBadge step={step} icon={icon} />
+    <h3 className="text-2xl md:text-3xl font-extrabold text-zinc-900 tracking-tighter mb-8 leading-tight">
+      {title}
+    </h3>
+    <div className="flex-1 mb-8">
+      {visual}
+    </div>
+    <p className="text-zinc-500 text-sm md:text-base font-medium leading-relaxed font-poppins">
+      {description}
+    </p>
+  </motion.div>
+);
+
+const AvatarSection = () => (
+  <section className="relative z-10 w-full py-24 px-6">
+    <style>{`
+      .avatar-label {
+        position: absolute;
+        bottom: 12px;
+        right: 12px;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(8px);
+        padding: 4px 10px;
+        border-radius: 99px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+    `}</style>
+
+    <div className="max-w-7xl mx-auto w-full">
+      {/* HEADER */}
+      <div className="text-center mb-20">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 mb-8"
+        >
+          <span className="text-[9px] font-black text-purple-400 uppercase tracking-[0.4em]">Avatares IA • Novo</span>
+        </motion.div>
+
+        <h2 className="text-5xl md:text-7xl font-black tracking-tighter leading-[0.95] mb-8 font-poppins text-white">
+          Crie vídeos UGC com avatares IA <br />
+          <span className="text-gradient-purple uppercase tracking-tight">que realmente convertem</span>
+        </h2>
+
+        <p className="text-zinc-500 text-lg md:text-xl font-medium max-w-3xl mx-auto leading-relaxed">
+          Sem influenciadores. Sem filmagem. Sem taxas de talento. Escolha um avatar, adicione seu produto e gere conteúdo UGC autêntico que converte.
+        </p>
+      </div>
+
+      {/* CARDS */}
+      <div className="flex flex-col lg:flex-row gap-8 items-stretch">
+        <AvatarCard
+          step="1"
+          icon={Camera}
+          title="Transforme sua foto em um avatar"
+          description="Envie qualquer foto — nossa IA constrói um avatar fotorrealista em segundos. Sem estúdio, sem taxas de talento."
+          delay={0.1}
+          visual={
+            <div className="flex items-center gap-4 relative">
+              <div className="flex-1 aspect-square rounded-3xl overflow-hidden relative border border-zinc-200">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600" className="w-full h-full object-cover" alt="Foto de entrada" />
+                <div className="avatar-label">
+                  <Camera size={10} className="text-white" />
+                  <span className="text-[8px] font-bold text-white uppercase tracking-widest">Foto de Entrada</span>
+                </div>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center shrink-0 shadow-lg z-10">
+                <ArrowRight size={18} className="text-white" />
+              </div>
+              <div className="flex-1 aspect-square rounded-3xl overflow-hidden relative border-2 border-purple-500 shadow-xl">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600" className="w-full h-full object-cover" alt="Avatar IA gerado" />
+                <div className="avatar-label">
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-[8px] font-bold text-white uppercase tracking-widest">Avatar IA</span>
+                </div>
+              </div>
+            </div>
+          }
+        />
+
+        <AvatarCard
+          step="2"
+          icon={Sparkles}
+          title="Ou projete um avatar personalizado a partir de um prompt"
+          description="Descreva a pessoa exata que você quer — idade, estilo, expressão, roupa — e a IA a cria instantaneamente."
+          delay={0.2}
+          visual={
+            <div className="flex items-center gap-4 relative">
+              <div className="flex-1 aspect-square rounded-3xl overflow-hidden relative border border-zinc-200 bg-zinc-50 p-6 flex flex-col justify-center">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-purple-500" />
+                  <span className="text-[10px] font-bold text-zinc-400 uppercase">Prompt IA</span>
+                </div>
+                <p className="text-zinc-600 text-[11px] italic leading-relaxed font-medium">
+                  "A stylish person in their mid-20s with clear skin and a confident expression, wearing a modern neutral outfit."
+                </p>
+                <div className="mt-6 w-full h-8 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+                  <span className="text-[8px] font-black text-white uppercase tracking-widest">Gerar Avatar →</span>
+                </div>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center shrink-0 shadow-lg z-10">
+                <ArrowRight size={18} className="text-white" />
+              </div>
+              <div className="flex-1 aspect-square rounded-3xl overflow-hidden relative border-2 border-purple-500 shadow-xl">
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600" className="w-full h-full object-cover" alt="Avatar gerado por prompt" />
+                <div className="avatar-label">
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-[8px] font-bold text-white uppercase tracking-widest">Avatar IA</span>
+                </div>
+              </div>
+            </div>
+          }
+        />
+      </div>
+
+      {/* CTA */}
+      <div className="mt-20 text-center">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="group px-12 py-6 rounded-3xl bg-purple-600 text-white font-black text-lg uppercase tracking-tighter transition-all flex items-center gap-4 mx-auto shadow-[0_20px_50px_rgba(147,51,234,0.3)]"
+        >
+          Começar Agora <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform duration-300" />
+        </motion.button>
+      </div>
+    </div>
+  </section>
+);
+
+export default AvatarSection;
