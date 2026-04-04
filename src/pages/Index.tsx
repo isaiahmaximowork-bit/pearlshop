@@ -1,17 +1,11 @@
 import { useState, useEffect } from 'react';
-import { ShoppingBag, ArrowRight, Instagram, Youtube, Facebook, ShoppingCart } from 'lucide-react';
+import { ShoppingBag, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import PillNav from '@/components/PillNav';
 import PlatformIcon from '@/components/PlatformIcon';
 import VerticalCard from '@/components/VerticalCard';
 
-const platforms = [
-  { name: "Instagram", icon: Instagram, color: "#E4405F" },
-  { name: "Facebook", icon: Facebook, color: "#1877F2" },
-  { name: "YouTube", icon: Youtube, color: "#FF0000" },
-  { name: "TikTok", icon: null, color: null },
-  { name: "Loja Virtual", icon: ShoppingCart, color: "#FBBF24" },
-];
+const platformNames = ["Instagram", "Facebook", "YouTube", "TikTok", "Loja Virtual"];
 
 const videoAssets = [
   "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=600",
@@ -24,6 +18,7 @@ const videoAssets = [
 
 const Index = () => {
   const [activeSale, setActiveSale] = useState<{ col: string; index: number; value: string } | null>(null);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     const triggerSale = () => {
@@ -90,6 +85,10 @@ const Index = () => {
         .animate-marquee-v-down {
           animation: marquee-v-down 30s linear infinite;
         }
+
+        .marquee-paused {
+          animation-play-state: paused !important;
+        }
         
         .mask-fade-edges-h {
           mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
@@ -135,7 +134,7 @@ const Index = () => {
           
           <div className="flex items-center gap-6">
             <button className="text-[11px] font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors font-poppins">Entrar</button>
-            <button className="px-6 py-2.5 rounded-full bg-white text-black font-extrabold text-[11px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl font-poppins">Teste Grátis</button>
+            <button className="px-6 py-2.5 rounded-full bg-purple-600 text-white font-extrabold text-[11px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(147,51,234,0.4)] font-poppins">Teste Grátis</button>
           </div>
         </div>
       </nav>
@@ -186,19 +185,14 @@ const Index = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className="space-y-6"
+            className="space-y-4"
           >
-            <p className="text-[10px] font-bold font-poppins text-zinc-600 uppercase tracking-[0.3em] text-center w-full">LANCE EM TODAS AS PLATAFORMAS</p>
+            <p className="text-xs font-bold font-poppins text-zinc-500 uppercase tracking-wider text-center w-full">LANCE EM TODAS AS PLATAFORMAS</p>
             
             <div className="relative w-full overflow-hidden mask-fade-edges-h">
               <div className="flex animate-marquee-h whitespace-nowrap gap-4">
-                {[...platforms, ...platforms].map((platform, index) => (
-                  <PlatformIcon 
-                    key={index}
-                    name={platform.name} 
-                    icon={platform.icon} 
-                    color={platform.color} 
-                  />
+                {[...platformNames, ...platformNames].map((name, index) => (
+                  <PlatformIcon key={index} name={name} />
                 ))}
               </div>
             </div>
@@ -206,8 +200,12 @@ const Index = () => {
         </div>
 
         {/* LADO DIREITO: VERTICAL MARQUEE VIDEOS */}
-        <div className="relative h-[700px] grid grid-cols-2 gap-6 mask-fade-edges-v overflow-hidden">
-          <div className="flex flex-col animate-marquee-v-up">
+        <div 
+          className="relative h-[700px] grid grid-cols-2 gap-6 mask-fade-edges-v overflow-hidden"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          <div className={`flex flex-col animate-marquee-v-up ${isHovered ? 'marquee-paused' : ''}`}>
             {[...videoAssets, ...videoAssets].map((src, i) => (
               <VerticalCard 
                 key={`up-${i}`} 
@@ -218,7 +216,7 @@ const Index = () => {
             ))}
           </div>
 
-          <div className="flex flex-col animate-marquee-v-down">
+          <div className={`flex flex-col animate-marquee-v-down ${isHovered ? 'marquee-paused' : ''}`}>
             {[...videoAssets, ...videoAssets].map((src, i) => (
               <VerticalCard 
                 key={`down-${i}`} 
