@@ -116,8 +116,8 @@ const Index = () => {
         }
 
         .mask-fade-edges-v {
-          mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
-          -webkit-mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+          mask-image: linear-gradient(to bottom, transparent, black 5%, black 95%, transparent);
+          -webkit-mask-image: linear-gradient(to bottom, transparent, black 5%, black 95%, transparent);
         }
 
         .text-gradient-purple {
