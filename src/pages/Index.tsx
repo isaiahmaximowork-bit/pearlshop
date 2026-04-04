@@ -6,6 +6,7 @@ import PlatformIcon from '@/components/PlatformIcon';
 
 import TikTokVideoCard from '@/components/TikTokVideoCard';
 import OperationalFlowSection from '@/components/OperationalFlowSection';
+import AvatarSection from '@/components/AvatarSection';
 import logo from '@/assets/logo.png';
 
 const platformNames = ["Instagram", "Facebook", "YouTube", "TikTok", "Loja Virtual"];
