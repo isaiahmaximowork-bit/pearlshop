@@ -5,6 +5,7 @@ import PillNav from '@/components/PillNav';
 import PlatformIcon from '@/components/PlatformIcon';
 
 import TikTokVideoCard from '@/components/TikTokVideoCard';
+import OperationalFlowSection from '@/components/OperationalFlowSection';
 import logo from '@/assets/logo.png';
 
 const platformNames = ["Instagram", "Facebook", "YouTube", "TikTok", "Loja Virtual"];
@@ -272,6 +273,9 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* SEÇÃO 2: OPERATIONAL FLOW */}
+      <OperationalFlowSection />
 
       {/* FOOTER */}
       <footer className="relative z-10 py-12 border-t border-white/5 bg-black/40">
