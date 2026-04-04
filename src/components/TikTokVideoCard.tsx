@@ -29,10 +29,10 @@ const TikTokVideoCard = ({ videoId, thumbnail, showBadge, saleValue }: TikTokVid
     >
       {isPlaying ? (
         <iframe
-          src={`https://www.tiktok.com/player/v1/${videoId}?autoplay=1&mute=1&controls=0&loop=1&music_info=0&description=0`}
-          className="w-full h-full border-0"
+          src={`https://www.tiktok.com/player/v1/${videoId}?autoplay=1&mute=1&controls=0&loop=1&music_info=0&description=0&rel=0&native_context_menu=0&closed_caption=0`}
+          className="w-full border-0"
           allow="autoplay"
-          style={{ pointerEvents: 'none' }}
+          style={{ pointerEvents: 'none', height: '120%', marginTop: '-10%' }}
         />
       ) : (
         <>
