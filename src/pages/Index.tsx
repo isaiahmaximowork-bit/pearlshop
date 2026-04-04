@@ -151,7 +151,7 @@ const Index = () => {
       <nav className="relative z-50 py-8 px-10">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2 group cursor-pointer">
-            <img src={logo} alt="PearlShop.io" className="h-9 w-auto" />
+            <img src={logo} alt="PearlShop.io" className="h-[72px] w-auto" />
           </div>
           
           <div className="hidden lg:block">
