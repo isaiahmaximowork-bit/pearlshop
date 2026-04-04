@@ -226,10 +226,11 @@ const Index = () => {
           onMouseLeave={() => setIsHovered(false)}
         >
           <div className={`flex flex-col animate-marquee-v-up ${isHovered ? 'marquee-paused' : ''}`}>
-            {[...videoAssets, ...videoAssets].map((src, i) => (
-              <VerticalCard 
+            {[...tiktokVideos, ...tiktokVideos].map((video, i) => (
+              <TikTokVideoCard 
                 key={`up-${i}`} 
-                src={src} 
+                videoId={video.videoId}
+                thumbnail={video.thumbnail}
                 showBadge={activeSale?.col === 'up' && activeSale?.index === i}
                 saleValue={activeSale?.value}
               />
