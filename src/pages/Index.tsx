@@ -278,6 +278,9 @@ const Index = () => {
       {/* SEÇÃO 2: OPERATIONAL FLOW */}
       <OperationalFlowSection />
 
+      {/* SEÇÃO 3: AVATARES IA */}
+      <AvatarSection />
+
       {/* FOOTER */}
       <footer className="relative z-10 py-12 border-t border-white/5 bg-black/40">
         <div className="max-w-7xl mx-auto px-10 flex justify-center items-center">
