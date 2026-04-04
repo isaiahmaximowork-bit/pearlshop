@@ -248,10 +248,11 @@ const Index = () => {
           </div>
 
           <div className={`flex flex-col animate-marquee-v-down ${isHovered ? 'marquee-paused' : ''}`}>
-            {[...videoAssets, ...videoAssets].map((src, i) => (
-              <VerticalCard 
+            {[...tiktokVideosDown, ...tiktokVideosDown].map((video, i) => (
+              <TikTokVideoCard 
                 key={`down-${i}`} 
-                src={src} 
+                videoId={video.videoId}
+                thumbnail={video.thumbnail}
                 showBadge={activeSale?.col === 'down' && activeSale?.index === i}
                 saleValue={activeSale?.value}
               />
