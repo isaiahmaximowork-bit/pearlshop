@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { ShoppingBag, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import PillNav from '@/components/PillNav';
 import PlatformIcon from '@/components/PlatformIcon';
 
 import TikTokVideoCard from '@/components/TikTokVideoCard';
+import logo from '@/assets/logo.png';
 
 const platformNames = ["Instagram", "Facebook", "YouTube", "TikTok", "Loja Virtual"];
 
@@ -149,13 +150,8 @@ const Index = () => {
       {/* NAVBAR */}
       <nav className="relative z-50 py-8 px-10">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3 group cursor-pointer">
-            <div className="w-9 h-9 bg-purple-600 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(147,51,234,0.4)]">
-              <ShoppingBag size={18} className="text-white" />
-            </div>
-            <span className="text-xl font-extrabold tracking-tighter uppercase italic">
-              PearlShop<span className="text-purple-500">.io</span>
-            </span>
+          <div className="flex items-center gap-2 group cursor-pointer">
+            <img src={logo} alt="PearlShop.io" className="h-9 w-auto" />
           </div>
           
           <div className="hidden lg:block">
@@ -281,12 +277,7 @@ const Index = () => {
       <footer className="relative z-10 py-12 border-t border-white/5 bg-black/40">
         <div className="max-w-7xl mx-auto px-10 flex justify-center items-center">
           <div className="flex items-center gap-2 group cursor-pointer opacity-50">
-            <div className="w-6 h-6 bg-purple-600 rounded-md flex items-center justify-center">
-              <ShoppingBag size={12} className="text-white" />
-            </div>
-            <span className="text-sm font-extrabold tracking-tighter uppercase italic font-poppins">
-              PearlShop<span className="text-purple-500">.io</span>
-            </span>
+            <img src={logo} alt="PearlShop.io" className="h-6 w-auto" />
           </div>
         </div>
       </footer>
