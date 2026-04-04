@@ -7,6 +7,7 @@ import PlatformIcon from '@/components/PlatformIcon';
 import TikTokVideoCard from '@/components/TikTokVideoCard';
 import OperationalFlowSection from '@/components/OperationalFlowSection';
 import AvatarSection from '@/components/AvatarSection';
+import BannerSection from '@/components/BannerSection';
 import logo from '@/assets/logo.png';
 
 const platformNames = ["Instagram", "Facebook", "YouTube", "TikTok", "Loja Virtual"];
@@ -280,6 +281,9 @@ const Index = () => {
 
       {/* SEÇÃO 3: AVATARES IA */}
       <AvatarSection />
+
+      {/* SEÇÃO 4: BANNER CTA */}
+      <BannerSection />
 
       {/* FOOTER */}
       <footer className="relative z-10 py-12 border-t border-white/5 bg-black/40">
