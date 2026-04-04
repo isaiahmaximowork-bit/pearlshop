@@ -42,7 +42,7 @@ const tiktokVideosDown = [
   },
   {
     videoId: "7602353355461020936",
-    thumbnail: "https://p16-common-sign.tiktokcdn-eu.com/tos-alisg-p-0037/owEe1LCjoGTfiMIYOAXAAL86QeOtUEDI5uQnHH~tplv-tiktokx-origin.image?dr=10395&x-expires=1775498400&x-signature=DN4ADcmVF67D5wckfUU3srU6dEw%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast2b",
+    thumbnail: "https://p16-common-sign.tiktokcdn-eu.com/tos-alisg-p-0037/oAABaCgQEDDAgUBFPnBXspfvhhpBREIsQKCqfC~tplv-tiktokx-origin.image?dr=10395&x-expires=1775498400&x-signature=WKqK7JjZqqhwstCQNY%2BlUdSevmA%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast2b",
   },
 ];
 
