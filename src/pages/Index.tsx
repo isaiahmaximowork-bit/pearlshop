@@ -191,24 +191,40 @@ const Index = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-lg md:text-xl text-zinc-400 max-w-xl mb-12 leading-relaxed font-medium font-poppins"
           >
-            Economize 10x o tempo com vídeos de atores digitais gerados por IA. 
-            A única plataforma que cria e faz tiktok shop em todas as principais redes com um clique.
+            Você escolhe o produto.<br />
+            A gente cria, testa e publica os vídeos pra você.
           </motion.p>
 
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="flex flex-col items-start gap-4 mb-16"
+            className="flex flex-col items-start gap-4 mb-6"
           >
             <button className="group relative w-full sm:w-[520px] h-[76px] overflow-hidden rounded-2xl btn-purple-flow text-white font-extrabold text-xl uppercase tracking-tighter shadow-[0_20px_50px_rgba(147,51,234,0.3)] active:scale-95 font-poppins">
               <div className="relative flex items-center justify-center gap-3 z-10">
-                <span>Testar Grátis</span>
+                <span>Testar com 1 produto</span>
                 <div className="overflow-hidden w-0 opacity-0 group-hover:w-8 group-hover:opacity-100 transition-all duration-500 ease-out translate-x-4 group-hover:translate-x-0">
                   <ArrowRight size={28} />
                 </div>
               </div>
             </button>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="flex items-center gap-3 mb-16"
+          >
+            <div className="flex -space-x-2">
+              <img src="https://i.pravatar.cc/40?img=1" alt="" className="w-7 h-7 rounded-full border-2 border-[#020105] object-cover" />
+              <img src="https://i.pravatar.cc/40?img=5" alt="" className="w-7 h-7 rounded-full border-2 border-[#020105] object-cover" />
+              <img src="https://i.pravatar.cc/40?img=8" alt="" className="w-7 h-7 rounded-full border-2 border-[#020105] object-cover" />
+            </div>
+            <p className="text-xs text-zinc-500 font-medium font-poppins">
+              <span className="text-zinc-300 font-bold">+1.482</span> usuários ativos venderam hoje
+            </p>
           </motion.div>
 
           <motion.div 
