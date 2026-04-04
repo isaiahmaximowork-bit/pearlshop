@@ -31,7 +31,7 @@ const OperationalFlowSection = () => (
   <section className="relative z-10 w-full py-24 px-6 overflow-hidden">
     {/* ROTATING BACKGROUND THUMBNAILS */}
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <div className="absolute inset-0 flex justify-center gap-3 opacity-[0.12]"
+      <div className="absolute inset-0 flex justify-around gap-0 opacity-[0.12]"
         style={{ maskImage: 'linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)', WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)' }}
       >
         {columns.map((col, colIdx) => (
