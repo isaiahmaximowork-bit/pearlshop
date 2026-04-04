@@ -1,5 +1,7 @@
 import { Camera, Sparkles, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import avatarInputPhoto from '@/assets/avatar-input-photo.png';
+import avatarOutputVideo from '@/assets/avatar-output-video.mp4';
 
 const StepBadge = ({ step, icon: Icon }: { step: string; icon: React.ElementType }) => (
   <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-purple-500/10 border border-purple-500/20 mb-4 w-fit">
