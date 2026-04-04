@@ -15,7 +15,7 @@ const BannerSection = () => (
         style={{ background: '#a855f7' }}
       >
         {/* Content grid - 3 columns */}
-        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[1fr_1.4fr_1fr] items-end h-full min-h-[520px]">
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[1fr_1.2fr_1fr] items-end h-full min-h-[520px]">
           
           {/* Left: Woman image */}
           <motion.div
