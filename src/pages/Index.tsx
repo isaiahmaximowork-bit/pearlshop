@@ -53,7 +53,7 @@ const Index = () => {
   useEffect(() => {
     const triggerSale = () => {
       const col = Math.random() > 0.5 ? 'up' : 'down';
-      const index = Math.floor(Math.random() * (videoAssets.length * 2));
+      const index = Math.floor(Math.random() * (tiktokVideos.length * 2));
       const value = "R$ " + (Math.random() * 370 + 80).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
       
       setActiveSale({ col, index, value });
