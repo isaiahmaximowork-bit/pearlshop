@@ -3,7 +3,7 @@ import { ShoppingBag, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import PillNav from '@/components/PillNav';
 import PlatformIcon from '@/components/PlatformIcon';
-import VerticalCard from '@/components/VerticalCard';
+
 import TikTokVideoCard from '@/components/TikTokVideoCard';
 
 const platformNames = ["Instagram", "Facebook", "YouTube", "TikTok", "Loja Virtual"];
