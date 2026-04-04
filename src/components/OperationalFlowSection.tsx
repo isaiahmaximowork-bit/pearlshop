@@ -37,7 +37,7 @@ const OperationalFlowSection = () => (
         {columns.map((col, colIdx) => (
           <div
             key={colIdx}
-            className={`flex flex-col gap-3 w-[180px] shrink-0 ${col.direction === 'up' ? 'animate-marquee-v-up' : 'animate-marquee-v-down'}`}
+            className={`flex flex-col gap-3 flex-1 min-w-0 ${col.direction === 'up' ? 'animate-marquee-v-up' : 'animate-marquee-v-down'}`}
           >
             {[...col.thumbs, ...col.thumbs].map((thumb, i) => (
               <div key={i} className="w-[180px] h-[320px] rounded-2xl overflow-hidden shrink-0">
