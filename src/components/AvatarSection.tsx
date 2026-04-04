@@ -2,6 +2,7 @@ import { Camera, Sparkles, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import avatarInputPhoto from '@/assets/avatar-input-photo.png';
 import avatarOutputVideo from '@/assets/avatar-output-video.mp4';
+import avatarPromptOutput from '@/assets/avatar-prompt-output.png';
 
 const StepBadge = ({ step, icon: Icon }: { step: string; icon: React.ElementType }) => (
   <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-purple-500/10 border border-purple-500/20 mb-4 w-fit">
@@ -82,8 +83,8 @@ const AvatarSection = () => (
         <AvatarCard
           step="1"
           icon={Camera}
-          title="Transforme sua foto em um avatar"
-          description="Envie qualquer foto — nossa IA constrói um avatar fotorrealista em segundos. Sem estúdio, sem taxas de talento."
+    title="Escolha um rosto. Comece a vender."
+    description="Escolha ou crie um avatar, gere vídeos automaticamente e venda no TikTok Shop sem gravar nada."
           delay={0.1}
           visual={
             <div className="flex items-center gap-4 relative">
@@ -111,8 +112,8 @@ const AvatarSection = () => (
         <AvatarCard
           step="2"
           icon={Sparkles}
-          title="Ou projete um avatar personalizado a partir de um prompt"
-          description="Descreva a pessoa exata que você quer — idade, estilo, expressão, roupa — e a IA a cria instantaneamente."
+    title="Ou projete um avatar personalizado a partir de um prompt"
+    description="Descreva a pessoa exata que você quer — idade, estilo, expressão, roupa — e a IA a cria instantaneamente usando ou mostrando o seu produto."
           delay={0.2}
           visual={
             <div className="flex items-center gap-4 relative">
@@ -122,7 +123,7 @@ const AvatarSection = () => (
                   <span className="text-[10px] font-bold text-zinc-400 uppercase">Prompt IA</span>
                 </div>
                 <p className="text-zinc-600 text-[11px] italic leading-relaxed font-medium">
-                  "A stylish person in their mid-20s with clear skin and a confident expression, wearing a modern neutral outfit."
+                  "Uma mulher morena de olhos verdes usando um vestido longo vermelho, usando um batom vermelho, luz natural, pele perfeita, Ultra realista 4k na Grécia."
                 </p>
                 <div className="mt-6 w-full h-8 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
                   <span className="text-[8px] font-black text-white uppercase tracking-widest">Gerar Avatar →</span>
@@ -132,7 +133,7 @@ const AvatarSection = () => (
                 <ArrowRight size={18} className="text-white" />
               </div>
               <div className="flex-1 aspect-square rounded-3xl overflow-hidden relative border-2 border-purple-500 shadow-xl">
-                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600" className="w-full h-full object-cover" alt="Avatar gerado por prompt" />
+                <img src={avatarPromptOutput} className="w-full h-full object-cover" alt="Avatar gerado por prompt" />
                 <div className="avatar-label">
                   <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                   <span className="text-[8px] font-bold text-white uppercase tracking-widest">Avatar IA</span>
