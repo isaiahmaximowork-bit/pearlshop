@@ -37,7 +37,7 @@ const OperationalFlowSection = () => (
         step="02"
         title="Produção Autônoma"
         subtitle="Digital Actors"
-        image="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=600"
+        image="https://p16-common-sign.tiktokcdn-eu.com/tos-alisg-p-0037/oQzRsFyaAAAeAjIjAEFuePoD7fU3SLTEDIED5I~tplv-tiktokx-origin.image?dr=10395&x-expires=1775498400&x-signature=Bqw%2Fi5VYGiJvuRLVMzcJtB%2BMSZg%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast2b"
         icon={Cpu}
         tags={["Realismo", "4K Render"]}
         description="Geramos vídeos com apresentadores digitais idênticos a humanos. Roteiros otimizados para retenção e compra."
