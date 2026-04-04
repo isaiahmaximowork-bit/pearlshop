@@ -40,7 +40,7 @@ const OperationalFlowSection = () => (
             className={`flex flex-col gap-3 flex-1 min-w-0 ${col.direction === 'up' ? 'animate-marquee-v-up' : 'animate-marquee-v-down'}`}
           >
             {[...col.thumbs, ...col.thumbs].map((thumb, i) => (
-              <div key={i} className="w-[180px] h-[320px] rounded-2xl overflow-hidden shrink-0">
+              <div key={i} className="w-full h-[320px] rounded-2xl overflow-hidden shrink-0">
                 <img src={thumb} alt="" className="w-full h-full object-cover" loading="lazy" />
               </div>
             ))}
