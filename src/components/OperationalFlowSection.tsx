@@ -48,7 +48,7 @@ const OperationalFlowSection = () => (
         ))}
       </div>
       {/* Dark overlay */}
-      <div className="absolute inset-0 bg-[#020105]/80" />
+      <div className="absolute inset-0 bg-[#020105]/25" />
     </div>
 
     {/* CONTENT */}
