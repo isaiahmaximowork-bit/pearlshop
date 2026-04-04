@@ -74,43 +74,43 @@ const OperationalFlowSection = () => (
       <div className="flex flex-wrap justify-center gap-6 md:gap-8">
         <CinematicCard 
           step="01"
-          title="Curadoria Inteligente"
+          title="Escolha do Produto"
           subtitle="Análise de Tendências"
           image="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=600"
           icon={ShoppingBag}
           tags={["Trendy", "Viral Score", "9.8"]}
-          description="Nossa IA varre o TikTok Shop e identifica produtos com alto volume de busca e baixa concorrência de vídeos de qualidade."
+          description="A gente encontra produtos com alta chance de vender — antes de todo mundo."
           stats={{ label: "Precisão", value: "98.4%" }}
         />
         <CinematicCard 
           step="02"
-          title="Produção Autônoma"
+          title="Criação dos Vídeos"
           subtitle="Digital Actors"
           image="https://p16-common-sign.tiktokcdn-eu.com/tos-alisg-p-0037/oQzRsFyaAAAeAjIjAEFuePoD7fU3SLTEDIED5I~tplv-tiktokx-origin.image?dr=10395&x-expires=1775498400&x-signature=Bqw%2Fi5VYGiJvuRLVMzcJtB%2BMSZg%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast2b"
           icon={Cpu}
           tags={["Realismo", "4K Render"]}
-          description="Geramos vídeos com apresentadores digitais idênticos a humanos. Roteiros otimizados para retenção e compra."
-          stats={{ label: "Velocidade", value: "< 2 min" }}
+          description="Um apresentador digital grava o vídeo pra você — parece gente de verdade, e fica pronto em minutos."
+          stats={{ label: "Velocidade", value: "vídeo #12 gerado agora" }}
         />
         <CinematicCard 
           step="03"
-          title="Distribuição em Massa"
+          title="Postagem Automática"
           subtitle="Multi-Platform"
           image="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&q=80&w=600"
           icon={Share2}
           tags={["TikTok", "Reels", "Shorts"]}
-          description="Publicação simultânea em todas as redes com comentário automático do seu link para máxima conversão."
-          stats={{ label: "Escala", value: "Global" }}
+          description="O vídeo vai pro ar sozinho, com link nos comentários — você não precisa abrir nenhum app."
+          stats={{ label: "Escala", value: "hook testado: POV…" }}
         />
         <CinematicCard 
           step="04"
-          title="Receita Passiva"
+          title="Vendas Acontecendo"
           subtitle="Resultados Reais"
           image="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=600"
           icon={TrendingUp}
           tags={["ROI", "Sales", "Cashout"]}
-          description="Acompanhe as comissões caindo em tempo real. O software repete o processo enquanto você foca na estratégia."
-          stats={{ label: "Status", value: "Confirmado" }}
+          description="Você acompanha as vendas caindo em tempo real. O sistema repete o processo com novos produtos automaticamente."
+          stats={{ label: "Agora", value: "+3 vendas nas últimas 2h" }}
         />
       </div>
 
@@ -120,7 +120,7 @@ const OperationalFlowSection = () => (
           whileTap={{ scale: 0.95 }}
           className="group px-10 py-5 rounded-2xl bg-white text-black font-extrabold text-sm uppercase tracking-widest transition-all flex items-center gap-3 mx-auto shadow-[0_20px_50px_rgba(255,255,255,0.1)]"
         >
-          Quero esse fluxo agora <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+          Começar com 1 produto agora <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
         </motion.button>
       </div>
     </div>
