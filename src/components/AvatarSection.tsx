@@ -73,8 +73,11 @@ const AvatarSection = () => (
           <span className="text-gradient-purple uppercase tracking-tight">que realmente convertem</span>
         </h2>
 
-        <p className="text-zinc-500 text-lg md:text-xl font-medium max-w-3xl mx-auto leading-relaxed">
-          Sem influenciadores. Sem filmagem. Sem taxas de talento. Escolha um avatar, adicione seu produto e gere conteúdo UGC autêntico que converte.
+        <p className="text-zinc-500 text-lg md:text-xl font-medium max-w-3xl mx-auto leading-relaxed mb-4">
+          Escolha um avatar, coloque seu produto e deixe ele criar vídeos que vendem por você.
+        </p>
+        <p className="text-purple-400 text-base md:text-lg font-semibold">
+          ⚡ Em menos de 2 minutos, seu primeiro vídeo já está pronto.
         </p>
       </div>
 
@@ -83,8 +86,8 @@ const AvatarSection = () => (
         <AvatarCard
           step="1"
           icon={Camera}
-    title="Escolha um rosto. Comece a vender."
-    description="Escolha ou crie um avatar, gere vídeos automaticamente e venda no TikTok Shop sem gravar nada."
+          title="Escolha um rosto. Ele começa a vender por você."
+          description="Escolha ou crie um avatar, gere vídeos automaticamente e venda no TikTok Shop sem gravar nada."
           delay={0.1}
           visual={
             <div className="flex items-center gap-4 relative">
@@ -112,8 +115,8 @@ const AvatarSection = () => (
         <AvatarCard
           step="2"
           icon={Sparkles}
-    title="Ou projete um avatar personalizado a partir de um prompt"
-    description="Descreva a pessoa exata que você quer — idade, estilo, expressão, roupa — e a IA a cria instantaneamente usando ou mostrando o seu produto."
+          title="Crie um avatar do jeito que quiser"
+          description="Descreva a pessoa exata que você quer — idade, estilo, expressão, roupa — e a IA a cria instantaneamente usando ou mostrando o seu produto."
           delay={0.2}
           visual={
             <div className="flex items-center gap-4 relative">
@@ -151,7 +154,7 @@ const AvatarSection = () => (
           whileTap={{ scale: 0.95 }}
           className="group px-12 py-6 rounded-3xl bg-purple-600 text-white font-black text-lg uppercase tracking-tighter transition-all flex items-center gap-4 mx-auto shadow-[0_20px_50px_rgba(147,51,234,0.3)]"
         >
-          Começar Agora <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform duration-300" />
+          Testar com 1 produto <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform duration-300" />
         </motion.button>
       </div>
     </div>
