@@ -25,16 +25,12 @@ const BannerSection = () => (
         </p>
 
         <h2
-          className="text-5xl md:text-6xl lg:text-[4.2rem] xl:text-[5rem] font-black text-white tracking-tight leading-[0.95] mb-10 font-poppins"
+          className="text-4xl md:text-5xl lg:text-[3.5rem] xl:text-6xl font-black text-white tracking-tighter leading-[0.95] mb-10 font-poppins"
           style={{ fontWeight: 900 }}
         >
-          Com<br />
-          produtos<br />
-          que<br />
-          já estão<br />
-          vendendo<br />
-          no TikTok<br />
-          Shop
+          Com produtos que<br />
+          já estão vendendo<br />
+          no TikTok Shop
         </h2>
 
         <motion.button
@@ -62,7 +58,8 @@ const BannerSection = () => (
         <img
           src={bannerWoman}
           alt="Mulher usando celular"
-          className="h-[400px] md:h-[560px] lg:h-[650px] object-contain object-bottom drop-shadow-[0_20px_40px_rgba(0,0,0,0.25)]"
+          className="h-[450px] md:h-[620px] lg:h-[750px] object-cover object-top drop-shadow-[0_20px_40px_rgba(0,0,0,0.25)]"
+          style={{ objectPosition: 'top center' }}
         />
       </motion.div>
 
@@ -72,7 +69,7 @@ const BannerSection = () => (
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8, delay: 0.4 }}
-        className="hidden lg:flex flex-col items-end justify-end pr-8 pb-10 order-3 self-end"
+        className="hidden lg:flex flex-col items-end justify-start pr-8 pt-12 order-3 self-start"
       >
         <div className="mb-5 text-left">
           <p className="text-white font-bold text-base font-poppins">Faça como a MF Store</p>
