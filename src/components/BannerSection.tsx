@@ -15,30 +15,15 @@ const BannerSection = () => (
         style={{ background: '#a855f7' }}
       >
         {/* Content grid - 3 columns */}
-        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[1fr_1.4fr_1fr] items-end h-full min-h-[520px]">
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[1fr_1.2fr_1fr] items-end h-full min-h-[520px]">
           
-          {/* Left: Woman image */}
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="relative flex items-end justify-center lg:justify-start self-end order-2 lg:order-1"
-          >
-            <img
-              src={bannerWoman}
-              alt="Mulher usando celular"
-              className="h-[360px] md:h-[480px] lg:h-[520px] object-contain object-bottom drop-shadow-[0_20px_40px_rgba(0,0,0,0.3)]"
-            />
-          </motion.div>
-
-          {/* Center: Copy */}
+          {/* Left: Copy */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="flex flex-col justify-center items-center lg:items-start px-6 md:px-8 py-12 lg:py-16 order-1 lg:order-2 text-center lg:text-left"
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="flex flex-col justify-center items-center lg:items-start px-6 md:px-8 py-12 lg:py-16 order-1 text-center lg:text-left"
           >
             <p className="text-white/80 text-sm font-medium mb-4 font-poppins tracking-wide">
               Sua loja automática com produtos do TikTok Shop
@@ -64,6 +49,21 @@ const BannerSection = () => (
             </p>
           </motion.div>
 
+          {/* Center: Woman image */}
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="relative flex items-end justify-center self-end order-2"
+          >
+            <img
+              src={bannerWoman}
+              alt="Mulher usando celular"
+              className="h-[360px] md:h-[480px] lg:h-[520px] object-contain object-bottom drop-shadow-[0_20px_40px_rgba(0,0,0,0.3)]"
+            />
+          </motion.div>
+
           {/* Right: Phone mockup with case study */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -80,13 +80,9 @@ const BannerSection = () => (
                 automaticamente
               </p>
             </div>
-            {/* iPhone mockup */}
             <div className="relative w-[200px] h-[400px]">
-              {/* Phone frame */}
               <div className="absolute inset-0 rounded-[2.2rem] border-[5px] border-white/25 shadow-[0_25px_60px_rgba(0,0,0,0.3)] overflow-hidden bg-white">
-                {/* Notch */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80px] h-[28px] bg-black rounded-b-2xl z-20" />
-                {/* Screen content */}
                 <img
                   src={bannerPhone}
                   alt="Mockup loja MF Store"
