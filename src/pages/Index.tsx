@@ -150,13 +150,8 @@ const Index = () => {
       {/* NAVBAR */}
       <nav className="relative z-50 py-8 px-10">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3 group cursor-pointer">
-            <div className="w-9 h-9 bg-purple-600 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(147,51,234,0.4)]">
-              <ShoppingBag size={18} className="text-white" />
-            </div>
-            <span className="text-xl font-extrabold tracking-tighter uppercase italic">
-              PearlShop<span className="text-purple-500">.io</span>
-            </span>
+          <div className="flex items-center gap-2 group cursor-pointer">
+            <img src={logo} alt="PearlShop.io" className="h-9 w-auto" />
           </div>
           
           <div className="hidden lg:block">
