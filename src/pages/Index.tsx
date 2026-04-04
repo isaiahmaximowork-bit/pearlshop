@@ -5,6 +5,7 @@ import PillNav from '@/components/PillNav';
 import PlatformIcon from '@/components/PlatformIcon';
 
 import TikTokVideoCard from '@/components/TikTokVideoCard';
+import logo from '@/assets/logo.png';
 
 const platformNames = ["Instagram", "Facebook", "YouTube", "TikTok", "Loja Virtual"];
 
