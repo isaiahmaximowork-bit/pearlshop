@@ -57,7 +57,7 @@ const OperationalFlowSection = () => (
         step="04"
         title="Receita Passiva"
         subtitle="Resultados Reais"
-        image="https://images.unsplash.com/photo-1551288049-bbbda5366392?auto=format&fit=crop&q=80&w=600"
+        image="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=600"
         icon={TrendingUp}
         tags={["ROI", "Sales", "Cashout"]}
         description="Acompanhe as comissões caindo em tempo real. O software repete o processo enquanto você foca na estratégia."
