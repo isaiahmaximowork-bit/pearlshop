@@ -30,19 +30,19 @@ const tiktokVideos = [
 const tiktokVideosDown = [
   {
     videoId: "7584518645519273237",
-    thumbnail: "",
+    thumbnail: "https://p16-sign-sg.tiktokcdn.com/obj/tos-alisg-p-0037/oMFAQSAfIyAECgBDABCA3DIJhBPgRnTlr2eIiB~tplv-tiktokx-origin.image?dr=10395&nonce=75498&refresh_token=c87ae4c0b9fb54c1e25e88fd0b5e3ad4&x-expires=1743984000&x-signature=placeholder&shp=81f88b70&shcp=43f4a2f9",
   },
   {
     videoId: "7619299281052585236",
-    thumbnail: "",
+    thumbnail: "https://p16-sign-sg.tiktokcdn.com/obj/tos-alisg-p-0037/placeholder2~tplv-tiktokx-origin.image",
   },
   {
     videoId: "7621282092948753672",
-    thumbnail: "",
+    thumbnail: "https://p16-sign-sg.tiktokcdn.com/obj/tos-alisg-p-0037/placeholder3~tplv-tiktokx-origin.image",
   },
   {
     videoId: "7602353355461020936",
-    thumbnail: "",
+    thumbnail: "https://p16-sign-sg.tiktokcdn.com/obj/tos-alisg-p-0037/placeholder4~tplv-tiktokx-origin.image",
   },
 ];
 
