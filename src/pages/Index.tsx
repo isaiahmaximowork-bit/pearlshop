@@ -280,7 +280,10 @@ const Index = () => {
       {/* SEÇÃO 2: OPERATIONAL FLOW */}
       <OperationalFlowSection />
 
-      {/* SEÇÃO 3: AVATARES IA */}
+      {/* SEÇÃO 3: REVIEWS */}
+      <ReviewSection />
+
+      {/* SEÇÃO 4: AVATARES IA */}
       <AvatarSection />
 
       {/* SEÇÃO 4: BANNER CTA */}
