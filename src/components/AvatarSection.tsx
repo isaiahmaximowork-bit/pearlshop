@@ -88,7 +88,7 @@ const AvatarSection = () => (
           visual={
             <div className="flex items-center gap-4 relative">
               <div className="flex-1 aspect-square rounded-3xl overflow-hidden relative border border-zinc-200">
-                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600" className="w-full h-full object-cover" alt="Foto de entrada" />
+                <img src={avatarInputPhoto} className="w-full h-full object-cover" alt="Foto de entrada" />
                 <div className="avatar-label">
                   <Camera size={10} className="text-white" />
                   <span className="text-[8px] font-bold text-white uppercase tracking-widest">Foto de Entrada</span>
@@ -98,7 +98,7 @@ const AvatarSection = () => (
                 <ArrowRight size={18} className="text-white" />
               </div>
               <div className="flex-1 aspect-square rounded-3xl overflow-hidden relative border-2 border-purple-500 shadow-xl">
-                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600" className="w-full h-full object-cover" alt="Avatar IA gerado" />
+                <video src={avatarOutputVideo} className="w-full h-full object-cover" autoPlay muted loop playsInline />
                 <div className="avatar-label">
                   <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                   <span className="text-[8px] font-bold text-white uppercase tracking-widest">Avatar IA</span>
