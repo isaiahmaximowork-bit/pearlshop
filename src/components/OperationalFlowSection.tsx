@@ -69,6 +69,9 @@ const OperationalFlowSection = () => (
         <p className="text-zinc-500 text-lg max-w-2xl mx-auto font-poppins">
           O fluxo automatizado que transforma produtos em lucro, <br className="hidden md:block" /> sem que você precise gravar um único segundo.
         </p>
+        <p className="mt-4 text-sm text-purple-400 font-semibold font-poppins tracking-wide">
+          Em menos de 2 minutos, seu primeiro vídeo já está no ar.
+        </p>
       </div>
 
       <div className="flex flex-wrap justify-center gap-6 md:gap-8">
