@@ -10,6 +10,7 @@ import AvatarSection from '@/components/AvatarSection';
 import BannerSection from '@/components/BannerSection';
 import ReviewSection from '@/components/ReviewSection';
 import FaqSection from '@/components/FaqSection';
+import FooterSection from '@/components/FooterSection';
 import logo from '@/assets/logo.png';
 
 const platformNames = ["Instagram", "Facebook", "YouTube", "TikTok", "Loja Virtual"];
@@ -293,14 +294,7 @@ const Index = () => {
       {/* SEÇÃO 6: FAQ */}
       <FaqSection />
 
-      {/* FOOTER */}
-      <footer className="relative z-10 py-12 border-t border-white/5 bg-black/40">
-        <div className="max-w-7xl mx-auto px-10 flex justify-center items-center">
-          <div className="flex items-center gap-2 group cursor-pointer opacity-50">
-            <img src={logo} alt="PearlShop.io" className="h-6 w-auto" />
-          </div>
-        </div>
-      </footer>
+      <FooterSection />
     </div>
   );
 };
