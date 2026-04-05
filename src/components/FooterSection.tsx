@@ -94,10 +94,10 @@ const FooterSection = () => {
         </div>
 
         {/* By PearlPost */}
-        <div className="mt-10 flex items-center justify-center gap-2 opacity-50">
-          <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest">By</span>
-          <img src={pearlpostLogo} alt="PearlPost.io" className="h-5 w-auto" />
-        </div>
+        <a href="https://pearlpost.io" target="_blank" rel="noopener noreferrer" className="mt-14 flex items-center justify-center gap-3 group cursor-pointer hover:opacity-80 transition-opacity">
+          <span className="text-sm font-black text-zinc-500 uppercase tracking-[0.3em]">By</span>
+          <img src={pearlpostLogo} alt="PearlPost.io" className="h-8 w-auto" />
+        </a>
       </div>
     </footer>
   );
