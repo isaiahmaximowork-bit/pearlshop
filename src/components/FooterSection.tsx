@@ -60,7 +60,7 @@ const FooterSection = () => {
             <ul className="space-y-4 text-sm font-bold">
               <li><a href="/termos-de-uso" className="text-zinc-600 hover:text-purple-600 transition-colors">Termos de Uso</a></li>
               <li><a href="/politica-de-privacidade" className="text-zinc-600 hover:text-purple-600 transition-colors">Privacidade</a></li>
-              <li><a href="#" className="text-zinc-600 hover:text-purple-600 transition-colors">Documentação</a></li>
+              <li><a href="/seguranca" className="text-zinc-600 hover:text-purple-600 transition-colors">Segurança</a></li>
               <li><a href="#" className="text-zinc-600 hover:text-purple-600 transition-colors">Central de Ajuda</a></li>
             </ul>
           </div>
