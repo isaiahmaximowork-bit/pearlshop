@@ -21,16 +21,35 @@ import imgThiagoAf from '@/assets/reviews/thiago_af.jpg';
 import imgCrisVenda from '@/assets/reviews/cris_venda.jpg';
 import imgRafaDigital from '@/assets/reviews/rafa_digital.jpg';
 
+import avVendedorIa from '@/assets/reviews/avatar_vendedor_ia.jpg';
+import avMarcosIa from '@/assets/reviews/avatar_marcos_ia.jpg';
+import avMLoja from '@/assets/reviews/avatar_m_loja.jpg';
+import avLucasAds from '@/assets/reviews/avatar_lucas_ads.jpg';
+import avAfiliadoPro from '@/assets/reviews/avatar_afiliado_pro.jpg';
+import avUserShop from '@/assets/reviews/avatar_user_shop.jpg';
+import avTDigital from '@/assets/reviews/avatar_t_digital.jpg';
+import avCaioAfiliado from '@/assets/reviews/avatar_caio_afiliado.jpg';
+import avAnaUgc from '@/assets/reviews/avatar_ana_ugc.jpg';
+import avShopMaster from '@/assets/reviews/avatar_shop_master.jpg';
+import avGuiVendas from '@/assets/reviews/avatar_gui_vendas.jpg';
+import avDropshipLife from '@/assets/reviews/avatar_dropship_life.jpg';
+import avNandaStore from '@/assets/reviews/avatar_nanda_store.jpg';
+import avPedroIa from '@/assets/reviews/avatar_pedro_ia.jpg';
+import avViviIa from '@/assets/reviews/avatar_vivi_ia.jpg';
+import avThiagoAf from '@/assets/reviews/avatar_thiago_af.jpg';
+import avCrisVenda from '@/assets/reviews/avatar_cris_venda.jpg';
+import avRafaDigital from '@/assets/reviews/avatar_rafa_digital.jpg';
+
 interface ReviewCardProps {
   content: string;
   stats: { likes: string; views: string };
   handle: string;
-  avatarColor: string;
+  avatar: string;
   image: string;
   showBadge?: boolean;
 }
 
-const ReviewCard = ({ content, stats, handle, avatarColor, image, showBadge }: ReviewCardProps) => {
+const ReviewCard = ({ content, stats, handle, avatar, image, showBadge }: ReviewCardProps) => {
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(parseInt(stats.likes.replace(/\D/g, '')));
 
@@ -50,9 +69,7 @@ const ReviewCard = ({ content, stats, handle, avatarColor, image, showBadge }: R
       <div className="relative z-10 p-6 flex flex-col h-full justify-between min-h-[240px]">
         <div className="space-y-4">
           <div className="flex items-center gap-3">
-            <div className={`w-8 h-8 rounded-full ${avatarColor} border border-white/10 flex items-center justify-center font-bold text-[10px]`}>
-              {handle.charAt(1).toUpperCase()}
-            </div>
+            <img src={avatar} alt={handle} loading="lazy" width={32} height={32} className="w-8 h-8 rounded-full border border-white/10 object-cover" />
             <span className="text-zinc-500 text-xs font-bold tracking-tight">{handle}</span>
           </div>
           <p className="text-white text-sm font-semibold leading-relaxed tracking-tight italic">"{content}"</p>
@@ -80,24 +97,24 @@ const ReviewCard = ({ content, stats, handle, avatarColor, image, showBadge }: R
 };
 
 const allReviews: ReviewCardProps[] = [
-  { handle: "@vendedor_ia", content: "postei esse vídeo sem aparecer e pegou 9.342 views em 2 dias. bizarro.", stats: { likes: "1.248", views: "9.342" }, avatarColor: "bg-blue-600", image: imgVendedorIa, showBadge: true },
-  { handle: "@marcos_ia", content: "primeira comissão caiu hoje, bizarro como esse link da loja converte rápido 🔥", stats: { likes: "248", views: "4.102" }, avatarColor: "bg-purple-600", image: imgMarcosIa },
-  { handle: "@m_loja", content: "bati 3 vendas no primeiro dia com 1 produto. O avatar é bizarro de real.", stats: { likes: "3.281", views: "45.210" }, avatarColor: "bg-emerald-600", image: imgMLoja },
-  { handle: "@lucas_ads", content: "Loja pronta em 30 segundos. Já subi o link na bio e as comissões tão caindo.", stats: { likes: "512", views: "6.742" }, avatarColor: "bg-orange-600", image: imgLucasAds },
-  { handle: "@afiliado_pro", content: "Consigo subir 20 vídeos por dia em 5 minutos. Já recuperei o investimento em 3 dias.", stats: { likes: "1.842", views: "18.109" }, avatarColor: "bg-indigo-600", image: imgAfiliadoPro },
-  { handle: "@user_shop", content: "Minha loja pearlshop tá convertendo 3x mais que o link direto. 12.481 acessos hoje.", stats: { likes: "967", views: "12.481" }, avatarColor: "bg-rose-600", image: imgUserShop },
-  { handle: "@t_digital", content: "subi o primeiro vídeo e já bateu 4.382 views. nem acredito.", stats: { likes: "329", views: "4.382" }, avatarColor: "bg-cyan-600", image: imgTDigital },
-  { handle: "@caio_afiliado", content: "o link da loja carrega muito rápido, a conversão tá monstra.", stats: { likes: "112", views: "2.109" }, avatarColor: "bg-amber-600", image: imgCaioAfiliado },
-  { handle: "@ana.ugc", content: "avatares ficaram perfeitos, o tom de voz é muito natural.", stats: { likes: "894", views: "15.420" }, avatarColor: "bg-pink-600", image: imgAnaUgc },
-  { handle: "@shop_master", content: "2 vendas caindo agora enquanto tô no almoço. vlw pearlshop!", stats: { likes: "541", views: "8.763" }, avatarColor: "bg-yellow-600", image: imgShopMaster },
-  { handle: "@gui.vendas", content: "postagem automática no reels e tiktok salvou meu dia.", stats: { likes: "201", views: "3.241" }, avatarColor: "bg-teal-600", image: imgGuiVendas },
-  { handle: "@dropship_life", content: "peguei o plano hoje e já tô com a loja ativa. prático demais.", stats: { likes: "45", views: "982" }, avatarColor: "bg-lime-600", image: imgDropshipLife },
-  { handle: "@nanda_store", content: "bati 5.431 views no primeiro post. escala é real.", stats: { likes: "722", views: "5.431" }, avatarColor: "bg-violet-600", image: imgNandaStore },
-  { handle: "@pedro.ia", content: "as expressões do avatar são sinistras de boas.", stats: { likes: "1.054", views: "22.981" }, avatarColor: "bg-slate-600", image: imgPedroIa },
-  { handle: "@vivi_ia", content: "fiz minha primeira comissão de R$ 87,40 em 3h de post.", stats: { likes: "338", views: "6.102" }, avatarColor: "bg-fuchsia-600", image: imgViviIa },
-  { handle: "@thiago_af", content: "economizando umas 5h de edição por dia.", stats: { likes: "1.203", views: "14.562" }, avatarColor: "bg-red-600", image: imgThiagoAf },
-  { handle: "@cris_venda", content: "a inteligência de curadoria acertou o produto em cheio.", stats: { likes: "492", views: "9.210" }, avatarColor: "bg-emerald-700", image: imgCrisVenda },
-  { handle: "@rafa_digital", content: "rodando 10 perfis agora com um clique. absurdo.", stats: { likes: "2.193", views: "48.219" }, avatarColor: "bg-sky-600", image: imgRafaDigital },
+  { handle: "@vendedor_ia", content: "postei esse vídeo sem aparecer e pegou 9.342 views em 2 dias. bizarro.", stats: { likes: "1.248", views: "9.342" }, avatar: avVendedorIa, image: imgVendedorIa, showBadge: true },
+  { handle: "@marcos_ia", content: "primeira comissão caiu hoje, bizarro como esse link da loja converte rápido 🔥", stats: { likes: "248", views: "4.102" }, avatar: avMarcosIa, image: imgMarcosIa },
+  { handle: "@m_loja", content: "bati 3 vendas no primeiro dia com 1 produto. O avatar é bizarro de real.", stats: { likes: "3.281", views: "45.210" }, avatar: avMLoja, image: imgMLoja },
+  { handle: "@lucas_ads", content: "Loja pronta em 30 segundos. Já subi o link na bio e as comissões tão caindo.", stats: { likes: "512", views: "6.742" }, avatar: avLucasAds, image: imgLucasAds },
+  { handle: "@afiliado_pro", content: "Consigo subir 20 vídeos por dia em 5 minutos. Já recuperei o investimento em 3 dias.", stats: { likes: "1.842", views: "18.109" }, avatar: avAfiliadoPro, image: imgAfiliadoPro },
+  { handle: "@user_shop", content: "Minha loja pearlshop tá convertendo 3x mais que o link direto. 12.481 acessos hoje.", stats: { likes: "967", views: "12.481" }, avatar: avUserShop, image: imgUserShop },
+  { handle: "@t_digital", content: "subi o primeiro vídeo e já bateu 4.382 views. nem acredito.", stats: { likes: "329", views: "4.382" }, avatar: avTDigital, image: imgTDigital },
+  { handle: "@caio_afiliado", content: "o link da loja carrega muito rápido, a conversão tá monstra.", stats: { likes: "112", views: "2.109" }, avatar: avCaioAfiliado, image: imgCaioAfiliado },
+  { handle: "@ana.ugc", content: "avatares ficaram perfeitos, o tom de voz é muito natural.", stats: { likes: "894", views: "15.420" }, avatar: avAnaUgc, image: imgAnaUgc },
+  { handle: "@shop_master", content: "2 vendas caindo agora enquanto tô no almoço. vlw pearlshop!", stats: { likes: "541", views: "8.763" }, avatar: avShopMaster, image: imgShopMaster },
+  { handle: "@gui.vendas", content: "postagem automática no reels e tiktok salvou meu dia.", stats: { likes: "201", views: "3.241" }, avatar: avGuiVendas, image: imgGuiVendas },
+  { handle: "@dropship_life", content: "peguei o plano hoje e já tô com a loja ativa. prático demais.", stats: { likes: "45", views: "982" }, avatar: avDropshipLife, image: imgDropshipLife },
+  { handle: "@nanda_store", content: "bati 5.431 views no primeiro post. escala é real.", stats: { likes: "722", views: "5.431" }, avatar: avNandaStore, image: imgNandaStore },
+  { handle: "@pedro.ia", content: "as expressões do avatar são sinistras de boas.", stats: { likes: "1.054", views: "22.981" }, avatar: avPedroIa, image: imgPedroIa },
+  { handle: "@vivi_ia", content: "fiz minha primeira comissão de R$ 87,40 em 3h de post.", stats: { likes: "338", views: "6.102" }, avatar: avViviIa, image: imgViviIa },
+  { handle: "@thiago_af", content: "economizando umas 5h de edição por dia.", stats: { likes: "1.203", views: "14.562" }, avatar: avThiagoAf, image: imgThiagoAf },
+  { handle: "@cris_venda", content: "a inteligência de curadoria acertou o produto em cheio.", stats: { likes: "492", views: "9.210" }, avatar: avCrisVenda, image: imgCrisVenda },
+  { handle: "@rafa_digital", content: "rodando 10 perfis agora com um clique. absurdo.", stats: { likes: "2.193", views: "48.219" }, avatar: avRafaDigital, image: imgRafaDigital },
 ];
 
 const row1 = allReviews.slice(0, 9);
