@@ -9,6 +9,7 @@ import OperationalFlowSection from '@/components/OperationalFlowSection';
 import AvatarSection from '@/components/AvatarSection';
 import BannerSection from '@/components/BannerSection';
 import ReviewSection from '@/components/ReviewSection';
+import FaqSection from '@/components/FaqSection';
 import logo from '@/assets/logo.png';
 
 const platformNames = ["Instagram", "Facebook", "YouTube", "TikTok", "Loja Virtual"];
@@ -288,6 +289,9 @@ const Index = () => {
 
       {/* SEÇÃO 5: REVIEWS */}
       <ReviewSection />
+
+      {/* SEÇÃO 6: FAQ */}
+      <FaqSection />
 
       {/* FOOTER */}
       <footer className="relative z-10 py-12 border-t border-white/5 bg-black/40">
