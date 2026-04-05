@@ -2,7 +2,7 @@ import {
   ShieldCheck, Lock, UserCheck, Eye, Settings, Mail, 
   AlertTriangle, Globe, FileText, Cpu, Share2, CreditCard, Cookie
 } from 'lucide-react';
-import logo from '@/assets/logo.png';
+
 
 const PrivacyPolicy = () => {
   return (
