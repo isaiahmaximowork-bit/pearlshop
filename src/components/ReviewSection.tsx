@@ -129,7 +129,7 @@ const row2 = allReviews.slice(9, 18);
 
 const ReviewSection = () => {
   return (
-    <section className="relative z-10 py-24 px-6">
+    <section className="relative z-10 py-12 md:py-24 px-4 md:px-6">
       <style>{`
         @keyframes marquee-left {
           0% { transform: translateX(0); }
@@ -176,7 +176,7 @@ const ReviewSection = () => {
             <span className="text-[10px] font-black text-green-400 uppercase tracking-[0.2em]">Atualizado agora • novos vídeos sendo postados</span>
           </motion.div>
 
-          <h2 className="text-5xl md:text-8xl font-black tracking-tighter leading-tight font-poppins">
+          <h2 className="text-3xl sm:text-5xl md:text-8xl font-black tracking-tighter leading-tight font-poppins">
             FEED DE <br />
             <span className="italic text-transparent bg-clip-text bg-gradient-to-b from-purple-400 to-purple-800 uppercase tracking-tight">Resultados.</span>
           </h2>
@@ -223,7 +223,7 @@ const ReviewSection = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="group px-14 py-7 rounded-[2rem] bg-white text-black font-black text-base md:text-lg uppercase tracking-widest transition-all flex items-center gap-4 shadow-[0_30px_90px_rgba(255,255,255,0.15)]"
+              className="group px-8 md:px-14 py-5 md:py-7 rounded-[2rem] bg-white text-black font-black text-sm md:text-lg uppercase tracking-wider md:tracking-widest transition-all flex items-center gap-3 md:gap-4 shadow-[0_30px_90px_rgba(255,255,255,0.15)]"
             >
               COMEÇAR COM 1 PRODUTO AGORA <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform duration-300" />
             </motion.button>

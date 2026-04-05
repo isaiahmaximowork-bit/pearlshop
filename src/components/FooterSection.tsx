@@ -4,7 +4,7 @@ import pearlpostLogo from '@/assets/pearlpost-logo.png';
 
 const FooterSection = () => {
   return (
-    <footer className="relative z-10 bg-white text-black py-20 px-6 md:px-20 border-t border-zinc-100 font-poppins">
+    <footer className="relative z-10 bg-white text-black py-12 md:py-20 px-4 md:px-20 border-t border-zinc-100 font-poppins">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8">
 

@@ -40,7 +40,7 @@ const AvatarCard = ({ step, icon, title, description, visual, delay }: {
 );
 
 const AvatarSection = () => (
-  <section className="relative z-10 w-full py-24 px-6">
+  <section className="relative z-10 w-full py-12 md:py-24 px-4 md:px-6">
     <style>{`
       .avatar-label {
         position: absolute;
@@ -59,7 +59,7 @@ const AvatarSection = () => (
 
     <div className="max-w-7xl mx-auto w-full">
       {/* HEADER */}
-      <div className="text-center mb-20">
+      <div className="text-center mb-10 md:mb-20">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -68,12 +68,12 @@ const AvatarSection = () => (
           <span className="text-[9px] font-black text-purple-400 uppercase tracking-[0.4em]">Avatares IA • Novo</span>
         </motion.div>
 
-        <h2 className="text-5xl md:text-7xl font-black tracking-tighter leading-[0.95] mb-8 font-poppins text-white">
+        <h2 className="text-3xl sm:text-5xl md:text-7xl font-black tracking-tighter leading-[0.95] mb-6 md:mb-8 font-poppins text-white">
           Crie vídeos UGC com avatares IA <br />
           <span className="text-gradient-purple uppercase tracking-tight">que realmente convertem</span>
         </h2>
 
-        <p className="text-zinc-500 text-lg md:text-xl font-medium max-w-3xl mx-auto leading-relaxed mb-4">
+        <p className="text-zinc-500 text-base md:text-xl font-medium max-w-3xl mx-auto leading-relaxed mb-4">
           Escolha um avatar, coloque seu produto e deixe ele criar vídeos que vendem por você.
         </p>
         <p className="text-purple-400 text-base md:text-lg font-semibold">
@@ -148,11 +148,11 @@ const AvatarSection = () => (
       </div>
 
       {/* CTA */}
-      <div className="mt-20 text-center">
+      <div className="mt-12 md:mt-20 text-center">
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="group px-12 py-6 rounded-3xl bg-purple-600 text-white font-black text-lg uppercase tracking-tighter transition-all flex items-center gap-4 mx-auto shadow-[0_20px_50px_rgba(147,51,234,0.3)]"
+          className="group px-8 md:px-12 py-5 md:py-6 rounded-3xl bg-purple-600 text-white font-black text-base md:text-lg uppercase tracking-tighter transition-all flex items-center gap-4 mx-auto shadow-[0_20px_50px_rgba(147,51,234,0.3)]"
         >
           Testar com 1 produto <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform duration-300" />
         </motion.button>

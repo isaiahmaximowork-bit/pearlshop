@@ -10,7 +10,7 @@ const BannerSection = () => (
       background: 'linear-gradient(135deg, #c084fc 0%, #a855f7 40%, #7c3aed 100%)',
     }}
   >
-    <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[1.1fr_1.3fr_0.8fr] items-end min-h-[600px] lg:min-h-[700px]">
+    <div className="relative z-10 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[1.1fr_1.3fr_0.8fr] items-end min-h-[400px] md:min-h-[600px] lg:min-h-[700px]">
 
       {/* Left: Text */}
       <motion.div
@@ -18,14 +18,14 @@ const BannerSection = () => (
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8, delay: 0.2 }}
-        className="flex flex-col justify-center items-start px-8 md:px-12 py-12 lg:py-16 order-1 text-left"
+        className="flex flex-col justify-center items-start px-5 md:px-12 py-8 md:py-12 lg:py-16 order-1 text-left"
       >
         <p className="text-white/70 text-sm font-medium mb-5 font-poppins tracking-wide">
           Sua loja automática com produtos do<br />TikTok Shop
         </p>
 
         <h2
-          className="text-4xl md:text-5xl lg:text-[3.5rem] xl:text-6xl font-black text-white tracking-tighter leading-[0.95] mb-10 font-poppins"
+          className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] xl:text-6xl font-black text-white tracking-tighter leading-[0.95] mb-6 md:mb-10 font-poppins"
           style={{ fontWeight: 900 }}
         >
           Com produtos que<br />
@@ -36,7 +36,7 @@ const BannerSection = () => (
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="group w-full sm:w-auto px-12 py-5 rounded-full bg-white text-purple-700 font-extrabold text-base tracking-tight transition-all flex items-center justify-center gap-3 shadow-[0_10px_40px_rgba(0,0,0,0.15)]"
+          className="group w-full sm:w-auto px-8 md:px-12 py-4 md:py-5 rounded-full bg-white text-purple-700 font-extrabold text-sm md:text-base tracking-tight transition-all flex items-center justify-center gap-3 shadow-[0_10px_40px_rgba(0,0,0,0.15)]"
         >
           Criar minha loja agora
           <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
@@ -58,7 +58,7 @@ const BannerSection = () => (
         <img
           src={bannerWoman}
           alt="Mulher usando celular"
-          className="h-[450px] md:h-[620px] lg:h-[750px] object-cover object-top drop-shadow-[0_20px_40px_rgba(0,0,0,0.25)]"
+          className="h-[300px] sm:h-[450px] md:h-[620px] lg:h-[750px] object-cover object-top drop-shadow-[0_20px_40px_rgba(0,0,0,0.25)]"
           style={{ objectPosition: 'top center' }}
         />
       </motion.div>
