@@ -1,37 +1,9 @@
 import { corsHeaders } from '@supabase/supabase-js/cors'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const TIKTOK_API_BASE = 'https://open-api.tiktokglobalshop.com'
 
-function generateSignature(path: string, params: Record<string, string>, secret: string, body?: string): string {
-  const sortedKeys = Object.keys(params).sort()
-  let input = ''
-  for (const key of sortedKeys) {
-    // Exclude 'sign' and 'access_token' from signature
-    if (key === 'sign' || key === 'access_token') continue
-    input += `${key}${params[key]}`
-  }
-  input = path + input
-  if (body) {
-    input += body
-  }
-  input = secret + input + secret
-
-  const encoder = new TextEncoder()
-  const keyData = encoder.encode(secret)
-  const msgData = encoder.encode(input)
-
-  // Use Web Crypto API for HMAC-SHA256
-  const cryptoKey = new Uint8Array(keyData)
-  return hmacSha256Hex(cryptoKey, msgData)
-}
-
-function hmacSha256Hex(key: Uint8Array, message: Uint8Array): string {
-  // Deno has crypto.subtle, but we need sync. Use a manual approach.
-  // Actually, we'll use async and await it.
-  throw new Error('Use async version')
-}
-
-async function generateSignatureAsync(path: string, params: Record<string, string>, secret: string, body?: string): Promise<string> {
+async function generateSignature(path: string, params: Record<string, string>, secret: string, body?: string): Promise<string> {
   const sortedKeys = Object.keys(params).sort()
   let input = ''
   for (const key of sortedKeys) {
@@ -69,34 +41,29 @@ Deno.serve(async (req) => {
     })
   }
 
-  // Get access token from DB
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!
   const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-
-  const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2')
   const supabase = createClient(supabaseUrl, supabaseKey)
 
   const { data: tokenData, error: tokenError } = await supabase
     .from('tiktok_shop_tokens')
     .select('access_token, access_token_expires_at')
     .eq('app_key', APP_KEY)
-    .single()
+    .maybeSingle()
 
   if (tokenError || !tokenData) {
-    return new Response(JSON.stringify({ error: 'TikTok Shop not connected. Please authorize first.' }), {
+    return new Response(JSON.stringify({ error: 'TikTok Shop não conectado. Autorize primeiro.' }), {
       status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }
 
-  // Check if token expired
   if (new Date(tokenData.access_token_expires_at) < new Date()) {
-    return new Response(JSON.stringify({ error: 'Access token expired. Please re-authorize.' }), {
+    return new Response(JSON.stringify({ error: 'Token expirado. Re-autorize o TikTok Shop.' }), {
       status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }
 
   try {
-    // Parse query params from request
     const url = new URL(req.url)
     const pageSize = url.searchParams.get('page_size') || '20'
     const pageNumber = url.searchParams.get('page_number') || '1'
@@ -123,7 +90,7 @@ Deno.serve(async (req) => {
       access_token: tokenData.access_token,
     }
 
-    const sign = await generateSignatureAsync(apiPath, queryParams, APP_SECRET, bodyStr)
+    const sign = await generateSignature(apiPath, queryParams, APP_SECRET, bodyStr)
 
     const queryString = new URLSearchParams({
       ...queryParams,
@@ -131,7 +98,6 @@ Deno.serve(async (req) => {
     }).toString()
 
     const apiUrl = `${TIKTOK_API_BASE}${apiPath}?${queryString}`
-
     console.log('Calling TikTok API:', apiUrl)
 
     const response = await fetch(apiUrl, {
@@ -143,7 +109,7 @@ Deno.serve(async (req) => {
     const data = await response.json()
 
     if (data.code !== 0) {
-      console.error('TikTok API error:', data)
+      console.error('TikTok API error:', JSON.stringify(data))
       return new Response(JSON.stringify({ error: data.message || 'TikTok API error', details: data }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
