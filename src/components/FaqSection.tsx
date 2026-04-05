@@ -61,16 +61,16 @@ const FaqSection = () => {
   const [openIndex, setOpenIndex] = useState(0);
 
   return (
-    <section className="relative z-10 py-24 px-6">
+    <section className="relative z-10 py-12 md:py-24 px-4 md:px-6">
       <div className="max-w-4xl mx-auto w-full">
         <div className="text-center mb-16 space-y-4">
-          <h2 className="text-5xl md:text-7xl font-black tracking-tighter leading-tight font-poppins">
+          <h2 className="text-3xl sm:text-5xl md:text-7xl font-black tracking-tighter leading-tight font-poppins">
             ANTES DE <br />
             <span className="italic text-transparent bg-clip-text bg-gradient-to-b from-purple-400 to-purple-800 uppercase tracking-tight">Começar.</span>
           </h2>
         </div>
 
-        <div className="bg-[#080808] border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl px-6 md:px-10 mb-20">
+        <div className="bg-[#080808] border border-white/5 rounded-2xl md:rounded-[2.5rem] overflow-hidden shadow-2xl px-4 md:px-10 mb-12 md:mb-20">
           {faqData.map((item, index) => (
             <AccordionItem
               key={index}
@@ -95,7 +95,7 @@ const FaqSection = () => {
           <motion.button
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
-            className="group relative px-14 py-7 rounded-[2rem] bg-white text-black font-black text-base md:text-lg uppercase tracking-widest transition-all flex items-center gap-4 mx-auto shadow-[0_30px_90px_rgba(255,255,255,0.1)]"
+            className="group relative px-8 md:px-14 py-5 md:py-7 rounded-2xl md:rounded-[2rem] bg-white text-black font-black text-sm md:text-lg uppercase tracking-wider md:tracking-widest transition-all flex items-center gap-3 md:gap-4 mx-auto shadow-[0_30px_90px_rgba(255,255,255,0.1)]"
           >
             COMEÇAR COM 1 PRODUTO AGORA <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform duration-300" />
           </motion.button>

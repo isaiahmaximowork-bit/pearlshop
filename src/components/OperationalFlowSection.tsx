@@ -28,7 +28,7 @@ const columns = [0, 1, 2, 3, 4].map(i => ({
 }));
 
 const OperationalFlowSection = () => (
-  <section className="relative z-10 w-full py-24 px-6 overflow-hidden">
+  <section className="relative z-10 w-full py-12 md:py-24 px-4 md:px-6 overflow-hidden">
     {/* ROTATING BACKGROUND THUMBNAILS */}
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       <div className="absolute inset-0 flex justify-around gap-0 opacity-[0.12]"
@@ -63,7 +63,7 @@ const OperationalFlowSection = () => (
           <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.3em]">Operational Flow</span>
         </motion.div>
         
-        <h2 className="text-5xl md:text-7xl font-extrabold tracking-tighter mb-4 font-poppins leading-tight">
+        <h2 className="text-3xl sm:text-5xl md:text-7xl font-extrabold tracking-tighter mb-4 font-poppins leading-tight">
           Veja isso <span className="italic text-gradient-purple uppercase">Acontecendo.</span>
         </h2>
         <p className="text-zinc-500 text-lg max-w-2xl mx-auto font-poppins">
@@ -74,7 +74,7 @@ const OperationalFlowSection = () => (
         </p>
       </div>
 
-      <div className="flex flex-wrap justify-center gap-6 md:gap-8">
+      <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center gap-4 md:gap-8">
         <CinematicCard 
           step="01"
           title="Escolha do Produto"
@@ -117,11 +117,11 @@ const OperationalFlowSection = () => (
         />
       </div>
 
-      <div className="mt-20 text-center">
+      <div className="mt-12 md:mt-20 text-center">
         <motion.button 
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="group px-10 py-5 rounded-2xl bg-white text-black font-extrabold text-sm uppercase tracking-widest transition-all flex items-center gap-3 mx-auto shadow-[0_20px_50px_rgba(255,255,255,0.1)]"
+          className="group px-6 md:px-10 py-4 md:py-5 rounded-2xl bg-white text-black font-extrabold text-xs md:text-sm uppercase tracking-widest transition-all flex items-center gap-3 mx-auto shadow-[0_20px_50px_rgba(255,255,255,0.1)]"
         >
           Começar com 1 produto agora <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
         </motion.button>
