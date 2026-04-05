@@ -98,22 +98,22 @@ const ReviewCard = ({ content, stats, handle, avatar, image, showBadge }: Review
 
 const allReviews: ReviewCardProps[] = [
   { handle: "@vendedor_ia", content: "postei esse vídeo sem aparecer e pegou 9.342 views em 2 dias. bizarro.", stats: { likes: "1.248", views: "9.342" }, avatar: avVendedorIa, image: imgVendedorIa, showBadge: true },
-  { handle: "@marcos_ia", content: "primeira comissão caiu hoje, bizarro como esse link da loja converte rápido 🔥", stats: { likes: "248", views: "4.102" }, avatar: avMarcosIa, image: imgMarcosIa },
-  { handle: "@m_loja", content: "bati 3 vendas no primeiro dia com 1 produto. O avatar é bizarro de real.", stats: { likes: "3.281", views: "45.210" }, avatar: avMLoja, image: imgMLoja },
-  { handle: "@lucas_ads", content: "Loja pronta em 30 segundos. Já subi o link na bio e as comissões tão caindo.", stats: { likes: "512", views: "6.742" }, avatar: avLucasAds, image: imgLucasAds },
-  { handle: "@afiliado_pro", content: "Consigo subir 20 vídeos por dia em 5 minutos. Já recuperei o investimento em 3 dias.", stats: { likes: "1.842", views: "18.109" }, avatar: avAfiliadoPro, image: imgAfiliadoPro },
-  { handle: "@user_shop", content: "Minha loja pearlshop tá convertendo 3x mais que o link direto. 12.481 acessos hoje.", stats: { likes: "967", views: "12.481" }, avatar: avUserShop, image: imgUserShop },
+  { handle: "@marcos_ia", content: "caiu minha primeira comissão hoje. surreal. nem acreditei quando vi a notificação 🔥", stats: { likes: "248", views: "4.102" }, avatar: avMarcosIa, image: imgMarcosIa },
+  { handle: "@m_loja", content: "fiz 2 vendas no primeiro dia com 1 produto. sem gravar nada.", stats: { likes: "3.281", views: "45.210" }, avatar: avMLoja, image: imgMLoja },
+  { handle: "@lucas_ads", content: "subi o link na bio e as comissões começaram a cair. loja pronta em 30 segundos.", stats: { likes: "512", views: "6.742" }, avatar: avLucasAds, image: imgLucasAds },
+  { handle: "@afiliado_pro", content: "subo 20 vídeos por dia em 5 minutos. já recuperei o investimento em 3 dias.", stats: { likes: "1.842", views: "18.109" }, avatar: avAfiliadoPro, image: imgAfiliadoPro },
+  { handle: "@user_shop", content: "tá convertendo 3x mais que o link direto. 12.481 acessos hoje.", stats: { likes: "967", views: "12.481" }, avatar: avUserShop, image: imgUserShop },
   { handle: "@t_digital", content: "subi o primeiro vídeo e já bateu 4.382 views. nem acredito.", stats: { likes: "329", views: "4.382" }, avatar: avTDigital, image: imgTDigital },
-  { handle: "@caio_afiliado", content: "o link da loja carrega muito rápido, a conversão tá monstra.", stats: { likes: "112", views: "2.109" }, avatar: avCaioAfiliado, image: imgCaioAfiliado },
-  { handle: "@ana.ugc", content: "avatares ficaram perfeitos, o tom de voz é muito natural.", stats: { likes: "894", views: "15.420" }, avatar: avAnaUgc, image: imgAnaUgc },
+  { handle: "@caio_afiliado", content: "a loja carrega muito rápido, tá convertendo muito.", stats: { likes: "112", views: "2.109" }, avatar: avCaioAfiliado, image: imgCaioAfiliado },
+  { handle: "@ana.ugc", content: "os avatares são muito reais, o tom de voz parece gente de verdade.", stats: { likes: "894", views: "15.420" }, avatar: avAnaUgc, image: imgAnaUgc },
   { handle: "@shop_master", content: "2 vendas caindo agora enquanto tô no almoço. vlw pearlshop!", stats: { likes: "541", views: "8.763" }, avatar: avShopMaster, image: imgShopMaster },
   { handle: "@gui.vendas", content: "postagem automática no reels e tiktok salvou meu dia.", stats: { likes: "201", views: "3.241" }, avatar: avGuiVendas, image: imgGuiVendas },
   { handle: "@dropship_life", content: "peguei o plano hoje e já tô com a loja ativa. prático demais.", stats: { likes: "45", views: "982" }, avatar: avDropshipLife, image: imgDropshipLife },
-  { handle: "@nanda_store", content: "bati 5.431 views no primeiro post. escala é real.", stats: { likes: "722", views: "5.431" }, avatar: avNandaStore, image: imgNandaStore },
+  { handle: "@nanda_store", content: "bati 5.431 views no primeiro post. a escala é real.", stats: { likes: "722", views: "5.431" }, avatar: avNandaStore, image: imgNandaStore },
   { handle: "@pedro.ia", content: "as expressões do avatar são sinistras de boas.", stats: { likes: "1.054", views: "22.981" }, avatar: avPedroIa, image: imgPedroIa },
   { handle: "@vivi_ia", content: "fiz minha primeira comissão de R$ 87,40 em 3h de post.", stats: { likes: "338", views: "6.102" }, avatar: avViviIa, image: imgViviIa },
-  { handle: "@thiago_af", content: "economizando umas 5h de edição por dia.", stats: { likes: "1.203", views: "14.562" }, avatar: avThiagoAf, image: imgThiagoAf },
-  { handle: "@cris_venda", content: "a inteligência de curadoria acertou o produto em cheio.", stats: { likes: "492", views: "9.210" }, avatar: avCrisVenda, image: imgCrisVenda },
+  { handle: "@thiago_af", content: "economizando umas 5h de edição por dia. absurdo.", stats: { likes: "1.203", views: "14.562" }, avatar: avThiagoAf, image: imgThiagoAf },
+  { handle: "@cris_venda", content: "a curadoria acertou o produto em cheio, tá convertendo muito.", stats: { likes: "492", views: "9.210" }, avatar: avCrisVenda, image: imgCrisVenda },
   { handle: "@rafa_digital", content: "rodando 10 perfis agora com um clique. absurdo.", stats: { likes: "2.193", views: "48.219" }, avatar: avRafaDigital, image: imgRafaDigital },
 ];
 
@@ -200,7 +200,7 @@ const ReviewSection = () => {
                 </div>
               </div>
               <p className="text-zinc-400 text-lg font-bold tracking-tight">
-                +12.000 pessoas já estão <span className="text-white">testando produtos todos os dias</span>
+                +12.000 pessoas já estão <span className="text-white">rodando isso agora</span>
               </p>
             </div>
             <motion.button
@@ -208,7 +208,7 @@ const ReviewSection = () => {
               whileTap={{ scale: 0.95 }}
               className="group px-14 py-7 rounded-[2rem] bg-white text-black font-black text-base md:text-lg uppercase tracking-widest transition-all flex items-center gap-4 shadow-[0_30px_90px_rgba(255,255,255,0.15)]"
             >
-              TESTAR COM 1 PRODUTO AGORA <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform duration-300" />
+              COMEÇAR COM 1 PRODUTO AGORA <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform duration-300" />
             </motion.button>
           </div>
         </div>
