@@ -280,14 +280,14 @@ const Index = () => {
       {/* SEÇÃO 2: OPERATIONAL FLOW */}
       <OperationalFlowSection />
 
-      {/* SEÇÃO 3: REVIEWS */}
-      <ReviewSection />
-
-      {/* SEÇÃO 4: AVATARES IA */}
+      {/* SEÇÃO 3: AVATARES IA */}
       <AvatarSection />
 
       {/* SEÇÃO 4: BANNER CTA */}
       <BannerSection />
+
+      {/* SEÇÃO 5: REVIEWS */}
+      <ReviewSection />
 
       {/* FOOTER */}
       <footer className="relative z-10 py-12 border-t border-white/5 bg-black/40">
