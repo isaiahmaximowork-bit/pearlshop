@@ -21,7 +21,7 @@ const BannerSection = () => (
         className="flex flex-col justify-center items-start px-5 md:px-12 py-8 md:py-12 lg:py-16 order-1 text-left"
       >
         <p className="text-white/70 text-sm font-medium mb-5 font-poppins tracking-wide">
-          Sua loja automática com produtos do<br />TikTok Shop
+          Tenha sua própria loja online
         </p>
 
         <h2
