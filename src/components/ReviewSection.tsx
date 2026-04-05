@@ -47,9 +47,10 @@ interface ReviewCardProps {
   avatar: string;
   image: string;
   showBadge?: boolean;
+  timeAgo?: string;
 }
 
-const ReviewCard = ({ content, stats, handle, avatar, image, showBadge }: ReviewCardProps) => {
+const ReviewCard = ({ content, stats, handle, avatar, image, showBadge, timeAgo }: ReviewCardProps) => {
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(parseInt(stats.likes.replace(/\D/g, '')));
 
@@ -71,6 +72,12 @@ const ReviewCard = ({ content, stats, handle, avatar, image, showBadge }: Review
           <div className="flex items-center gap-3">
             <img src={avatar} alt={handle} loading="lazy" width={32} height={32} className="w-8 h-8 rounded-full border border-white/10 object-cover" />
             <span className="text-zinc-500 text-xs font-bold tracking-tight">{handle}</span>
+            {timeAgo && (
+              <span className="ml-auto text-[9px] font-bold text-green-400/80 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                {timeAgo}
+              </span>
+            )}
           </div>
           <p className="text-white text-sm font-semibold leading-relaxed tracking-tight italic">"{content}"</p>
         </div>
@@ -103,15 +110,15 @@ const allReviews: ReviewCardProps[] = [
   { handle: "@lucas_ads", content: "subi o link na bio e as comissões começaram a cair. loja pronta em 30 segundos.", stats: { likes: "512", views: "6.742" }, avatar: avLucasAds, image: imgLucasAds },
   { handle: "@afiliado_pro", content: "subo 20 vídeos por dia em 5 minutos. já recuperei o investimento em 3 dias.", stats: { likes: "1.842", views: "18.109" }, avatar: avAfiliadoPro, image: imgAfiliadoPro },
   { handle: "@user_shop", content: "tá convertendo 3x mais que o link direto. 12.481 acessos hoje.", stats: { likes: "967", views: "12.481" }, avatar: avUserShop, image: imgUserShop },
-  { handle: "@t_digital", content: "subi o primeiro vídeo e já bateu 4.382 views. nem acredito.", stats: { likes: "329", views: "4.382" }, avatar: avTDigital, image: imgTDigital },
-  { handle: "@caio_afiliado", content: "a loja carrega muito rápido, tá convertendo muito.", stats: { likes: "112", views: "2.109" }, avatar: avCaioAfiliado, image: imgCaioAfiliado },
+  { handle: "@t_digital", content: "postei e do nada começou a subir view kkk nem esperava", stats: { likes: "329", views: "4.382" }, avatar: avTDigital, image: imgTDigital, timeAgo: "há 2 min" },
+  { handle: "@caio_afiliado", content: "nem mexi direito e já deu resultado. bizarro.", stats: { likes: "112", views: "2.109" }, avatar: avCaioAfiliado, image: imgCaioAfiliado },
   { handle: "@ana.ugc", content: "os avatares são muito reais, o tom de voz parece gente de verdade.", stats: { likes: "894", views: "15.420" }, avatar: avAnaUgc, image: imgAnaUgc },
-  { handle: "@shop_master", content: "2 vendas caindo agora enquanto tô no almoço. vlw pearlshop!", stats: { likes: "541", views: "8.763" }, avatar: avShopMaster, image: imgShopMaster },
+  { handle: "@shop_master", content: "2 vendas caindo agora enquanto tô no almoço. vlw pearlshop!", stats: { likes: "541", views: "8.763" }, avatar: avShopMaster, image: imgShopMaster, timeAgo: "agora" },
   { handle: "@gui.vendas", content: "postagem automática no reels e tiktok salvou meu dia.", stats: { likes: "201", views: "3.241" }, avatar: avGuiVendas, image: imgGuiVendas },
   { handle: "@dropship_life", content: "peguei o plano hoje e já tô com a loja ativa. prático demais.", stats: { likes: "45", views: "982" }, avatar: avDropshipLife, image: imgDropshipLife },
   { handle: "@nanda_store", content: "bati 5.431 views no primeiro post. a escala é real.", stats: { likes: "722", views: "5.431" }, avatar: avNandaStore, image: imgNandaStore },
   { handle: "@pedro.ia", content: "as expressões do avatar são sinistras de boas.", stats: { likes: "1.054", views: "22.981" }, avatar: avPedroIa, image: imgPedroIa },
-  { handle: "@vivi_ia", content: "fiz minha primeira comissão de R$ 87,40 em 3h de post.", stats: { likes: "338", views: "6.102" }, avatar: avViviIa, image: imgViviIa },
+  { handle: "@vivi_ia", content: "fiz minha primeira comissão de R$ 87,40 em 3h de post.", stats: { likes: "338", views: "6.102" }, avatar: avViviIa, image: imgViviIa, timeAgo: "online" },
   { handle: "@thiago_af", content: "economizando umas 5h de edição por dia. absurdo.", stats: { likes: "1.203", views: "14.562" }, avatar: avThiagoAf, image: imgThiagoAf },
   { handle: "@cris_venda", content: "a curadoria acertou o produto em cheio, tá convertendo muito.", stats: { likes: "492", views: "9.210" }, avatar: avCrisVenda, image: imgCrisVenda },
   { handle: "@rafa_digital", content: "rodando 10 perfis agora com um clique. absurdo.", stats: { likes: "2.193", views: "48.219" }, avatar: avRafaDigital, image: imgRafaDigital },
