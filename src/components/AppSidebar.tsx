@@ -1,4 +1,4 @@
-import { Home, Package, ShoppingBag, LayoutGrid } from "lucide-react";
+import { Home, Package, ShoppingBag, LayoutGrid, Settings, Link } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 
@@ -21,6 +21,10 @@ const homeItems = [
 
 const catalogItems = [
   { title: "Produtos", url: "/app/produtos", icon: ShoppingBag },
+];
+
+const settingsItems = [
+  { title: "Conexões", url: "/app/conexoes", icon: Link },
 ];
 
 export function AppSidebar() {
@@ -77,6 +81,31 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {catalogItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                    <NavLink
+                      to={item.url}
+                      className="hover:bg-sidebar-accent/50"
+                      activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                    >
+                      <item.icon className="mr-2 h-4 w-4" />
+                      {!collapsed && <span>{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>
+            <Settings className="mr-2 h-4 w-4" />
+            {!collapsed && "Opções"}
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {settingsItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)}>
                     <NavLink
