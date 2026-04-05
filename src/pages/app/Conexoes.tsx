@@ -43,7 +43,6 @@ const Conexoes = () => {
       return;
     }
 
-    const callbackUrl = `https://xrbfslmtbxmraizwuhqt.supabase.co/functions/v1/tiktok-shop-callback`;
     const authUrl = `${TIKTOK_AUTH_BASE}?app_key=${appKey}&state=pearlshop`;
 
     window.open(authUrl, "_blank", "width=600,height=700");
