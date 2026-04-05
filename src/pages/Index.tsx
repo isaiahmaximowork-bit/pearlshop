@@ -10,6 +10,7 @@ import AvatarSection from '@/components/AvatarSection';
 import BannerSection from '@/components/BannerSection';
 import ReviewSection from '@/components/ReviewSection';
 import FaqSection from '@/components/FaqSection';
+import PdfDownloadSection from '@/components/PdfDownloadSection';
 import FooterSection from '@/components/FooterSection';
 import logo from '@/assets/logo.png';
 
