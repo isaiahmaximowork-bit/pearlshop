@@ -9,6 +9,7 @@ import OperationalFlowSection from '@/components/OperationalFlowSection';
 import AvatarSection from '@/components/AvatarSection';
 import BannerSection from '@/components/BannerSection';
 import ReviewSection from '@/components/ReviewSection';
+import FaqSection from '@/components/FaqSection';
 import logo from '@/assets/logo.png';
 
 const platformNames = ["Instagram", "Facebook", "YouTube", "TikTok", "Loja Virtual"];
