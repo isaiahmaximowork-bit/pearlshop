@@ -1,4 +1,4 @@
-import { Instagram, Twitter, Linkedin, Github, ShoppingBag } from 'lucide-react';
+import { Instagram, Twitter, Linkedin, Github } from 'lucide-react';
 import logo from '@/assets/logo.png';
 import pearlpostLogo from '@/assets/pearlpost-logo.png';
 
