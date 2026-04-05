@@ -1,6 +1,6 @@
 import { 
-  Lock, UserCheck, Shield, Settings, Mail, 
-  AlertTriangle, ChevronRight, Globe, FileText, Database,
+  Lock, Shield, Mail, 
+  AlertTriangle, ChevronRight, Database,
   Zap, RefreshCw, Eye, ShieldAlert, Fingerprint, ArrowLeft
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
