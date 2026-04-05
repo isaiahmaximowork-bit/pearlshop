@@ -21,11 +21,30 @@ import imgThiagoAf from '@/assets/reviews/thiago_af.jpg';
 import imgCrisVenda from '@/assets/reviews/cris_venda.jpg';
 import imgRafaDigital from '@/assets/reviews/rafa_digital.jpg';
 
+import avVendedorIa from '@/assets/reviews/avatar_vendedor_ia.jpg';
+import avMarcosIa from '@/assets/reviews/avatar_marcos_ia.jpg';
+import avMLoja from '@/assets/reviews/avatar_m_loja.jpg';
+import avLucasAds from '@/assets/reviews/avatar_lucas_ads.jpg';
+import avAfiliadoPro from '@/assets/reviews/avatar_afiliado_pro.jpg';
+import avUserShop from '@/assets/reviews/avatar_user_shop.jpg';
+import avTDigital from '@/assets/reviews/avatar_t_digital.jpg';
+import avCaioAfiliado from '@/assets/reviews/avatar_caio_afiliado.jpg';
+import avAnaUgc from '@/assets/reviews/avatar_ana_ugc.jpg';
+import avShopMaster from '@/assets/reviews/avatar_shop_master.jpg';
+import avGuiVendas from '@/assets/reviews/avatar_gui_vendas.jpg';
+import avDropshipLife from '@/assets/reviews/avatar_dropship_life.jpg';
+import avNandaStore from '@/assets/reviews/avatar_nanda_store.jpg';
+import avPedroIa from '@/assets/reviews/avatar_pedro_ia.jpg';
+import avViviIa from '@/assets/reviews/avatar_vivi_ia.jpg';
+import avThiagoAf from '@/assets/reviews/avatar_thiago_af.jpg';
+import avCrisVenda from '@/assets/reviews/avatar_cris_venda.jpg';
+import avRafaDigital from '@/assets/reviews/avatar_rafa_digital.jpg';
+
 interface ReviewCardProps {
   content: string;
   stats: { likes: string; views: string };
   handle: string;
-  avatarColor: string;
+  avatar: string;
   image: string;
   showBadge?: boolean;
 }
