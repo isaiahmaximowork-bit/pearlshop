@@ -1,10 +1,12 @@
 import { 
-  ShieldCheck, Lock, UserCheck, Eye, Settings, Mail, 
-  AlertTriangle, Globe, FileText, Cpu, Share2, CreditCard, Cookie
+  Lock, UserCheck, Eye, Settings, Mail, 
+  AlertTriangle, Globe, FileText, Cpu, Share2, CreditCard, Cookie, ArrowLeft
 } from 'lucide-react';
-
+import { useNavigate } from 'react-router-dom';
+import logo from '@/assets/logo.png';
 
 const PrivacyPolicy = () => {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-white text-black py-20 px-6 md:px-20 font-poppins selection:bg-zinc-200">
       <div className="max-w-4xl mx-auto">
