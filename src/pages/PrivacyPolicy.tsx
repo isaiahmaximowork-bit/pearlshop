@@ -23,7 +23,6 @@ const PrivacyPolicy = () => {
         <div className="mb-16 border-b border-zinc-100 pb-12">
           <div className="flex items-center gap-3 mb-8">
             <img src={logo} alt="PearlShop.io" className="h-10 w-auto brightness-0" />
-            <span className="text-xl font-black italic tracking-tighter">PEARLSHOP</span>
           </div>
           
           <h1 className="text-5xl md:text-8xl font-bold tracking-tighter mb-6 leading-none text-black" style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}>
