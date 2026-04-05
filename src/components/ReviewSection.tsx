@@ -2,6 +2,25 @@ import { useState } from 'react';
 import { Heart, Eye, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+import imgVendedorIa from '@/assets/reviews/vendedor_ia.jpg';
+import imgMarcosIa from '@/assets/reviews/marcos_ia.jpg';
+import imgMLoja from '@/assets/reviews/m_loja.jpg';
+import imgLucasAds from '@/assets/reviews/lucas_ads.jpg';
+import imgAfiliadoPro from '@/assets/reviews/afiliado_pro.jpg';
+import imgUserShop from '@/assets/reviews/user_shop.jpg';
+import imgTDigital from '@/assets/reviews/t_digital.jpg';
+import imgCaioAfiliado from '@/assets/reviews/caio_afiliado.jpg';
+import imgAnaUgc from '@/assets/reviews/ana_ugc.jpg';
+import imgShopMaster from '@/assets/reviews/shop_master.jpg';
+import imgGuiVendas from '@/assets/reviews/gui_vendas.jpg';
+import imgDropshipLife from '@/assets/reviews/dropship_life.jpg';
+import imgNandaStore from '@/assets/reviews/nanda_store.jpg';
+import imgPedroIa from '@/assets/reviews/pedro_ia.jpg';
+import imgViviIa from '@/assets/reviews/vivi_ia.jpg';
+import imgThiagoAf from '@/assets/reviews/thiago_af.jpg';
+import imgCrisVenda from '@/assets/reviews/cris_venda.jpg';
+import imgRafaDigital from '@/assets/reviews/rafa_digital.jpg';
+
 interface ReviewCardProps {
   content: string;
   stats: { likes: string; views: string };
@@ -25,7 +44,7 @@ const ReviewCard = ({ content, stats, handle, avatarColor, image, showBadge }: R
   return (
     <div className="relative shrink-0 w-[320px] group bg-[#0c0c0c] border border-white/5 rounded-[2rem] overflow-hidden shadow-2xl hover:border-purple-500/30 transition-all duration-500 mx-4">
       <div className="absolute inset-0 z-0">
-        <img src={image} alt="Post" className="w-full h-full object-cover opacity-20 grayscale group-hover:opacity-40 group-hover:grayscale-0 transition-all duration-700" />
+        <img src={image} alt="Post" loading="lazy" width={512} height={640} className="w-full h-full object-cover opacity-20 grayscale group-hover:opacity-40 group-hover:grayscale-0 transition-all duration-700" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0c] via-[#0c0c0c]/80 to-transparent" />
       </div>
       <div className="relative z-10 p-6 flex flex-col h-full justify-between min-h-[240px]">
@@ -61,24 +80,24 @@ const ReviewCard = ({ content, stats, handle, avatarColor, image, showBadge }: R
 };
 
 const allReviews: ReviewCardProps[] = [
-  { handle: "@vendedor_ia", content: "postei esse vídeo sem aparecer e pegou 9.342 views em 2 dias. bizarro.", stats: { likes: "1.248", views: "9.342" }, avatarColor: "bg-blue-600", image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400", showBadge: true },
-  { handle: "@marcos_ia", content: "primeira comissão caiu hoje, bizarro como esse link da loja converte rápido 🔥", stats: { likes: "248", views: "4.102" }, avatarColor: "bg-purple-600", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400" },
-  { handle: "@m_loja", content: "bati 3 vendas no primeiro dia com 1 produto. O avatar é bizarro de real.", stats: { likes: "3.281", views: "45.210" }, avatarColor: "bg-emerald-600", image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400" },
-  { handle: "@lucas_ads", content: "Loja pronta em 30 segundos. Já subi o link na bio e as comissões tão caindo.", stats: { likes: "512", views: "6.742" }, avatarColor: "bg-orange-600", image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=400" },
-  { handle: "@afiliado_pro", content: "Consigo subir 20 vídeos por dia em 5 minutos. Já recuperei o investimento em 3 dias.", stats: { likes: "1.842", views: "18.109" }, avatarColor: "bg-indigo-600", image: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&q=80&w=400" },
-  { handle: "@user_shop", content: "Minha loja pearlshop tá convertendo 3x mais que o link direto. 12.481 acessos hoje.", stats: { likes: "967", views: "12.481" }, avatarColor: "bg-rose-600", image: "https://images.unsplash.com/photo-1491553895911-0055eca6402d?auto=format&fit=crop&q=80&w=400" },
-  { handle: "@t_digital", content: "subi o primeiro vídeo e já bateu 4.382 views. nem acredito.", stats: { likes: "329", views: "4.382" }, avatarColor: "bg-cyan-600", image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400" },
-  { handle: "@caio_afiliado", content: "o link da loja carrega muito rápido, a conversão tá monstra.", stats: { likes: "112", views: "2.109" }, avatarColor: "bg-amber-600", image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400" },
-  { handle: "@ana.ugc", content: "avatares ficaram perfeitos, o tom de voz é muito natural.", stats: { likes: "894", views: "15.420" }, avatarColor: "bg-pink-600", image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400" },
-  { handle: "@shop_master", content: "2 vendas caindo agora enquanto tô no almoço. vlw pearlshop!", stats: { likes: "541", views: "8.763" }, avatarColor: "bg-yellow-600", image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=400" },
-  { handle: "@gui.vendas", content: "postagem automática no reels e tiktok salvou meu dia.", stats: { likes: "201", views: "3.241" }, avatarColor: "bg-teal-600", image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400" },
-  { handle: "@dropship_life", content: "peguei o plano hoje e já tô com a loja ativa. prático demais.", stats: { likes: "45", views: "982" }, avatarColor: "bg-lime-600", image: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&q=80&w=400" },
-  { handle: "@nanda_store", content: "bati 5.431 views no primeiro post. escala é real.", stats: { likes: "722", views: "5.431" }, avatarColor: "bg-violet-600", image: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&q=80&w=400" },
-  { handle: "@pedro.ia", content: "as expressões do avatar são sinistras de boas.", stats: { likes: "1.054", views: "22.981" }, avatarColor: "bg-slate-600", image: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=400" },
-  { handle: "@vivi_ia", content: "fiz minha primeira comissão de R$ 87,40 em 3h de post.", stats: { likes: "338", views: "6.102" }, avatarColor: "bg-fuchsia-600", image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=400" },
-  { handle: "@thiago_af", content: "economizando umas 5h de edição por dia.", stats: { likes: "1.203", views: "14.562" }, avatarColor: "bg-red-600", image: "https://images.unsplash.com/photo-1488161628813-04466f872be2?auto=format&fit=crop&q=80&w=400" },
-  { handle: "@cris_venda", content: "a inteligência de curadoria acertou o produto em cheio.", stats: { likes: "492", views: "9.210" }, avatarColor: "bg-emerald-700", image: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&q=80&w=400" },
-  { handle: "@rafa_digital", content: "rodando 10 perfis agora com um clique. absurdo.", stats: { likes: "2.193", views: "48.219" }, avatarColor: "bg-sky-600", image: "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&q=80&w=400" },
+  { handle: "@vendedor_ia", content: "postei esse vídeo sem aparecer e pegou 9.342 views em 2 dias. bizarro.", stats: { likes: "1.248", views: "9.342" }, avatarColor: "bg-blue-600", image: imgVendedorIa, showBadge: true },
+  { handle: "@marcos_ia", content: "primeira comissão caiu hoje, bizarro como esse link da loja converte rápido 🔥", stats: { likes: "248", views: "4.102" }, avatarColor: "bg-purple-600", image: imgMarcosIa },
+  { handle: "@m_loja", content: "bati 3 vendas no primeiro dia com 1 produto. O avatar é bizarro de real.", stats: { likes: "3.281", views: "45.210" }, avatarColor: "bg-emerald-600", image: imgMLoja },
+  { handle: "@lucas_ads", content: "Loja pronta em 30 segundos. Já subi o link na bio e as comissões tão caindo.", stats: { likes: "512", views: "6.742" }, avatarColor: "bg-orange-600", image: imgLucasAds },
+  { handle: "@afiliado_pro", content: "Consigo subir 20 vídeos por dia em 5 minutos. Já recuperei o investimento em 3 dias.", stats: { likes: "1.842", views: "18.109" }, avatarColor: "bg-indigo-600", image: imgAfiliadoPro },
+  { handle: "@user_shop", content: "Minha loja pearlshop tá convertendo 3x mais que o link direto. 12.481 acessos hoje.", stats: { likes: "967", views: "12.481" }, avatarColor: "bg-rose-600", image: imgUserShop },
+  { handle: "@t_digital", content: "subi o primeiro vídeo e já bateu 4.382 views. nem acredito.", stats: { likes: "329", views: "4.382" }, avatarColor: "bg-cyan-600", image: imgTDigital },
+  { handle: "@caio_afiliado", content: "o link da loja carrega muito rápido, a conversão tá monstra.", stats: { likes: "112", views: "2.109" }, avatarColor: "bg-amber-600", image: imgCaioAfiliado },
+  { handle: "@ana.ugc", content: "avatares ficaram perfeitos, o tom de voz é muito natural.", stats: { likes: "894", views: "15.420" }, avatarColor: "bg-pink-600", image: imgAnaUgc },
+  { handle: "@shop_master", content: "2 vendas caindo agora enquanto tô no almoço. vlw pearlshop!", stats: { likes: "541", views: "8.763" }, avatarColor: "bg-yellow-600", image: imgShopMaster },
+  { handle: "@gui.vendas", content: "postagem automática no reels e tiktok salvou meu dia.", stats: { likes: "201", views: "3.241" }, avatarColor: "bg-teal-600", image: imgGuiVendas },
+  { handle: "@dropship_life", content: "peguei o plano hoje e já tô com a loja ativa. prático demais.", stats: { likes: "45", views: "982" }, avatarColor: "bg-lime-600", image: imgDropshipLife },
+  { handle: "@nanda_store", content: "bati 5.431 views no primeiro post. escala é real.", stats: { likes: "722", views: "5.431" }, avatarColor: "bg-violet-600", image: imgNandaStore },
+  { handle: "@pedro.ia", content: "as expressões do avatar são sinistras de boas.", stats: { likes: "1.054", views: "22.981" }, avatarColor: "bg-slate-600", image: imgPedroIa },
+  { handle: "@vivi_ia", content: "fiz minha primeira comissão de R$ 87,40 em 3h de post.", stats: { likes: "338", views: "6.102" }, avatarColor: "bg-fuchsia-600", image: imgViviIa },
+  { handle: "@thiago_af", content: "economizando umas 5h de edição por dia.", stats: { likes: "1.203", views: "14.562" }, avatarColor: "bg-red-600", image: imgThiagoAf },
+  { handle: "@cris_venda", content: "a inteligência de curadoria acertou o produto em cheio.", stats: { likes: "492", views: "9.210" }, avatarColor: "bg-emerald-700", image: imgCrisVenda },
+  { handle: "@rafa_digital", content: "rodando 10 perfis agora com um clique. absurdo.", stats: { likes: "2.193", views: "48.219" }, avatarColor: "bg-sky-600", image: imgRafaDigital },
 ];
 
 const row1 = allReviews.slice(0, 9);
@@ -112,7 +131,6 @@ const ReviewSection = () => {
       `}</style>
 
       <div className="w-full max-w-[1600px] mx-auto">
-        {/* HEADER */}
         <div className="text-center mb-20 space-y-6 px-6">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -134,7 +152,6 @@ const ReviewSection = () => {
           </p>
         </div>
 
-        {/* MARQUEE ROWS */}
         <div className="space-y-12 mask-fade overflow-hidden py-10">
           <div className="relative flex overflow-hidden">
             <div className="flex animate-marquee-left pause-on-hover">
@@ -152,14 +169,13 @@ const ReviewSection = () => {
           </div>
         </div>
 
-        {/* CTA */}
         <div className="mt-24 text-center">
           <div className="inline-flex flex-col items-center gap-8">
             <div className="flex flex-col items-center gap-4">
               <div className="flex -space-x-4">
                 {[1, 2, 3, 4, 5].map(i => (
                   <div key={i} className="w-12 h-12 rounded-full border-4 border-[#020105] bg-zinc-800 overflow-hidden shadow-xl">
-                    <img src={`https://i.pravatar.cc/100?u=user${i}`} alt="user" />
+                    <img src={`https://i.pravatar.cc/100?u=user${i}`} alt="user" loading="lazy" />
                   </div>
                 ))}
                 <div className="w-12 h-12 rounded-full border-4 border-[#020105] bg-purple-600 flex items-center justify-center text-[10px] font-black shadow-xl">
