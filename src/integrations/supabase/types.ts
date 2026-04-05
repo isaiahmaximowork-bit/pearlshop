@@ -14,7 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      tiktok_shop_tokens: {
+        Row: {
+          access_token: string
+          access_token_expires_at: string
+          app_key: string
+          created_at: string
+          id: string
+          refresh_token: string
+          refresh_token_expires_at: string
+          updated_at: string
+        }
+        Insert: {
+          access_token: string
+          access_token_expires_at: string
+          app_key: string
+          created_at?: string
+          id?: string
+          refresh_token: string
+          refresh_token_expires_at: string
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string
+          access_token_expires_at?: string
+          app_key?: string
+          created_at?: string
+          id?: string
+          refresh_token?: string
+          refresh_token_expires_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
