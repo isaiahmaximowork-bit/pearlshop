@@ -133,10 +133,10 @@ const ReviewSection = () => {
           100% { transform: translateX(0); }
         }
         .animate-marquee-left {
-          animation: marquee-left 40s linear infinite;
+          animation: marquee-left 60s linear infinite;
         }
         .animate-marquee-right {
-          animation: marquee-right 40s linear infinite;
+          animation: marquee-right 60s linear infinite;
         }
         .pause-on-hover:hover {
           animation-play-state: paused;
@@ -145,6 +145,16 @@ const ReviewSection = () => {
           mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
           -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
         }
+        @keyframes card-float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-6px); }
+        }
+        .review-card-float {
+          animation: card-float 4s ease-in-out infinite;
+        }
+        .review-card-float:nth-child(2n) { animation-delay: 0.5s; }
+        .review-card-float:nth-child(3n) { animation-delay: 1s; }
+        .review-card-float:nth-child(5n) { animation-delay: 1.5s; }
       `}</style>
 
       <div className="w-full max-w-[1600px] mx-auto">
