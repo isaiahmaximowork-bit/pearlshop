@@ -91,7 +91,7 @@ const FooterSection = () => {
 
         {/* By PearlPost */}
         <a href="https://pearlpost.io" target="_blank" rel="noopener noreferrer" className="mt-14 flex items-center justify-center gap-3 group cursor-pointer hover:opacity-80 transition-opacity">
-          <span className="text-sm font-black text-zinc-500 uppercase tracking-[0.3em]">By</span>
+          <span className="text-sm font-black text-zinc-500 uppercase tracking-[0.3em]">Powered By</span>
           <img src={pearlpostLogo} alt="PearlPost.io" className="h-8 w-auto" />
         </a>
       </div>
