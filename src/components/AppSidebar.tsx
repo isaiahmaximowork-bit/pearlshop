@@ -43,7 +43,7 @@ export function AppSidebar() {
           )}
         </div>
 
-        <SidebarGroup defaultOpen>
+        <SidebarGroup>
           <SidebarGroupLabel>
             <LayoutGrid className="mr-2 h-4 w-4" />
             {!collapsed && "Home"}
@@ -69,7 +69,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup defaultOpen>
+        <SidebarGroup>
           <SidebarGroupLabel>
             <ShoppingBag className="mr-2 h-4 w-4" />
             {!collapsed && "Catálogos"}
