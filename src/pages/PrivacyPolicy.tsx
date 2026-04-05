@@ -8,12 +8,19 @@ const PrivacyPolicy = () => {
   return (
     <div className="min-h-screen bg-white text-black py-20 px-6 md:px-20 font-poppins selection:bg-zinc-200">
       <div className="max-w-4xl mx-auto">
+        {/* BOTÃO VOLTAR */}
+        <button 
+          onClick={() => navigate('/')}
+          className="flex items-center gap-2 text-zinc-400 hover:text-black transition-colors mb-10 group"
+        >
+          <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+          <span className="text-sm font-bold uppercase tracking-widest">Voltar</span>
+        </button>
+
         {/* CABEÇALHO DA PÁGINA */}
         <div className="mb-16 border-b border-zinc-100 pb-12">
-          <div className="flex items-center gap-2 mb-8">
-            <div className="w-10 h-10 bg-black rounded-xl flex items-center justify-center text-white shadow-lg">
-              <ShieldCheck size={24} />
-            </div>
+          <div className="flex items-center gap-3 mb-8">
+            <img src={logo} alt="PearlShop.io" className="h-10 w-auto brightness-0" />
             <span className="text-xl font-black italic tracking-tighter">PEARLSHOP</span>
           </div>
           
