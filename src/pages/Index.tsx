@@ -295,6 +295,8 @@ const Index = () => {
       {/* SEÇÃO 6: FAQ */}
       <FaqSection />
 
+      <PdfDownloadSection />
+
       <FooterSection />
     </div>
   );
