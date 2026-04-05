@@ -61,7 +61,7 @@ const ReviewCard = ({ content, stats, handle, avatar, image, showBadge }: Review
   };
 
   return (
-    <div className="relative shrink-0 w-[320px] group bg-[#0c0c0c] border border-white/5 rounded-[2rem] overflow-hidden shadow-2xl hover:border-purple-500/30 transition-all duration-500 mx-4">
+    <div className="relative shrink-0 w-[320px] group bg-[#0c0c0c] border border-white/5 rounded-[2rem] overflow-hidden shadow-2xl hover:border-purple-500/30 transition-all duration-500 mx-4 review-card-float">
       <div className="absolute inset-0 z-0">
         <img src={image} alt="Post" loading="lazy" width={512} height={640} className="w-full h-full object-cover opacity-20 grayscale group-hover:opacity-40 group-hover:grayscale-0 transition-all duration-700" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0c] via-[#0c0c0c]/80 to-transparent" />
