@@ -1,0 +1,1 @@
+ALTER TABLE public.tiktok_shop_tokens ADD COLUMN IF NOT EXISTS shop_cipher text, ADD COLUMN IF NOT EXISTS open_id text, ADD COLUMN IF NOT EXISTS seller_name text, ADD COLUMN IF NOT EXISTS seller_base_region text;

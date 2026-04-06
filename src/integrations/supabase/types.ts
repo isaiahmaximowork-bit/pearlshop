@@ -21,8 +21,12 @@ export type Database = {
           app_key: string
           created_at: string
           id: string
+          open_id: string | null
           refresh_token: string
           refresh_token_expires_at: string
+          seller_base_region: string | null
+          seller_name: string | null
+          shop_cipher: string | null
           updated_at: string
         }
         Insert: {
@@ -31,8 +35,12 @@ export type Database = {
           app_key: string
           created_at?: string
           id?: string
+          open_id?: string | null
           refresh_token: string
           refresh_token_expires_at: string
+          seller_base_region?: string | null
+          seller_name?: string | null
+          shop_cipher?: string | null
           updated_at?: string
         }
         Update: {
@@ -41,8 +49,12 @@ export type Database = {
           app_key?: string
           created_at?: string
           id?: string
+          open_id?: string | null
           refresh_token?: string
           refresh_token_expires_at?: string
+          seller_base_region?: string | null
+          seller_name?: string | null
+          shop_cipher?: string | null
           updated_at?: string
         }
         Relationships: []
