@@ -51,13 +51,39 @@ Deno.serve(async (req) => {
 
     const { access_token, refresh_token, access_token_expire_in, refresh_token_expire_in, open_id, seller_name, seller_base_region } = tokenData.data
 
-    // Get authorized shops to retrieve shop_cipher
+    // Get authorized shops to retrieve shop_cipher via Open API v202309
     let shopCipher = null
     try {
-      const shopsResponse = await fetch(`https://auth.tiktok-shops.com/api/v2/shops?app_key=${APP_KEY}&app_secret=${APP_SECRET}&access_token=${access_token}`, {
-        method: 'GET',
-      })
+      const shopsPath = '/authorization/202309/shops'
+      const shopsTimestamp = Math.floor(Date.now() / 1000).toString()
+      const shopsParams: Record<string, string> = {
+        app_key: APP_KEY,
+        timestamp: shopsTimestamp,
+      }
+      // Generate signature for shops endpoint
+      const sortedKeys = Object.keys(shopsParams).sort()
+      let signInput = shopsPath
+      for (const key of sortedKeys) {
+        signInput += `${key}${shopsParams[key]}`
+      }
+      signInput = APP_SECRET + signInput + APP_SECRET
+      const encoder = new TextEncoder()
+      const keyData = encoder.encode(APP_SECRET)
+      const msgData = encoder.encode(signInput)
+      const cryptoKey = await crypto.subtle.importKey('raw', keyData, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
+      const sig = await crypto.subtle.sign('HMAC', cryptoKey, msgData)
+      const shopSign = Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('')
+
+      const shopsUrl = `https://open-api.tiktokglobalshop.com${shopsPath}?${new URLSearchParams({
+        ...shopsParams,
+        sign: shopSign,
+        access_token: access_token,
+      }).toString()}`
+      console.log('Fetching shops from:', shopsUrl)
+
+      const shopsResponse = await fetch(shopsUrl, { method: 'GET' })
       const shopsData = await shopsResponse.json()
+      console.log('Shops response:', JSON.stringify(shopsData))
       if (shopsData.code === 0 && shopsData.data?.shops?.length > 0) {
         shopCipher = shopsData.data.shops[0].cipher
         console.log('Got shop_cipher:', shopCipher)
