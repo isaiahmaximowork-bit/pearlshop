@@ -50,7 +50,7 @@ Deno.serve(async (req) => {
 
   const { data: tokenData, error: tokenError } = await supabase
     .from('tiktok_shop_tokens')
-    .select('access_token, access_token_expires_at')
+    .select('access_token, access_token_expires_at, shop_cipher')
     .eq('app_key', APP_KEY)
     .maybeSingle()
 
@@ -61,7 +61,13 @@ Deno.serve(async (req) => {
   }
 
   if (new Date(tokenData.access_token_expires_at) < new Date()) {
-    return new Response(JSON.stringify({ error: 'Token expirado. Re-autorize o TikTok Shop.' }), {
+    return new Response(JSON.stringify({ error: 'Token expirado. Re-autorize o TikTok Shop.', expired: true }), {
+      status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
+
+  if (!tokenData.shop_cipher) {
+    return new Response(JSON.stringify({ error: 'shop_cipher não encontrado. Re-autorize o TikTok Shop.' }), {
       status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }
@@ -91,6 +97,7 @@ Deno.serve(async (req) => {
       timestamp,
       version: '202309',
       access_token: tokenData.access_token,
+      shop_cipher: tokenData.shop_cipher,
     }
 
     const sign = await generateSignature(apiPath, queryParams, APP_SECRET, bodyStr)

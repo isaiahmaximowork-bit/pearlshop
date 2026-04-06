@@ -49,7 +49,24 @@ Deno.serve(async (req) => {
       })
     }
 
-    const { access_token, refresh_token, access_token_expire_in, refresh_token_expire_in } = tokenData.data
+    const { access_token, refresh_token, access_token_expire_in, refresh_token_expire_in, open_id, seller_name, seller_base_region } = tokenData.data
+
+    // Get authorized shops to retrieve shop_cipher
+    let shopCipher = null
+    try {
+      const shopsResponse = await fetch(`https://auth.tiktok-shops.com/api/v2/shops?app_key=${APP_KEY}&app_secret=${APP_SECRET}&access_token=${access_token}`, {
+        method: 'GET',
+      })
+      const shopsData = await shopsResponse.json()
+      if (shopsData.code === 0 && shopsData.data?.shops?.length > 0) {
+        shopCipher = shopsData.data.shops[0].cipher
+        console.log('Got shop_cipher:', shopCipher)
+      } else {
+        console.log('No shops found or error:', JSON.stringify(shopsData))
+      }
+    } catch (e) {
+      console.error('Error fetching shops:', e)
+    }
 
     // Store tokens in Supabase
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
@@ -65,6 +82,10 @@ Deno.serve(async (req) => {
         access_token_expires_at: new Date(Date.now() + access_token_expire_in * 1000).toISOString(),
         refresh_token_expires_at: new Date(Date.now() + refresh_token_expire_in * 1000).toISOString(),
         updated_at: new Date().toISOString(),
+        open_id: open_id || null,
+        seller_name: seller_name || null,
+        seller_base_region: seller_base_region || null,
+        shop_cipher: shopCipher,
       }, { onConflict: 'app_key' })
 
     if (dbError) {
