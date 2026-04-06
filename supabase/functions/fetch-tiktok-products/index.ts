@@ -162,7 +162,7 @@ Deno.serve(async (req) => {
       image_url: p.main_images?.[0]?.urls?.[0] || p.main_images?.[0]?.url || null,
       source_platform: 'tiktok_shop',
       shop_cipher: shopCipher,
-      status: p.status === 4 ? 'active' : 'inactive',
+      status: (p.status === 'ACTIVATE' || p.status === 4) ? 'active' : 'inactive',
       raw_payload: p,
     }))
 

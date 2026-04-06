@@ -78,12 +78,14 @@ const Produtos = () => {
 
   const getPrice = (product: CatalogProduct) => {
     const payload = product.raw_payload as Record<string, unknown> | null;
-    const skus = payload?.skus as Array<{ price?: { sale_price?: string; currency?: string } }> | undefined;
+    const skus = payload?.skus as Array<{ price?: { sale_price?: string; tax_exclusive_price?: string; currency?: string } }> | undefined;
     if (!skus?.length) return "—";
-    const price = skus[0]?.price?.sale_price;
-    const currency = skus[0]?.price?.currency || "USD";
+    const sku = skus[0]?.price;
+    const price = sku?.sale_price || sku?.tax_exclusive_price;
+    const currency = sku?.currency || "BRL";
     if (!price) return "—";
-    return `${currency} ${(parseInt(price) / 100).toFixed(2)}`;
+    const numPrice = parseFloat(price);
+    return `${currency} ${numPrice.toFixed(2)}`;
   };
 
   return (
