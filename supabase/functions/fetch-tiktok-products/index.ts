@@ -119,7 +119,6 @@ Deno.serve(async (req) => {
     const queryParams: Record<string, string> = {
       app_key: APP_KEY,
       timestamp,
-      version: '202309',
       shop_cipher: shopCipher,
     }
 
