@@ -5,7 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 
-const TIKTOK_AUTH_BASE = "https://auth.tiktok-shops.com/oauth/authorize";
+const TIKTOK_SERVICE_ID = "7494557571014297434";
+const TIKTOK_AUTH_BASE = "https://services.tiktokshop.com/open/authorize";
 
 const Conexoes = () => {
   const [isConnecting, setIsConnecting] = useState(false);
@@ -36,20 +37,15 @@ const Conexoes = () => {
 
   const handleConnect = () => {
     setIsConnecting(true);
-    // Open TikTok Shop OAuth in a new window
-    const appKey = prompt("Digite seu TikTok Shop App Key:");
-    if (!appKey) {
-      setIsConnecting(false);
-      return;
-    }
 
-    const authUrl = `${TIKTOK_AUTH_BASE}?app_key=${appKey}&state=pearlshop`;
+    const authUrl = `${TIKTOK_AUTH_BASE}?service_id=${TIKTOK_SERVICE_ID}&state=pearlshop`;
 
     window.open(authUrl, "_blank", "width=600,height=700");
     setIsConnecting(false);
 
     // Poll for connection status after a delay
-    setTimeout(() => refetch(), 10000);
+    const interval = setInterval(() => refetch(), 5000);
+    setTimeout(() => clearInterval(interval), 60000);
   };
 
   const formatDate = (dateStr: string | null) => {
