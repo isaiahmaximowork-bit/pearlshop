@@ -113,14 +113,16 @@ Deno.serve(async (req) => {
     const apiPath = '/product/202309/products/search'
     const timestamp = Math.floor(Date.now() / 1000).toString()
 
-    const requestBody = { page_size: 50 }
-    const bodyStr = JSON.stringify(requestBody)
-
+    // page_size goes as query param, NOT in body (per TikTok API v202309 spec)
     const queryParams: Record<string, string> = {
       app_key: APP_KEY,
       timestamp,
       shop_cipher: shopCipher,
+      page_size: '50',
     }
+
+    // Body is empty object for search without filters
+    const bodyStr = JSON.stringify({})
 
     const sign = await generateSignature(apiPath, queryParams, APP_SECRET, bodyStr)
 
