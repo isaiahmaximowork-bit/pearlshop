@@ -40,7 +40,10 @@ async function fetchShopCipher(appKey: string, appSecret: string, accessToken: s
   const url = `${TIKTOK_API_BASE}${apiPath}?${new URLSearchParams({ ...queryParams, sign, access_token: accessToken }).toString()}`
   console.log('Fetching authorized shops:', url)
 
-  const res = await fetch(url, { method: 'GET' })
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: { 'x-tts-access-token': accessToken },
+  })
   const data = await res.json()
   console.log('Authorized shops response:', JSON.stringify(data))
 
@@ -132,7 +135,10 @@ Deno.serve(async (req) => {
 
     const response = await fetch(apiUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-tts-access-token': tokenData.access_token,
+      },
       body: bodyStr,
     })
 
