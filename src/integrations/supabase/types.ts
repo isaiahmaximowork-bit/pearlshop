@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      catalog_products: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string | null
+          product_id: string
+          product_name: string
+          raw_payload: Json | null
+          shop_cipher: string | null
+          source_platform: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          product_id: string
+          product_name: string
+          raw_payload?: Json | null
+          shop_cipher?: string | null
+          source_platform?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          product_id?: string
+          product_name?: string
+          raw_payload?: Json | null
+          shop_cipher?: string | null
+          source_platform?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       tiktok_shop_tokens: {
         Row: {
           access_token: string

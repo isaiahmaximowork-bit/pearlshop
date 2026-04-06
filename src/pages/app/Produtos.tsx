@@ -4,73 +4,110 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, Package, RefreshCw, AlertCircle } from "lucide-react";
+import { Search, Package, RefreshCw, AlertCircle, Download } from "lucide-react";
+import { toast } from "sonner";
 
-interface TikTokProduct {
+interface CatalogProduct {
   id: string;
-  title: string;
-  status: number;
-  skus?: Array<{
-    id: string;
-    price?: { sale_price?: string; currency?: string };
-  }>;
-  main_images?: Array<{ url: string }>;
-  create_time?: number;
+  product_id: string;
+  product_name: string;
+  image_url: string | null;
+  source_platform: string;
+  status: string;
+  created_at: string;
+  raw_payload: Record<string, unknown> | null;
 }
 
-const fetchProducts = async (page: number, search: string) => {
-  const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
-  const url = `https://${projectId}.supabase.co/functions/v1/tiktok-shop-products?page_number=${page}&page_size=20&search=${encodeURIComponent(search)}`;
+const Produtos = () => {
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
+  const [isImporting, setIsImporting] = useState(false);
 
-  const { data: { session } } = await supabase.auth.getSession();
+  // Fetch from catalog_products table
+  const { data: products = [], isLoading, error, refetch } = useQuery({
+    queryKey: ["catalog-products", search],
+    queryFn: async () => {
+      let query = supabase
+        .from("catalog_products")
+        .select("*")
+        .eq("source_platform", "tiktok_shop")
+        .order("created_at", { ascending: false });
 
-  const response = await fetch(url, {
-    headers: {
-      'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-      'Content-Type': 'application/json',
+      if (search) {
+        query = query.ilike("product_name", `%${search}%`);
+      }
+
+      const { data, error } = await query;
+      if (error) throw new Error(error.message);
+      return (data || []) as CatalogProduct[];
     },
   });
 
-  if (!response.ok) {
-    const err = await response.json();
-    throw new Error(err.error || 'Erro ao buscar produtos');
-  }
+  const handleImport = async () => {
+    setIsImporting(true);
+    try {
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      const url = `https://${projectId}.supabase.co/functions/v1/fetch-tiktok-products`;
 
-  return response.json();
-};
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          "Content-Type": "application/json",
+        },
+      });
 
-const Produtos = () => {
-  const [search, setSearch] = useState("");
-  const [searchInput, setSearchInput] = useState("");
-  const [page, setPage] = useState(1);
+      const result = await response.json();
 
-  const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["tiktok-products", page, search],
-    queryFn: () => fetchProducts(page, search),
-  });
+      if (!response.ok) {
+        throw new Error(result.error || "Erro ao importar produtos");
+      }
 
-  const products: TikTokProduct[] = data?.data?.products || [];
-  const totalCount = data?.data?.total_count || 0;
-  const totalPages = Math.ceil(totalCount / 20);
+      toast.success(`${result.imported || 0} produtos importados com sucesso!`);
+      refetch();
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setIsImporting(false);
+    }
+  };
 
   const handleSearch = () => {
     setSearch(searchInput);
-    setPage(1);
   };
 
-  const formatPrice = (skus?: TikTokProduct["skus"]) => {
+  const getPrice = (product: CatalogProduct) => {
+    const payload = product.raw_payload as Record<string, unknown> | null;
+    const skus = payload?.skus as Array<{ price?: { sale_price?: string; tax_exclusive_price?: string; currency?: string } }> | undefined;
     if (!skus?.length) return "—";
-    const price = skus[0]?.price?.sale_price;
-    const currency = skus[0]?.price?.currency || "USD";
+    const sku = skus[0]?.price;
+    const price = sku?.sale_price || sku?.tax_exclusive_price;
+    const currency = sku?.currency || "BRL";
     if (!price) return "—";
-    return `${currency} ${(parseInt(price) / 100).toFixed(2)}`;
+    const numPrice = parseFloat(price);
+    return `${currency} ${numPrice.toFixed(2)}`;
   };
 
   return (
     <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Catálogo de Produtos</h1>
-        <p className="text-muted-foreground mt-1">Produtos disponíveis no TikTok Shop para se afiliar.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Catálogo de Produtos</h1>
+          <p className="text-muted-foreground mt-1">Produtos importados do TikTok Shop.</p>
+        </div>
+        <Button onClick={handleImport} disabled={isImporting}>
+          {isImporting ? (
+            <>
+              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+              Importando...
+            </>
+          ) : (
+            <>
+              <Download className="mr-2 h-4 w-4" />
+              Importar do TikTok
+            </>
+          )}
+        </Button>
       </div>
 
       {/* Search bar */}
@@ -85,9 +122,7 @@ const Produtos = () => {
             className="pl-9"
           />
         </div>
-        <Button onClick={handleSearch} variant="secondary">
-          Buscar
-        </Button>
+        <Button onClick={handleSearch} variant="secondary">Buscar</Button>
         <Button onClick={() => refetch()} variant="outline" size="icon">
           <RefreshCw className="h-4 w-4" />
         </Button>
@@ -123,22 +158,22 @@ const Produtos = () => {
           {products.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
               <Package className="h-12 w-12 mb-4 opacity-50" />
-              <p className="text-lg font-medium">Nenhum produto encontrado</p>
-              <p className="text-sm">Tente buscar com outros termos ou verifique a conexão com o TikTok Shop.</p>
+              <p className="text-lg font-medium">Nenhum produto no catálogo</p>
+              <p className="text-sm">Clique em "Importar do TikTok" para buscar os produtos da sua loja.</p>
             </div>
           ) : (
             <>
-              <p className="text-sm text-muted-foreground">{totalCount} produtos encontrados</p>
+              <p className="text-sm text-muted-foreground">{products.length} produtos no catálogo</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {products.map((product) => (
                   <div
                     key={product.id}
                     className="rounded-lg border bg-card hover:shadow-md transition-shadow overflow-hidden"
                   >
-                    {product.main_images?.[0]?.url ? (
+                    {product.image_url ? (
                       <img
-                        src={product.main_images[0].url}
-                        alt={product.title}
+                        src={product.image_url}
+                        alt={product.product_name}
                         className="w-full h-48 object-cover"
                         loading="lazy"
                       />
@@ -148,46 +183,21 @@ const Produtos = () => {
                       </div>
                     )}
                     <div className="p-4 space-y-2">
-                      <h3 className="font-medium text-sm text-foreground line-clamp-2">{product.title}</h3>
-                      <p className="text-primary font-semibold">{formatPrice(product.skus)}</p>
+                      <h3 className="font-medium text-sm text-foreground line-clamp-2">{product.product_name}</h3>
+                      <p className="text-primary font-semibold">{getPrice(product)}</p>
                       <div className="flex items-center gap-2">
                         <span className={`text-xs px-2 py-0.5 rounded-full ${
-                          product.status === 4 
-                            ? "bg-green-500/10 text-green-500" 
+                          product.status === "active"
+                            ? "bg-green-500/10 text-green-500"
                             : "bg-muted text-muted-foreground"
                         }`}>
-                          {product.status === 4 ? "Ativo" : "Inativo"}
+                          {product.status === "active" ? "Ativo" : "Inativo"}
                         </span>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-2 pt-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={page <= 1}
-                    onClick={() => setPage((p) => p - 1)}
-                  >
-                    Anterior
-                  </Button>
-                  <span className="text-sm text-muted-foreground">
-                    Página {page} de {totalPages}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={page >= totalPages}
-                    onClick={() => setPage((p) => p + 1)}
-                  >
-                    Próximo
-                  </Button>
-                </div>
-              )}
             </>
           )}
         </>
