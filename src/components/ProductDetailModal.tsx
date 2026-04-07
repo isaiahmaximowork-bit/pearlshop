@@ -41,10 +41,16 @@ export const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetai
   }>) || [];
 
   // Category
-  const categories = (payload?.category_chains as Array<{ id?: string; parent_id?: string; local_name?: string }>[]) || [];
-  const categoryNames = (Array.isArray(categories) && categories.length > 0)
-    ? (categories[0] as Array<{ local_name?: string }>)?.map(c => c.local_name).filter(Boolean)
-    : [];
+  const rawCategories = payload?.category_chains;
+  let categoryNames: string[] = [];
+  if (Array.isArray(rawCategories) && rawCategories.length > 0) {
+    const first = rawCategories[0];
+    if (Array.isArray(first)) {
+      categoryNames = first.map((c: any) => c.local_name).filter(Boolean);
+    } else if (typeof first === 'object' && first !== null && 'local_name' in first) {
+      categoryNames = rawCategories.map((c: any) => c.local_name).filter(Boolean);
+    }
+  }
 
   // Sales regions
   const salesRegions = (payload?.sales_regions as string[]) || [];
