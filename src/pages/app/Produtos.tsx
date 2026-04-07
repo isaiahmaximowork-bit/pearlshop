@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Search, Package, RefreshCw, AlertCircle, Download } from "lucide-react";
 import { toast } from "sonner";
+import { ProductDetailModal } from "@/components/ProductDetailModal";
 
 interface CatalogProduct {
   id: string;
@@ -22,6 +23,7 @@ const Produtos = () => {
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [isImporting, setIsImporting] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<CatalogProduct | null>(null);
 
   // Fetch from catalog_products table
   const { data: products = [], isLoading, error, refetch } = useQuery({
@@ -168,7 +170,8 @@ const Produtos = () => {
                 {products.map((product) => (
                   <div
                     key={product.id}
-                    className="rounded-lg border bg-card hover:shadow-md transition-shadow overflow-hidden"
+                    onClick={() => setSelectedProduct(product)}
+                    className="rounded-lg border bg-card hover:shadow-md transition-shadow overflow-hidden cursor-pointer"
                   >
                     {product.image_url ? (
                       <img
@@ -202,6 +205,12 @@ const Produtos = () => {
           )}
         </>
       )}
+
+      <ProductDetailModal
+        product={selectedProduct}
+        open={!!selectedProduct}
+        onOpenChange={(open) => { if (!open) setSelectedProduct(null); }}
+      />
     </div>
   );
 };
