@@ -29,27 +29,38 @@ async function generateSignature(path: string, params: Record<string, string>, s
 async function fetchShopCipher(appKey: string, appSecret: string, accessToken: string): Promise<string | null> {
   const apiPath = '/authorization/202309/shops'
   const timestamp = Math.floor(Date.now() / 1000).toString()
-
-  const queryParams: Record<string, string> = {
-    app_key: appKey,
-    timestamp,
-  }
-
+  const queryParams: Record<string, string> = { app_key: appKey, timestamp }
   const sign = await generateSignature(apiPath, queryParams, appSecret)
-
   const url = `${TIKTOK_API_BASE}${apiPath}?${new URLSearchParams({ ...queryParams, sign, access_token: accessToken }).toString()}`
-  console.log('Fetching authorized shops:', url)
-
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: { 'x-tts-access-token': accessToken },
-  })
+  const res = await fetch(url, { method: 'GET', headers: { 'x-tts-access-token': accessToken } })
   const data = await res.json()
   console.log('Authorized shops response:', JSON.stringify(data))
-
   if (data.code === 0 && data.data?.shops?.length > 0) {
     return data.data.shops[0].cipher
   }
+  return null
+}
+
+async function fetchProductDetail(productId: string, appKey: string, appSecret: string, accessToken: string, shopCipher: string) {
+  const apiPath = `/product/202309/products/${productId}`
+  const timestamp = Math.floor(Date.now() / 1000).toString()
+  const queryParams: Record<string, string> = {
+    app_key: appKey,
+    timestamp,
+    shop_cipher: shopCipher,
+  }
+  const sign = await generateSignature(apiPath, queryParams, appSecret)
+  const url = `${TIKTOK_API_BASE}${apiPath}?${new URLSearchParams({ ...queryParams, sign, access_token: accessToken }).toString()}`
+  
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: { 'x-tts-access-token': accessToken, 'Content-Type': 'application/json' },
+  })
+  const data = await res.json()
+  if (data.code === 0 && data.data) {
+    return data.data
+  }
+  console.error(`Failed to fetch detail for product ${productId}:`, data.message)
   return null
 }
 
@@ -93,14 +104,9 @@ Deno.serve(async (req) => {
   // 2. Get or fetch shop_cipher
   let shopCipher = tokenData.shop_cipher
   if (!shopCipher) {
-    console.log('shop_cipher is null, fetching from TikTok API...')
     shopCipher = await fetchShopCipher(APP_KEY, APP_SECRET, tokenData.access_token)
     if (shopCipher) {
-      await supabase
-        .from('tiktok_shop_tokens')
-        .update({ shop_cipher: shopCipher })
-        .eq('app_key', APP_KEY)
-      console.log('Saved shop_cipher:', shopCipher)
+      await supabase.from('tiktok_shop_tokens').update({ shop_cipher: shopCipher }).eq('app_key', APP_KEY)
     } else {
       return new Response(JSON.stringify({ error: 'Nenhuma loja autorizada encontrada no TikTok Shop.' }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -109,40 +115,24 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // 3. Fetch products from TikTok API
+    // 3. Search products
     const apiPath = '/product/202309/products/search'
     const timestamp = Math.floor(Date.now() / 1000).toString()
-
-    // page_size goes as query param, NOT in body (per TikTok API v202309 spec)
     const queryParams: Record<string, string> = {
       app_key: APP_KEY,
       timestamp,
       shop_cipher: shopCipher,
       page_size: '50',
     }
-
-    // Body is empty object for search without filters
     const bodyStr = JSON.stringify({})
-
     const sign = await generateSignature(apiPath, queryParams, APP_SECRET, bodyStr)
-
-    const apiUrl = `${TIKTOK_API_BASE}${apiPath}?${new URLSearchParams({
-      ...queryParams,
-      sign,
-      access_token: tokenData.access_token,
-    }).toString()}`
-
-    console.log('Calling TikTok products API:', apiUrl)
+    const apiUrl = `${TIKTOK_API_BASE}${apiPath}?${new URLSearchParams({ ...queryParams, sign, access_token: tokenData.access_token }).toString()}`
 
     const response = await fetch(apiUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-tts-access-token': tokenData.access_token,
-      },
+      headers: { 'Content-Type': 'application/json', 'x-tts-access-token': tokenData.access_token },
       body: bodyStr,
     })
-
     const data = await response.json()
     console.log('TikTok products response code:', data.code, 'message:', data.message)
 
@@ -153,33 +143,52 @@ Deno.serve(async (req) => {
     }
 
     const products = data.data?.products || []
-    console.log(`Found ${products.length} products from TikTok`)
+    console.log(`Found ${products.length} products from TikTok search`)
 
-    // 4. Upsert into catalog_products
-    const upsertRows = products.map((p: any) => ({
-      product_id: p.id,
-      product_name: p.title || 'Sem título',
-      image_url: p.main_images?.[0]?.urls?.[0] || p.main_images?.[0]?.url || null,
-      source_platform: 'tiktok_shop',
-      shop_cipher: shopCipher,
-      status: (p.status === 'ACTIVATE' || p.status === 4) ? 'active' : 'inactive',
-      raw_payload: p,
-    }))
+    // 4. Fetch details for each product (images, description, variants)
+    const detailedProducts = []
+    for (const p of products) {
+      const detail = await fetchProductDetail(p.id, APP_KEY, APP_SECRET, tokenData.access_token, shopCipher)
+      if (detail) {
+        detailedProducts.push(detail)
+      } else {
+        detailedProducts.push(p) // fallback to search data
+      }
+    }
+    console.log(`Fetched details for ${detailedProducts.length} products`)
+
+    // 5. Upsert into catalog_products with full detail payload
+    const upsertRows = detailedProducts.map((p: any) => {
+      // Extract first image from detail response
+      const imageUrl = p.main_images?.[0]?.urls?.[0] 
+        || p.main_images?.[0]?.url 
+        || p.images?.main_images?.[0]?.urls?.[0]
+        || null
+
+      return {
+        product_id: p.id,
+        product_name: p.title || 'Sem título',
+        image_url: imageUrl,
+        source_platform: 'tiktok_shop',
+        shop_cipher: shopCipher,
+        status: (p.status === 'ACTIVATE' || p.status === 4) ? 'active' : 'inactive',
+        raw_payload: p,
+      }
+    })
 
     if (upsertRows.length > 0) {
       const { error: upsertError } = await supabase
         .from('catalog_products')
         .upsert(upsertRows, { onConflict: 'source_platform,product_id' })
-
       if (upsertError) {
         console.error('Upsert error:', upsertError)
       } else {
-        console.log(`Upserted ${upsertRows.length} products into catalog_products`)
+        console.log(`Upserted ${upsertRows.length} products with details`)
       }
     }
 
-    // 5. Return catalog data
-    const { data: catalogData, error: catalogError } = await supabase
+    // 6. Return catalog
+    const { data: catalogData } = await supabase
       .from('catalog_products')
       .select('*')
       .eq('source_platform', 'tiktok_shop')
@@ -189,7 +198,6 @@ Deno.serve(async (req) => {
       success: true,
       imported: upsertRows.length,
       products: catalogData || [],
-      tiktok_raw: data,
     }), {
       status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
