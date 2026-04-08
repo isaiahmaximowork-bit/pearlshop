@@ -15,6 +15,7 @@ import Produtos from "./pages/app/Produtos.tsx";
 import Conexoes from "./pages/app/Conexoes.tsx";
 import Opcoes from "./pages/app/Opcoes.tsx";
 import Builder from "./pages/app/Builder.tsx";
+import EditarPerfil from "./pages/app/EditarPerfil.tsx";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="opcoes" element={<Opcoes />} />
             <Route path="conexoes" element={<Conexoes />} />
             <Route path="builder" element={<Builder />} />
+            <Route path="perfil" element={<EditarPerfil />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
