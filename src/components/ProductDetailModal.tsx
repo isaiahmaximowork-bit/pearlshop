@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Package } from "lucide-react";
+import { Package, UserPlus } from "lucide-react";
 
 interface CatalogProduct {
   id: string;
