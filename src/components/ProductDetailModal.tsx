@@ -1,7 +1,9 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
 import { Package, UserPlus, X, ChevronLeft, ChevronRight, Store } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface CatalogProduct {
   id: string;
@@ -22,14 +24,43 @@ interface ProductDetailModalProps {
 
 export const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetailModalProps) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [slideDirection, setSlideDirection] = useState(0);
+
+  // Reset index when product changes
+  useEffect(() => { setSelectedImageIndex(0); }, [product?.id]);
+
+  // Fetch shop info from tiktok_shop_tokens
+  const { data: shopInfo } = useQuery({
+    queryKey: ["tiktok-shop-info"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("tiktok_shop_tokens")
+        .select("seller_name, shop_cipher, seller_base_region, open_id")
+        .limit(1)
+        .maybeSingle();
+      return data;
+    },
+    enabled: open,
+  });
 
   if (!product) return null;
 
   const payload = product.raw_payload as Record<string, unknown> | null;
 
-  // Images
+  // Images — take only the FIRST url from each main_image entry to avoid CDN mirror duplicates
   const mainImages = (payload?.main_images as Array<{ urls?: string[]; url?: string }>) || [];
-  const imageUrls = [...new Set(mainImages.flatMap(img => img.urls || (img.url ? [img.url] : [])))];
+  const imageUrls: string[] = [];
+  const seenBaseUrls = new Set<string>();
+  for (const img of mainImages) {
+    const url = img.urls?.[0] || img.url;
+    if (!url) continue;
+    // Extract base URI to deduplicate
+    const base = url.split("~")[0];
+    if (!seenBaseUrls.has(base)) {
+      seenBaseUrls.add(base);
+      imageUrls.push(url);
+    }
+  }
   if (imageUrls.length === 0 && product.image_url) {
     imageUrls.push(product.image_url);
   }
@@ -43,7 +74,7 @@ export const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetai
     seller_sku?: string;
     price?: { sale_price?: string; tax_exclusive_price?: string; currency?: string };
     inventory?: Array<{ quantity?: number }>;
-    sales_attributes?: Array<{ name?: string; value_name?: string; image?: { urls?: string[] } }>;
+    sales_attributes?: Array<{ name?: string; value_name?: string }>;
   }>) || [];
 
   // Category
@@ -58,30 +89,24 @@ export const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetai
     }
   }
 
-  // Sales regions
   const salesRegions = (payload?.sales_regions as string[]) || [];
-
-  // Package dimensions
-  const packageDimensions = payload?.package_dimensions as {
-    height?: string; length?: string; width?: string; unit?: string;
-  } | null;
+  const packageDimensions = payload?.package_dimensions as { height?: string; length?: string; width?: string; unit?: string } | null;
   const packageWeight = payload?.package_weight as { value?: string; unit?: string } | null;
-
-  // Brand
   const brand = (payload?.brand as { name?: string })?.name || null;
 
-  // Unique attributes
+  // Attributes — only if multiple SKUs
+  const hasMultipleVariants = skus.length > 1;
   const attributeGroups = new Map<string, Set<string>>();
-  skus.forEach(sku => {
-    sku.sales_attributes?.forEach(attr => {
-      if (attr.name && attr.value_name) {
-        if (!attributeGroups.has(attr.name)) {
-          attributeGroups.set(attr.name, new Set());
+  if (hasMultipleVariants) {
+    skus.forEach(sku => {
+      sku.sales_attributes?.forEach(attr => {
+        if (attr.name && attr.value_name) {
+          if (!attributeGroups.has(attr.name)) attributeGroups.set(attr.name, new Set());
+          attributeGroups.get(attr.name)!.add(attr.value_name);
         }
-        attributeGroups.get(attr.name)!.add(attr.value_name);
-      }
+      });
     });
-  });
+  }
 
   const getPrice = () => {
     if (!skus.length) return null;
@@ -90,26 +115,24 @@ export const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetai
       return p ? parseFloat(p) : null;
     }).filter((p): p is number => p !== null);
     if (prices.length === 0) return null;
-    const currency = skus[0]?.price?.currency || "BRL";
     const min = Math.min(...prices);
     const max = Math.max(...prices);
     if (min === max) return `R$${min.toFixed(2)}`;
     return `R$${min.toFixed(2)} - R$${max.toFixed(2)}`;
   };
 
-  const getTotalStock = () => {
-    return skus.reduce((total, sku) => {
-      const qty = sku.inventory?.reduce((sum, inv) => sum + (inv.quantity || 0), 0) || 0;
-      return total + qty;
-    }, 0);
+  const getTotalStock = () => skus.reduce((total, sku) => {
+    return total + (sku.inventory?.reduce((sum, inv) => sum + (inv.quantity || 0), 0) || 0);
+  }, 0);
+
+  const goToImage = (index: number) => {
+    setSlideDirection(index > selectedImageIndex ? 1 : -1);
+    setSelectedImageIndex(index);
   };
+  const prevImage = () => { setSlideDirection(-1); setSelectedImageIndex(i => (i > 0 ? i - 1 : imageUrls.length - 1)); };
+  const nextImage = () => { setSlideDirection(1); setSelectedImageIndex(i => (i < imageUrls.length - 1 ? i + 1 : 0)); };
 
-  const currentImage = imageUrls[selectedImageIndex] || null;
-
-  const prevImage = () => setSelectedImageIndex(i => (i > 0 ? i - 1 : imageUrls.length - 1));
-  const nextImage = () => setSelectedImageIndex(i => (i < imageUrls.length - 1 ? i + 1 : 0));
-
-  // Product detail attributes for "Detalhes do Produto" section
+  // Detail rows
   const detailRows: { label: string; value: string }[] = [];
   if (categoryNames.length > 0) detailRows.push({ label: "Categoria", value: categoryNames.join(" › ") });
   if (brand) detailRows.push({ label: "Marca", value: brand });
@@ -117,7 +140,13 @@ export const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetai
   if (packageWeight) detailRows.push({ label: "Peso", value: `${packageWeight.value} ${packageWeight.unit || 'kg'}` });
   if (packageDimensions) detailRows.push({ label: "Dimensões", value: `${packageDimensions.length}×${packageDimensions.width}×${packageDimensions.height} ${packageDimensions.unit || 'cm'}` });
   detailRows.push({ label: "Estoque", value: `${getTotalStock()} unidades` });
-  detailRows.push({ label: "Plataforma", value: product.source_platform === "tiktok_shop" ? "TikTok Shop" : product.source_platform });
+  detailRows.push({ label: "Plataforma", value: "TikTok Shop" });
+
+  const slideVariants = {
+    enter: (dir: number) => ({ x: dir > 0 ? 300 : -300, opacity: 0 }),
+    center: { x: 0, opacity: 1 },
+    exit: (dir: number) => ({ x: dir > 0 ? -300 : 300, opacity: 0 }),
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -125,59 +154,56 @@ export const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetai
         {/* Top bar */}
         <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border px-6 py-3 flex items-center justify-between">
           <h2 className="text-sm font-bold text-foreground truncate max-w-[80%]">{product.product_name}</h2>
-          <button
-            onClick={() => onOpenChange(false)}
-            className="p-2 rounded-xl hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-          >
+          <button onClick={() => onOpenChange(false)} className="p-2 rounded-xl hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
             <X size={20} />
           </button>
         </div>
 
         <div className="max-w-6xl mx-auto w-full px-4 sm:px-8 pb-12">
-          {/* Product Hero: Image + Info */}
+          {/* Product Hero */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 py-8">
-            {/* Left: Image Gallery */}
+            {/* Left: Image Gallery with slide */}
             <div className="space-y-4">
               <div className="relative aspect-square rounded-2xl bg-muted overflow-hidden border border-border">
-                {currentImage ? (
-                  <img
-                    src={currentImage}
-                    alt={product.product_name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Package className="h-16 w-16 text-muted-foreground/30" />
-                  </div>
-                )}
+                <AnimatePresence initial={false} custom={slideDirection} mode="popLayout">
+                  <motion.div
+                    key={selectedImageIndex}
+                    custom={slideDirection}
+                    variants={slideVariants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="absolute inset-0"
+                  >
+                    {imageUrls[selectedImageIndex] ? (
+                      <img src={imageUrls[selectedImageIndex]} alt={product.product_name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Package className="h-16 w-16 text-muted-foreground/30" />
+                      </div>
+                    )}
+                  </motion.div>
+                </AnimatePresence>
                 {imageUrls.length > 1 && (
                   <>
-                    <button
-                      onClick={prevImage}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-background/80 backdrop-blur-sm border border-border text-foreground hover:bg-background transition-all shadow-lg"
-                    >
+                    <button onClick={prevImage} className="absolute left-3 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background/80 backdrop-blur-sm border border-border text-foreground hover:bg-background transition-all shadow-lg">
                       <ChevronLeft size={20} />
                     </button>
-                    <button
-                      onClick={nextImage}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-background/80 backdrop-blur-sm border border-border text-foreground hover:bg-background transition-all shadow-lg"
-                    >
+                    <button onClick={nextImage} className="absolute right-3 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background/80 backdrop-blur-sm border border-border text-foreground hover:bg-background transition-all shadow-lg">
                       <ChevronRight size={20} />
                     </button>
                   </>
                 )}
               </div>
-              {/* Thumbnails */}
               {imageUrls.length > 1 && (
                 <div className="flex gap-2 overflow-x-auto pb-1">
                   {imageUrls.map((url, i) => (
                     <button
                       key={i}
-                      onClick={() => setSelectedImageIndex(i)}
+                      onClick={() => goToImage(i)}
                       className={`shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${
-                        i === selectedImageIndex
-                          ? "border-primary shadow-md"
-                          : "border-border hover:border-muted-foreground/50"
+                        i === selectedImageIndex ? "border-primary shadow-md" : "border-border hover:border-muted-foreground/50"
                       }`}
                     >
                       <img src={url} alt="" className="w-full h-full object-cover" />
@@ -189,31 +215,29 @@ export const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetai
 
             {/* Right: Product Info */}
             <div className="space-y-6">
-              <div>
-                <h1 className="text-2xl font-black tracking-tight text-foreground leading-tight">
-                  {product.product_name}
-                </h1>
-              </div>
+              <h1 className="text-2xl font-black tracking-tight text-foreground leading-tight">
+                {product.product_name}
+              </h1>
 
-              {/* Price */}
               {getPrice() && (
                 <p className="text-3xl font-black text-primary">{getPrice()}</p>
               )}
 
-              {/* Variants / Attributes */}
-              {attributeGroups.size > 0 && (
-                <div className="space-y-4">
+              {/* Afiliar-se */}
+              <button className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-[0.98] shadow-lg">
+                <UserPlus size={16} />
+                Afiliar-se
+              </button>
+
+              {/* Variants & Stock — only show if multiple variants */}
+              {hasMultipleVariants && attributeGroups.size > 0 && (
+                <div className="space-y-4 pt-2">
                   {Array.from(attributeGroups.entries()).map(([name, values]) => (
                     <div key={name}>
-                      <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2">
-                        {name}
-                      </p>
+                      <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2">{name}</p>
                       <div className="flex gap-2 flex-wrap">
                         {Array.from(values).map(v => (
-                          <span
-                            key={v}
-                            className="px-4 py-2 rounded-xl border border-border bg-card text-sm font-medium text-foreground hover:border-primary/50 transition-colors cursor-default"
-                          >
+                          <span key={v} className="px-4 py-2 rounded-xl border border-border bg-card text-sm font-medium text-foreground">
                             {v}
                           </span>
                         ))}
@@ -223,70 +247,58 @@ export const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetai
                 </div>
               )}
 
+              {/* Stock info */}
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <span>Estoque total: <strong className="text-foreground">{getTotalStock()}</strong></span>
+                {hasMultipleVariants && <span>Variantes: <strong className="text-foreground">{skus.length}</strong></span>}
+              </div>
+
               {/* SKU table if multiple */}
-              {skus.length > 1 && (
-                <div>
-                  <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2">
-                    Variantes ({skus.length})
-                  </p>
-                  <div className="border border-border rounded-xl overflow-hidden">
-                    <table className="w-full text-sm">
-                      <thead className="bg-muted/50">
-                        <tr>
-                          <th className="text-left p-3 text-xs font-bold text-muted-foreground">SKU</th>
-                          <th className="text-left p-3 text-xs font-bold text-muted-foreground">Atributos</th>
-                          <th className="text-right p-3 text-xs font-bold text-muted-foreground">Preço</th>
-                          <th className="text-right p-3 text-xs font-bold text-muted-foreground">Estoque</th>
+              {hasMultipleVariants && (
+                <div className="border border-border rounded-xl overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted/50">
+                      <tr>
+                        <th className="text-left p-3 text-xs font-bold text-muted-foreground">SKU</th>
+                        <th className="text-left p-3 text-xs font-bold text-muted-foreground">Atributos</th>
+                        <th className="text-right p-3 text-xs font-bold text-muted-foreground">Preço</th>
+                        <th className="text-right p-3 text-xs font-bold text-muted-foreground">Estoque</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {skus.map((sku, i) => (
+                        <tr key={i} className="border-t border-border">
+                          <td className="p-3 text-muted-foreground font-mono text-xs">{sku.seller_sku || "—"}</td>
+                          <td className="p-3">{sku.sales_attributes?.map(a => a.value_name).filter(Boolean).join(", ") || "—"}</td>
+                          <td className="p-3 text-right font-semibold">
+                            {sku.price?.sale_price || sku.price?.tax_exclusive_price
+                              ? `R$${parseFloat(sku.price.sale_price || sku.price.tax_exclusive_price || "0").toFixed(2)}`
+                              : "—"}
+                          </td>
+                          <td className="p-3 text-right">{sku.inventory?.reduce((s, inv) => s + (inv.quantity || 0), 0) || 0}</td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        {skus.map((sku, i) => (
-                          <tr key={i} className="border-t border-border">
-                            <td className="p-3 text-muted-foreground font-mono text-xs">{sku.seller_sku || "—"}</td>
-                            <td className="p-3">
-                              {sku.sales_attributes?.map(a => a.value_name).filter(Boolean).join(", ") || "—"}
-                            </td>
-                            <td className="p-3 text-right font-semibold">
-                              {sku.price?.sale_price || sku.price?.tax_exclusive_price
-                                ? `R$${parseFloat(sku.price.sale_price || sku.price.tax_exclusive_price || "0").toFixed(2)}`
-                                : "—"}
-                            </td>
-                            <td className="p-3 text-right">
-                              {sku.inventory?.reduce((s, inv) => s + (inv.quantity || 0), 0) || 0}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               )}
 
-              {/* Afiliar-se */}
-              <button className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-[0.98] shadow-lg">
-                <UserPlus size={16} />
-                Afiliar-se
-              </button>
-
-              {/* Product ID */}
               <p className="text-xs text-muted-foreground">
                 ID: {product.product_id} · Importado em {new Date(product.created_at).toLocaleDateString("pt-BR")}
               </p>
             </div>
           </div>
 
-          {/* Shop Section */}
+          {/* Shop Section with real data */}
           <div className="border border-border rounded-2xl p-6 bg-card mb-8">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-wrap">
               <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center shrink-0">
                 <Store size={24} className="text-muted-foreground" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-bold text-foreground">
-                  {product.source_platform === "tiktok_shop" ? "TikTok Shop" : product.source_platform}
-                </p>
-                <p className="text-sm text-muted-foreground truncate">
-                  Shop Cipher: {product.raw_payload?.shop_cipher as string || "—"}
+                <p className="font-bold text-foreground">{shopInfo?.seller_name || "TikTok Shop"}</p>
+                <p className="text-xs text-muted-foreground">
+                  ID: {shopInfo?.open_id || "—"} · Região: {shopInfo?.seller_base_region || "—"}
                 </p>
               </div>
               <div className="flex gap-6 text-center">
@@ -326,10 +338,7 @@ export const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetai
                 <h3 className="font-black text-foreground uppercase tracking-tight">Descrição do Produto</h3>
               </div>
               <div className="px-6 py-6">
-                <div
-                  className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap prose prose-sm max-w-none"
-                  dangerouslySetInnerHTML={{ __html: description }}
-                />
+                <div className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: description }} />
               </div>
             </div>
           )}
