@@ -231,6 +231,12 @@ export const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetai
             </div>
           )}
 
+          {/* Afiliar-se */}
+          <button className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95 shadow-lg">
+            <UserPlus size={14} />
+            Afiliar-se
+          </button>
+
           {/* Product ID */}
           <div className="text-xs text-muted-foreground border-t pt-3">
             ID: {product.product_id} · Importado em {new Date(product.created_at).toLocaleDateString("pt-BR")}
