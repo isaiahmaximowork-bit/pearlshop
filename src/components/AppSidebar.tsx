@@ -1,16 +1,15 @@
-import { Home, Package, ShoppingBag, Settings, Link, LogOut, LayoutGrid } from "lucide-react";
+import { Home, Package, ShoppingBag, Settings, Link } from "lucide-react";
 import { NavLink as RouterNavLink, useLocation } from "react-router-dom";
 
-const menuItems = [
-  { label: "Menu Principal", items: [
-    { title: "Home", url: "/app", icon: Home, end: true },
-    { title: "Meus Produtos", url: "/app/meus-produtos", icon: Package },
-    { title: "Catálogo", url: "/app/produtos", icon: ShoppingBag },
-  ]},
-  { label: "Configurações", items: [
-    { title: "Opções", url: "/app/opcoes", icon: Settings },
-    { title: "Conexões", url: "/app/conexoes", icon: Link },
-  ]},
+const mainItems = [
+  { title: "Home", url: "/app", icon: Home, end: true },
+  { title: "Meus Produtos", url: "/app/meus-produtos", icon: Package },
+  { title: "Catálogo", url: "/app/produtos", icon: ShoppingBag },
+];
+
+const configItems = [
+  { title: "Opções", url: "/app/opcoes", icon: Settings },
+  { title: "Conexões", url: "/app/conexoes", icon: Link },
 ];
 
 export function AppSidebar() {
@@ -18,6 +17,27 @@ export function AppSidebar() {
 
   const isActive = (path: string, end?: boolean) =>
     end ? location.pathname === path : location.pathname.startsWith(path);
+
+  const renderItem = (item: { title: string; url: string; icon: any; end?: boolean }) => {
+    const active = isActive(item.url, item.end);
+    return (
+      <RouterNavLink
+        key={item.url}
+        to={item.url}
+        end={item.end}
+        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group ${
+          active
+            ? 'bg-primary text-primary-foreground shadow-lg'
+            : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+        }`}
+      >
+        <item.icon size={20} className={active ? '' : 'group-hover:scale-110 transition-transform'} />
+        <span className={`text-sm tracking-tight ${active ? 'font-bold' : 'font-medium'}`}>
+          {item.title}
+        </span>
+      </RouterNavLink>
+    );
+  };
 
   return (
     <aside className="w-72 bg-card border-r border-border flex flex-col p-6 sticky top-0 h-screen shrink-0">
@@ -28,44 +48,25 @@ export function AppSidebar() {
         <span className="text-xl font-black tracking-tighter text-foreground uppercase">PearlShop</span>
       </div>
 
-      <nav className="flex-1 space-y-9">
-        {menuItems.map((group) => (
-          <div key={group.label}>
-            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3 px-4">
-              {group.label}
-            </p>
-            <div className="space-y-1">
-              {group.items.map((item) => {
-                const active = isActive(item.url, item.end);
-                return (
-                  <RouterNavLink
-                    key={item.url}
-                    to={item.url}
-                    end={item.end}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group ${
-                      active
-                        ? 'bg-primary text-primary-foreground shadow-lg'
-                        : 'text-muted-foreground hover:bg-accent hover:text-foreground'
-                    }`}
-                  >
-                    <item.icon size={20} className={active ? '' : 'group-hover:scale-110 transition-transform'} />
-                    <span className={`text-sm tracking-tight ${active ? 'font-bold' : 'font-medium'}`}>
-                      {item.title}
-                    </span>
-                  </RouterNavLink>
-                );
-              })}
-            </div>
+      <nav className="flex-1 flex flex-col">
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3 px-4">
+            Menu Principal
+          </p>
+          <div className="space-y-1">
+            {mainItems.map(renderItem)}
           </div>
-        ))}
-      </nav>
+        </div>
 
-      <div className="mt-auto border-t border-border pt-6">
-        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all">
-          <LogOut size={20} />
-          <span className="text-sm font-bold">Sair da conta</span>
-        </button>
-      </div>
+        <div className="mt-auto">
+          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3 px-4">
+            Configurações
+          </p>
+          <div className="space-y-1">
+            {configItems.map(renderItem)}
+          </div>
+        </div>
+      </nav>
     </aside>
   );
 }
