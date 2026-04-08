@@ -33,15 +33,6 @@ export function ProductCard({ title, price, status, imageUrl, onClick }: Product
             <Package className="h-10 w-10 text-muted-foreground/40" />
           </div>
         )}
-        <div className="absolute top-3 left-3">
-          <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-            isActive
-              ? 'bg-green-100 text-green-600'
-              : 'bg-muted text-muted-foreground'
-          }`}>
-            {isActive ? "Ativo" : "Inativo"}
-          </span>
-        </div>
       </div>
       <div className="space-y-3 flex-1 flex flex-col">
         <h4 className="text-sm font-medium text-foreground leading-tight line-clamp-2">
