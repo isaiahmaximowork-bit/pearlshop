@@ -1,6 +1,7 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Package, UserPlus, X, ChevronLeft, ChevronRight, Store } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { ShippingInfo } from "@/components/ShippingInfo";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
@@ -228,6 +229,9 @@ export const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetai
                 <UserPlus size={16} />
                 Afiliar-se
               </button>
+
+              {/* Shipping Info */}
+              <ShippingInfo packageWeight={packageWeight} packageDimensions={packageDimensions} sellerRegion={shopInfo?.seller_base_region} />
 
               {/* Variants & Stock — only show if multiple variants */}
               {hasMultipleVariants && attributeGroups.size > 0 && (
