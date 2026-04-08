@@ -82,7 +82,7 @@ const EditarPerfil = () => {
             tokens.map((token) => (
               <div key={token.app_key} className="flex items-center gap-4 p-3 rounded-xl border border-border bg-accent/30">
                 <div className="w-10 h-10 rounded-lg bg-black flex items-center justify-center shrink-0">
-                  <TikTokIcon className="w-5 h-5 text-white" />
+                  <TikTokIcon size={20} />
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-bold text-foreground">TikTok Shop</p>
