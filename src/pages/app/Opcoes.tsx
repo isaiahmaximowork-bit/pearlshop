@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, LogOut } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 const Opcoes = () => {
   const [isDark, setIsDark] = useState(() => {
@@ -22,7 +23,6 @@ const Opcoes = () => {
     }
   }, [isDark]);
 
-  // Load saved theme on mount
   useEffect(() => {
     const saved = localStorage.getItem("theme");
     if (saved === "dark") {
@@ -60,6 +60,29 @@ const Opcoes = () => {
               checked={isDark}
               onCheckedChange={setIsDark}
             />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-bold flex items-center gap-2">
+            <LogOut size={20} />
+            Conta
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <p className="text-sm font-semibold text-foreground">Sair da conta</p>
+              <p className="text-xs text-muted-foreground">
+                Encerre sua sessão atual
+              </p>
+            </div>
+            <Button variant="destructive" size="sm" className="gap-2">
+              <LogOut size={16} />
+              Sair
+            </Button>
           </div>
         </CardContent>
       </Card>
