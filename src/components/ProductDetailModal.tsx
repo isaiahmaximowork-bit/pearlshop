@@ -229,6 +229,9 @@ export const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetai
                 Afiliar-se
               </button>
 
+              {/* Shipping Info */}
+              <ShippingInfo packageWeight={packageWeight} packageDimensions={packageDimensions} sellerRegion={shopInfo?.seller_base_region} />
+
               {/* Variants & Stock — only show if multiple variants */}
               {hasMultipleVariants && attributeGroups.size > 0 && (
                 <div className="space-y-4 pt-2">
