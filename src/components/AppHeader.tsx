@@ -1,11 +1,16 @@
-import { Bell, User, Plus } from "lucide-react";
+import { Bell, User, Plus, Pencil, LogOut } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function AppHeader() {
   const tokens = 12480;
 
   return (
     <header className="h-20 bg-card/80 backdrop-blur-md border-b border-border sticky top-0 z-40 px-8 flex items-center justify-end gap-6">
-      {/* Token counter with Gemini border */}
       <div className="gemini-pill-wrapper group cursor-pointer active:scale-95 transition-transform">
         <div className="bg-card border border-border px-4 py-2 rounded-[1.25rem] flex items-center gap-3 relative z-[2]">
           <span className="gemini-star">✦</span>
@@ -22,10 +27,24 @@ export function AppHeader() {
           <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-destructive rounded-full border-2 border-card" />
         </button>
 
-        <button className="w-10 h-10 rounded-xl bg-foreground flex items-center justify-center text-background shadow-lg overflow-hidden relative group">
-          <User size={20} className="relative z-10" />
-          <div className="absolute inset-0 bg-gradient-to-tr from-primary to-primary/70 opacity-0 group-hover:opacity-100 transition-opacity" />
-        </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="w-10 h-10 rounded-xl bg-foreground flex items-center justify-center text-background shadow-lg overflow-hidden relative group">
+              <User size={20} className="relative z-10" />
+              <div className="absolute inset-0 bg-gradient-to-tr from-primary to-primary/70 opacity-0 group-hover:opacity-100 transition-opacity" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-44">
+            <DropdownMenuItem className="gap-2 cursor-pointer">
+              <Pencil size={16} />
+              Editar
+            </DropdownMenuItem>
+            <DropdownMenuItem className="gap-2 cursor-pointer text-destructive focus:text-destructive">
+              <LogOut size={16} />
+              Sair da conta
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );
