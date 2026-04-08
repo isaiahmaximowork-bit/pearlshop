@@ -13,6 +13,7 @@ import AppHome from "./pages/app/Home.tsx";
 import MeusProdutos from "./pages/app/MeusProdutos.tsx";
 import Produtos from "./pages/app/Produtos.tsx";
 import Conexoes from "./pages/app/Conexoes.tsx";
+import Opcoes from "./pages/app/Opcoes.tsx";
 
 const queryClient = new QueryClient();
 
