@@ -5,7 +5,7 @@ const menuItems = [
   { label: "Menu Principal", items: [
     { title: "Home", url: "/app", icon: Home, end: true },
     { title: "Meus Produtos", url: "/app/meus-produtos", icon: Package },
-    { title: "Produtos", url: "/app/produtos", icon: ShoppingBag },
+    { title: "Catálogo", url: "/app/produtos", icon: ShoppingBag },
   ]},
   { label: "Configurações", items: [
     { title: "Opções", url: "/app/opcoes", icon: Settings },
@@ -28,7 +28,7 @@ export function AppSidebar() {
         <span className="text-xl font-black tracking-tighter text-foreground uppercase">PearlShop</span>
       </div>
 
-      <nav className="flex-1 space-y-6">
+      <nav className="flex-1 space-y-9">
         {menuItems.map((group) => (
           <div key={group.label}>
             <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3 px-4">
