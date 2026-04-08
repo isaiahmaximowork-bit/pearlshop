@@ -1,4 +1,4 @@
-import { Home, Package, ShoppingBag, Settings, Link } from "lucide-react";
+import { Home, Package, ShoppingBag, Settings, Link, Store, LayoutTemplate } from "lucide-react";
 import { NavLink as RouterNavLink, useLocation } from "react-router-dom";
 
 const mainItems = [
@@ -55,6 +55,15 @@ export function AppSidebar() {
           </p>
           <div className="space-y-1">
             {mainItems.map(renderItem)}
+          </div>
+        </div>
+
+        <div className="mt-14">
+          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3 px-4">
+            Loja Virtual
+          </p>
+          <div className="space-y-1">
+            {[{ title: "Builder", url: "/app/builder", icon: LayoutTemplate }].map(renderItem)}
           </div>
         </div>
 
