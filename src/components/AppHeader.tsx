@@ -1,4 +1,5 @@
 import { Bell, User, Plus, Pencil, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,6 +9,7 @@ import {
 
 export function AppHeader() {
   const tokens = 12480;
+  const navigate = useNavigate();
 
   return (
     <header className="h-20 bg-card/80 backdrop-blur-md border-b border-border sticky top-0 z-40 px-8 flex items-center justify-end gap-6">
@@ -35,7 +37,7 @@ export function AppHeader() {
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-44">
-            <DropdownMenuItem className="gap-2 cursor-pointer">
+            <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => navigate("/app/perfil")}>
               <Pencil size={16} />
               Editar
             </DropdownMenuItem>
