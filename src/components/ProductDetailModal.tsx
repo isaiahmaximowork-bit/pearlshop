@@ -26,7 +26,7 @@ export const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetai
 
   // Images
   const mainImages = (payload?.main_images as Array<{ urls?: string[]; url?: string }>) || [];
-  const imageUrls = mainImages.flatMap(img => img.urls || (img.url ? [img.url] : []));
+  const imageUrls = [...new Set(mainImages.flatMap(img => img.urls || (img.url ? [img.url] : [])))];
 
   // Description
   const description = (payload?.description as string) || null;
