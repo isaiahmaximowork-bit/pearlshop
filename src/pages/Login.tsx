@@ -139,7 +139,7 @@ const Login = () => {
             </div>
 
             {/* Submit */}
-            <div className="gemini-pill-wrapper w-full [--border-size:0px] hover:[--border-size:6px] transition-all">
+            <div className="gemini-pill-wrapper hover-only w-full">
               <motion.button
                 type="submit"
                 disabled={isLoading}
