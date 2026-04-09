@@ -139,7 +139,7 @@ const Login = () => {
             </div>
 
             {/* Submit */}
-            <div className="gemini-pill-wrapper w-full">
+            <div className="gemini-pill-wrapper w-full" style={{ '--border-size': '6px' } as React.CSSProperties}>
               <motion.button
                 type="submit"
                 disabled={isLoading}
