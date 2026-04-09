@@ -162,7 +162,7 @@ const Login = () => {
           {/* Sign up link */}
           <p className="text-center text-sm text-zinc-500 mt-6 font-poppins">
             Não tem uma conta?{' '}
-            <button className="text-purple-400 hover:text-purple-300 font-semibold transition-colors">
+            <button onClick={() => navigate('/register')} className="text-purple-400 hover:text-purple-300 font-semibold transition-colors">
               Criar conta
             </button>
           </p>
