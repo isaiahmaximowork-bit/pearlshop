@@ -132,7 +132,7 @@
   inset: 0;
   border-radius: inherit;
   padding: var(--border-size);
-  background: conic-gradient(from var(--rotation) at 52% 49% in oklab, oklch(0.63 0.2 251.22) 27%, oklch(0.67 0.21 25.81) 33%, oklch(0.9 0.19 93.93) 41%, oklch(0.79 0.25 150.49) 49%, oklch(0.63 0.2 251.22) 65%, oklch(0.72 0.21 150.89) 93%, oklch(0.63 0.2 251.22));
+  background: conic-gradient(from var(--rotation) at 52% 49% in oklab, oklch(0.55 0.25 285) 0%, oklch(0.65 0.28 320) 25%, oklch(0.50 0.22 260) 50%, oklch(0.60 0.26 300) 75%, oklch(0.55 0.25 285) 100%);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
