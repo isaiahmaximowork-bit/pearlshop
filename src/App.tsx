@@ -8,6 +8,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy.tsx";
 import TermsOfUse from "./pages/TermsOfUse.tsx";
 import SecurityPage from "./pages/SecurityPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import Login from "./pages/Login.tsx";
 import AppLayout from "./layouts/AppLayout.tsx";
 import AppHome from "./pages/app/Home.tsx";
 import MeusProdutos from "./pages/app/MeusProdutos.tsx";
