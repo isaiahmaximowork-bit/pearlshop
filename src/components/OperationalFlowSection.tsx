@@ -2,15 +2,15 @@ import { ShoppingBag, Cpu, Share2, TrendingUp, Zap, ArrowRight } from 'lucide-re
 import { motion } from 'framer-motion';
 import CinematicCard from './CinematicCard';
 
-const thumbnails = [
-  "https://p16-common-sign.tiktokcdn-eu.com/tos-alisg-p-0037/oQzRsFyaAAAeAjIjAEFuePoD7fU3SLTEDIED5I~tplv-tiktokx-origin.image?dr=10395&x-expires=1775498400&x-signature=Bqw%2Fi5VYGiJvuRLVMzcJtB%2BMSZg%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast2b",
-  "https://p16-common-sign.tiktokcdn-eu.com/tos-alisg-p-0037/oUA4wwBCpI0ria5OhufAIqOB23o7BACRAiAdvI~tplv-tiktokx-origin.image?dr=10395&x-expires=1775498400&x-signature=d0U2LCJozGiaxWynhcXWkK9hP98%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast2b",
-  "https://p16-common-sign.tiktokcdn-eu.com/tos-alisg-p-0037/oAsEQDkYABwlcOGslgiAwCIiIA1mABEfCAB0Am~tplv-tiktokx-origin.image?dr=10395&x-expires=1775498400&x-signature=LTYfsU9M7jVV4kRFMB0yYWPnkxE%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast2b",
-  "https://p16-common-sign.tiktokcdn-eu.com/tos-alisg-p-0037/oYwN0lAQIPGAmQeLepJGFm6rdABGWJAAIyseen~tplv-tiktokx-origin.image?dr=10395&x-expires=1775498400&x-signature=Nt2l%2FizFgou%2BRfqkGHRFJEtPDZA%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast2b",
-  "https://p16-common-sign.tiktokcdn-eu.com/tos-alisg-p-0037/o0IDQCDgjPXgADMSSWqz8cfea3vI1QRA4fzyCJ~tplv-tiktokx-origin.image?dr=10395&x-expires=1775498400&x-signature=A53Jfk8Sr5WLnnQUV8eX%2B%2FUX2GU%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast2b",
-  "https://p16-common-sign.tiktokcdn-eu.com/tos-alisg-p-0037/oAABaCgQEDDAgUBFPnBXspfvhhpBREIsQKCqfC~tplv-tiktokx-origin.image?dr=10395&x-expires=1775498400&x-signature=WKqK7JjZqqhwstCQNY%2BlUdSevmA%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast2b",
-  "https://p16-common-sign.tiktokcdn-eu.com/tos-alisg-p-0037/owEe1LCjoGTfiMIYOAXAAL86QeOtUEDI5uQnHH~tplv-tiktokx-origin.image?dr=10395&x-expires=1775498400&x-signature=DN4ADcmVF67D5wckfUU3srU6dEw%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast2b",
-];
+import thumb1 from '@/assets/thumbnails/video1.jpg';
+import thumb2 from '@/assets/thumbnails/video2.jpg';
+import thumb3 from '@/assets/thumbnails/video3.jpg';
+import thumb4 from '@/assets/thumbnails/video4.jpg';
+import thumb5 from '@/assets/thumbnails/video5.jpg';
+import thumb6 from '@/assets/thumbnails/video6.jpg';
+import thumb7 from '@/assets/thumbnails/video7.jpg';
+
+const thumbnails = [thumb1, thumb2, thumb3, thumb4, thumb5, thumb6, thumb7];
 
 // Distribute thumbnails across 5 columns, repeating as needed
 const getColumnThumbs = (colIndex: number) => {
@@ -89,7 +89,7 @@ const OperationalFlowSection = () => (
           step="02"
           title="Criação dos Vídeos"
           subtitle="Digital Actors"
-          image="https://p16-common-sign.tiktokcdn-eu.com/tos-alisg-p-0037/oQzRsFyaAAAeAjIjAEFuePoD7fU3SLTEDIED5I~tplv-tiktokx-origin.image?dr=10395&x-expires=1775498400&x-signature=Bqw%2Fi5VYGiJvuRLVMzcJtB%2BMSZg%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=useast2b"
+          image={thumb1}
           icon={Cpu}
           tags={["Realismo", "4K Render"]}
           description="Um apresentador digital grava o vídeo pra você — parece gente de verdade, e fica pronto em minutos."
