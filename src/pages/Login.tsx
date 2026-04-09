@@ -86,7 +86,7 @@ const Login = () => {
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 mb-4">
               <img src={logo} alt="PearlShop" className="h-8 object-contain" />
-              <span className="text-xl font-extrabold text-white tracking-tight font-poppins">PearlShop<span className="italic">.io</span></span>
+              <span className="text-xl font-extrabold text-white tracking-tight font-poppins">PearlShop<span className="italic bg-gradient-to-b from-purple-400 to-purple-700 bg-clip-text text-transparent">.io</span></span>
             </div>
             <p className="text-zinc-500 text-sm font-poppins">Entre na sua conta para continuar</p>
           </div>
@@ -96,7 +96,7 @@ const Login = () => {
             <div className="space-y-2">
               <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">E-mail</label>
               <div className="relative">
-                <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
+                <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-primary" />
                 <input
                   type="email"
                   value={email}
@@ -112,7 +112,7 @@ const Login = () => {
             <div className="space-y-2">
               <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Senha</label>
               <div className="relative">
-                <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
+                <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-primary" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
@@ -145,14 +145,15 @@ const Login = () => {
                 disabled={isLoading}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_10px_30px_rgba(124,58,237,0.3)] hover:shadow-[0_15px_40px_rgba(124,58,237,0.4)] transition-all disabled:opacity-60 relative z-[2]"
+                className="group/btn w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_10px_30px_rgba(124,58,237,0.3)] hover:shadow-[0_15px_40px_rgba(124,58,237,0.4)] transition-all disabled:opacity-60 relative z-[2] overflow-hidden"
               >
                 {isLoading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
-                  <>
-                    Entrar <ArrowRight size={16} />
-                  </>
+                  <span className="relative flex items-center gap-2">
+                    Entrar
+                    <ArrowRight size={16} className="translate-x-4 opacity-0 group-hover/btn:translate-x-0 group-hover/btn:opacity-100 transition-all duration-300" />
+                  </span>
                 )}
               </motion.button>
             </div>
