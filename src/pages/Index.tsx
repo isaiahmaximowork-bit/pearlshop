@@ -144,6 +144,9 @@ const Index = () => {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2 group cursor-pointer">
             <img src={logo} alt="PearlShop.io" className="h-10 md:h-[72px] w-auto" />
+            <span className="text-lg md:text-xl font-extrabold text-white font-poppins tracking-tight">
+              PearlShop<span className="italic bg-gradient-to-b from-purple-400 to-purple-700 bg-clip-text text-transparent">.io</span>
+            </span>
           </div>
           
           <div className="hidden lg:block">
