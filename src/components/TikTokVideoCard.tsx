@@ -9,7 +9,7 @@ interface TikTokVideoCardProps {
   saleValue?: string;
 }
 
-const TikTokVideoCard = ({ videoId, showBadge, saleValue }: TikTokVideoCardProps) => {
+const TikTokVideoCard = ({ videoId, thumbnail, showBadge, saleValue }: TikTokVideoCardProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
 
   return (
@@ -19,19 +19,30 @@ const TikTokVideoCard = ({ videoId, showBadge, saleValue }: TikTokVideoCardProps
       onMouseLeave={() => setIsPlaying(false)}
       onClick={() => setIsPlaying(true)}
     >
-      <iframe
-        src={`https://www.tiktok.com/player/v1/${videoId}?${isPlaying ? 'autoplay=1' : 'autoplay=0'}&mute=1&controls=0&loop=1&music_info=0&description=0&rel=0&native_context_menu=0&closed_caption=0`}
-        className="w-full border-0"
-        allow="autoplay"
-        style={{ pointerEvents: 'none', height: '120%', marginTop: '-10%' }}
-      />
-
-      {!isPlaying && (
-        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-          <div className="bg-white/10 backdrop-blur-md rounded-full p-3">
-            <Play size={16} className="fill-white text-white" />
+      {isPlaying ? (
+        <iframe
+          src={`https://www.tiktok.com/player/v1/${videoId}?autoplay=1&mute=1&controls=0&loop=1&music_info=0&description=0&rel=0&native_context_menu=0&closed_caption=0`}
+          className="w-full border-0"
+          allow="autoplay"
+          style={{ pointerEvents: 'none', height: '120%', marginTop: '-10%' }}
+        />
+      ) : (
+        <>
+          {thumbnail ? (
+            <img 
+              src={thumbnail} 
+              alt="Video thumbnail" 
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-zinc-900" />
+          )}
+          <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+            <div className="bg-white/10 backdrop-blur-md rounded-full p-3">
+              <Play size={16} className="fill-white text-white" />
+            </div>
           </div>
-        </div>
+        </>
       )}
       
       <AnimatePresence>
