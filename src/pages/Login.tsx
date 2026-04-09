@@ -86,7 +86,7 @@ const Login = () => {
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 mb-4">
               <img src={logo} alt="PearlShop" className="h-8 object-contain" />
-              <span className="text-xl font-extrabold text-white tracking-tight font-poppins">PearlShop</span>
+              <span className="text-xl font-extrabold text-white tracking-tight font-poppins">PearlShop<span className="italic">.io</span></span>
             </div>
             <p className="text-zinc-500 text-sm font-poppins">Entre na sua conta para continuar</p>
           </div>
@@ -139,7 +139,7 @@ const Login = () => {
             </div>
 
             {/* Submit */}
-            <div className="gemini-pill-wrapper w-full">
+            <div className="gemini-pill-wrapper w-full" style={{ '--border-size': '6px' } as React.CSSProperties}>
               <motion.button
                 type="submit"
                 disabled={isLoading}
