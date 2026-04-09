@@ -145,6 +145,20 @@
   animation: rotate-gemini 5s infinite linear;
 }
 
+.gemini-pill-wrapper.hover-only::before {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.gemini-pill-wrapper.hover-only:hover::before {
+  opacity: 1;
+}
+
+.gemini-pill-wrapper.hover-only {
+  --border-size: 6px;
+  padding: var(--border-size);
+}
+
 @keyframes rotate-gemini {
   to { --rotation: 360deg; }
 }
