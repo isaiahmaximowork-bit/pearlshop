@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, ArrowRight, User, AtSign } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import logo from '@/assets/logo.png';
 
@@ -28,9 +28,11 @@ const columns = [0, 1, 2, 3, 4, 5, 6].map(i => ({
   direction: i % 2 === 0 ? 'up' : 'down',
 }));
 
-const Login = () => {
+const Register = () => {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [socialHandle, setSocialHandle] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -69,12 +71,11 @@ const Login = () => {
             </div>
           ))}
         </div>
-        {/* Dark overlays */}
         <div className="absolute inset-0 bg-[#020105]/60" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#020105] via-transparent to-[#020105]" />
       </div>
 
-      {/* LOGIN CARD */}
+      {/* REGISTER CARD */}
       <motion.div
         initial={{ opacity: 0, y: 30, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -88,10 +89,26 @@ const Login = () => {
               <img src={logo} alt="PearlShop" className="h-8 object-contain" />
               <span className="text-xl font-extrabold text-white tracking-tight font-poppins">PearlShop<span className="font-bold italic bg-gradient-to-b from-purple-400 to-purple-700 bg-clip-text text-transparent">.io</span></span>
             </div>
-            <p className="text-zinc-500 text-sm font-poppins">Entre na sua conta para continuar</p>
+            <p className="text-zinc-500 text-sm font-poppins">Crie sua conta para começar</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Nome */}
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Nome</label>
+              <div className="relative">
+                <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-primary" />
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Seu nome completo"
+                  required
+                  className="w-full h-12 pl-11 pr-4 rounded-xl bg-white/[0.05] border border-white/[0.08] text-white text-sm placeholder:text-zinc-600 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/30 transition-all"
+                />
+              </div>
+            </div>
+
             {/* Email */}
             <div className="space-y-2">
               <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">E-mail</label>
@@ -131,11 +148,20 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Forgot password */}
-            <div className="flex justify-end">
-              <button type="button" className="text-xs text-purple-400 hover:text-purple-300 transition-colors font-medium">
-                Esqueceu a senha?
-              </button>
+            {/* Social Handle */}
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">@ das redes sociais</label>
+              <div className="relative">
+                <AtSign size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-primary" />
+                <input
+                  type="text"
+                  value={socialHandle}
+                  onChange={(e) => setSocialHandle(e.target.value)}
+                  placeholder="@seuusuario"
+                  required
+                  className="w-full h-12 pl-11 pr-4 rounded-xl bg-white/[0.05] border border-white/[0.08] text-white text-sm placeholder:text-zinc-600 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/30 transition-all"
+                />
+              </div>
             </div>
 
             {/* Submit */}
@@ -151,7 +177,7 @@ const Login = () => {
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
                   <span className="relative flex items-center gap-2">
-                    Entrar
+                    Criar conta
                     <ArrowRight size={16} className="translate-x-4 opacity-0 group-hover/btn:translate-x-0 group-hover/btn:opacity-100 transition-all duration-300" />
                   </span>
                 )}
@@ -159,11 +185,11 @@ const Login = () => {
             </div>
           </form>
 
-          {/* Sign up link */}
+          {/* Login link */}
           <p className="text-center text-sm text-zinc-500 mt-6 font-poppins">
-            Não tem uma conta?{' '}
-            <button onClick={() => navigate('/register')} className="text-purple-400 hover:text-purple-300 font-semibold transition-colors">
-              Criar conta
+            Já tem uma conta?{' '}
+            <button onClick={() => navigate('/login')} className="text-purple-400 hover:text-purple-300 font-semibold transition-colors">
+              Entrar
             </button>
           </p>
         </div>
@@ -172,4 +198,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;

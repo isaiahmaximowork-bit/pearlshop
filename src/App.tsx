@@ -9,6 +9,7 @@ import TermsOfUse from "./pages/TermsOfUse.tsx";
 import SecurityPage from "./pages/SecurityPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Login from "./pages/Login.tsx";
+import Register from "./pages/Register.tsx";
 import AppLayout from "./layouts/AppLayout.tsx";
 import AppHome from "./pages/app/Home.tsx";
 import MeusProdutos from "./pages/app/MeusProdutos.tsx";
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/termos-de-uso" element={<TermsOfUse />} />
           <Route path="/seguranca" element={<SecurityPage />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/app" element={<AppLayout />}>
             <Route index element={<AppHome />} />
             <Route path="meus-produtos" element={<MeusProdutos />} />

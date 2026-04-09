@@ -146,12 +146,12 @@
 }
 
 .gemini-pill-wrapper.hover-only::before {
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  clip-path: inset(50% 50% 50% 50% round 0.75rem);
+  transition: clip-path 1.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .gemini-pill-wrapper.hover-only:hover::before {
-  opacity: 1;
+  clip-path: inset(0% 0% 0% 0% round 0.75rem);
 }
 
 .gemini-pill-wrapper.hover-only {
