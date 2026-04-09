@@ -13,13 +13,15 @@ export function AppHeader() {
 
   return (
     <header className="h-20 bg-card/80 backdrop-blur-md border-b border-border sticky top-0 z-40 px-8 flex items-center justify-end gap-6">
-      <div className="gemini-pill-wrapper group cursor-pointer active:scale-95 transition-transform">
-        <div className="bg-card border border-border px-4 py-2 rounded-[1.25rem] flex items-center gap-3 relative z-[2]">
+      <div className="gemini-pill-wrapper group cursor-pointer active:scale-95 transition-transform hover:scale-[1.25] duration-300">
+        <div className="bg-card border border-border px-4 py-2 rounded-[1.25rem] flex items-center gap-3 relative z-[2] transition-all duration-300 group-hover:border-[1.5px]">
           <span className="gemini-star">✦</span>
           <span className="text-sm font-black text-foreground leading-tight tracking-tight">
             {tokens.toLocaleString()}
           </span>
-          <Plus size={14} className="text-primary ml-1 opacity-40 group-hover:opacity-100 transition-opacity" />
+          <div className="w-5 h-5 rounded-full flex items-center justify-center ml-1 transition-all duration-300 group-hover:bg-primary">
+            <Plus size={12} className="text-primary opacity-40 group-hover:opacity-100 group-hover:text-primary-foreground transition-all duration-300" />
+          </div>
         </div>
       </div>
 

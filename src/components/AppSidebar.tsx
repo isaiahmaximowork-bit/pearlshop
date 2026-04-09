@@ -1,4 +1,5 @@
-import { Home, Package, ShoppingBag, Settings, Link, Store, LayoutTemplate } from "lucide-react";
+import { Home, Package, ShoppingBag, Settings, Link, LayoutTemplate } from "lucide-react";
+import logo from "@/assets/logo.png";
 import { NavLink as RouterNavLink, useLocation } from "react-router-dom";
 
 const mainItems = [
@@ -42,9 +43,7 @@ export function AppSidebar() {
   return (
     <aside className="w-72 bg-card border-r border-border flex flex-col p-6 sticky top-0 h-screen shrink-0">
       <div className="flex items-center gap-2 mb-12 px-2">
-        <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-primary-foreground shadow-lg">
-          <ShoppingBag size={18} strokeWidth={2.5} />
-        </div>
+        <img src={logo} alt="PearlShop" width={36} height={36} className="rounded-lg" />
         <span className="text-xl font-black tracking-tighter text-foreground uppercase">PearlShop</span>
       </div>
 

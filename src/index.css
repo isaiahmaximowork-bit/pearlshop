@@ -124,6 +124,11 @@
   position: relative;
   border-radius: 1.25rem;
   padding: var(--border-size);
+  transition: --border-size 0.3s ease;
+}
+
+.gemini-pill-wrapper:hover {
+  --border-size: 3px;
 }
 
 .gemini-pill-wrapper::before {
