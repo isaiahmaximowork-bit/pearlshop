@@ -85,7 +85,8 @@ const Login = () => {
           {/* Logo / Brand */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 mb-4">
-              <img src={logo} alt="PearlShop" className="h-10 object-contain" />
+              <img src={logo} alt="PearlShop" className="h-8 object-contain" />
+              <span className="text-xl font-extrabold text-white tracking-tight font-poppins">PearlShop</span>
             </div>
             <p className="text-zinc-500 text-sm font-poppins">Entre na sua conta para continuar</p>
           </div>
@@ -144,7 +145,7 @@ const Login = () => {
                 disabled={isLoading}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full h-12 rounded-xl bg-[#0a0a12] text-white font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all disabled:opacity-60 relative z-[2]"
+                className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_10px_30px_rgba(124,58,237,0.3)] hover:shadow-[0_15px_40px_rgba(124,58,237,0.4)] transition-all disabled:opacity-60 relative z-[2]"
               >
                 {isLoading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
