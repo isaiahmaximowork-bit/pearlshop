@@ -12,6 +12,9 @@ const FooterSection = () => {
           <div className="lg:col-span-2 space-y-6">
             <div className="flex items-center gap-2">
               <img src={logo} alt="PearlShop.io" className="h-10 w-auto brightness-0" />
+              <span className="text-xl font-extrabold text-black font-poppins tracking-tight pr-1">
+                PearlShop<span className="italic bg-gradient-to-b from-purple-500 to-purple-800 bg-clip-text text-transparent">.io</span>
+              </span>
             </div>
             <p className="text-zinc-500 text-sm max-w-sm font-medium leading-relaxed">
               A plataforma líder em automação de vendas para o TikTok Shop. Criamos, publicamos e escalamos a sua operação 24/7 com inteligência artificial.

@@ -44,7 +44,7 @@ export function AppSidebar() {
     <aside className="w-72 bg-card border-r border-border flex flex-col p-6 sticky top-0 h-screen shrink-0">
       <div className="flex items-center gap-2.5 mb-12 px-2">
         <img src={logo} alt="PearlShop" width={32} height={32} className="rounded-lg" />
-        <span className="text-xl font-black tracking-tighter text-foreground" style={{ fontFamily: "'Poppins', sans-serif" }}>
+        <span className="text-xl font-black tracking-tighter text-foreground pr-1" style={{ fontFamily: "'Poppins', sans-serif" }}>
           PearlShop<span className="italic bg-gradient-to-b from-primary to-[hsl(262,83%,38%)] bg-clip-text text-transparent">.io</span>
         </span>
       </div>
