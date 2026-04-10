@@ -129,17 +129,36 @@ const Register = () => {
           </div>
 
           {/* Step indicator */}
-          <div className="flex items-center justify-center gap-2 mb-8">
-            {[1, 2, 3].map(s => (
-              <div key={s} className="flex items-center gap-2">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
-                  step > s ? 'bg-primary text-primary-foreground' :
-                  step === s ? 'bg-primary text-primary-foreground shadow-[0_0_20px_rgba(124,58,237,0.4)]' :
-                  'bg-white/[0.06] text-zinc-600'
-                }`}>
-                  {step > s ? <Check size={14} /> : s}
-                </div>
-                {s < 3 && <div className={`w-8 h-[2px] transition-all duration-300 ${step > s ? 'bg-primary' : 'bg-white/[0.06]'}`} />}
+          <div className="flex items-center gap-2 mb-8">
+            {[
+              { id: 1, label: 'Credenciais' },
+              { id: 2, label: 'Informações sociais' },
+              { id: 3, label: 'Sua cara na PearlShop' },
+            ].map((s) => (
+              <div key={s.id} className="flex-1 flex flex-col items-center gap-1.5">
+                <div
+                  className={`w-full h-[3px] rounded-full transition-all duration-500 ${
+                    step > s.id
+                      ? 'bg-primary'
+                      : step === s.id
+                        ? 'bg-primary shadow-[0_0_12px_rgba(124,58,237,0.5)]'
+                        : 'bg-white/[0.08]'
+                  }`}
+                />
+                <AnimatePresence mode="wait">
+                  {step === s.id && (
+                    <motion.span
+                      key={s.label}
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 4 }}
+                      transition={{ duration: 0.3 }}
+                      className="text-[10px] font-semibold text-primary tracking-wide"
+                    >
+                      {s.label}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
               </div>
             ))}
           </div>
