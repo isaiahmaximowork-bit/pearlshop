@@ -66,7 +66,7 @@ const Register = () => {
   const [tiktokHandle, setTiktokHandle] = useState('');
   const [selectedAvatarId, setSelectedAvatarId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  
   const navigate = useNavigate();
 
   const goNext = () => { setDirection(1); setStep(s => s + 1); };
