@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, EyeOff, Mail, Lock, ArrowRight, ArrowLeft, User, AtSign, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import logo from '@/assets/logo.png';
 
 import thumb1 from '@/assets/thumbnails/video1.jpg';
@@ -22,14 +24,14 @@ import watermelon from '@/assets/avatars/watermelon.jpg';
 import apple from '@/assets/avatars/apple.jpg';
 
 const avatars = [
-  { src: strawberry, label: 'Morango' },
-  { src: grape, label: 'Uva' },
-  { src: orange, label: 'Laranja' },
-  { src: peach, label: 'Pêssego' },
-  { src: banana, label: 'Banana' },
-  { src: pineapple, label: 'Abacaxi' },
-  { src: watermelon, label: 'Melancia' },
-  { src: apple, label: 'Maçã' },
+  { id: 'strawberry', src: strawberry, label: 'Morango' },
+  { id: 'grape', src: grape, label: 'Uva' },
+  { id: 'orange', src: orange, label: 'Laranja' },
+  { id: 'peach', src: peach, label: 'Pêssego' },
+  { id: 'banana', src: banana, label: 'Banana' },
+  { id: 'pineapple', src: pineapple, label: 'Abacaxi' },
+  { id: 'watermelon', src: watermelon, label: 'Melancia' },
+  { id: 'apple', src: apple, label: 'Maçã' },
 ];
 
 const thumbnails = [thumb1, thumb2, thumb3, thumb4, thumb5, thumb6, thumb7];
