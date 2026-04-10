@@ -19,6 +19,7 @@ import peach from '@/assets/avatars/peach.jpg';
 import pineapple from '@/assets/avatars/pineapple.jpg';
 import strawberry from '@/assets/avatars/strawberry.jpg';
 import watermelon from '@/assets/avatars/watermelon.jpg';
+import apple from '@/assets/avatars/apple.jpg';
 
 const avatars = [
   { src: strawberry, label: 'Morango' },
@@ -28,6 +29,7 @@ const avatars = [
   { src: banana, label: 'Banana' },
   { src: pineapple, label: 'Abacaxi' },
   { src: watermelon, label: 'Melancia' },
+  { src: apple, label: 'Maçã' },
 ];
 
 const thumbnails = [thumb1, thumb2, thumb3, thumb4, thumb5, thumb6, thumb7];
