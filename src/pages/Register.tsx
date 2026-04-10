@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, EyeOff, Mail, Lock, ArrowRight, ArrowLeft, User, AtSign, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import logo from '@/assets/logo.png';
 
 import thumb1 from '@/assets/thumbnails/video1.jpg';
@@ -22,14 +24,14 @@ import watermelon from '@/assets/avatars/watermelon.jpg';
 import apple from '@/assets/avatars/apple.jpg';
 
 const avatars = [
-  { src: strawberry, label: 'Morango' },
-  { src: grape, label: 'Uva' },
-  { src: orange, label: 'Laranja' },
-  { src: peach, label: 'Pêssego' },
-  { src: banana, label: 'Banana' },
-  { src: pineapple, label: 'Abacaxi' },
-  { src: watermelon, label: 'Melancia' },
-  { src: apple, label: 'Maçã' },
+  { id: 'strawberry', src: strawberry, label: 'Morango' },
+  { id: 'grape', src: grape, label: 'Uva' },
+  { id: 'orange', src: orange, label: 'Laranja' },
+  { id: 'peach', src: peach, label: 'Pêssego' },
+  { id: 'banana', src: banana, label: 'Banana' },
+  { id: 'pineapple', src: pineapple, label: 'Abacaxi' },
+  { id: 'watermelon', src: watermelon, label: 'Melancia' },
+  { id: 'apple', src: apple, label: 'Maçã' },
 ];
 
 const thumbnails = [thumb1, thumb2, thumb3, thumb4, thumb5, thumb6, thumb7];
@@ -62,8 +64,9 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState('');
   const [tiktokHandle, setTiktokHandle] = useState('');
-  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
+  const [selectedAvatarId, setSelectedAvatarId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  
   const navigate = useNavigate();
 
   const goNext = () => { setDirection(1); setStep(s => s + 1); };
@@ -71,16 +74,43 @@ const Register = () => {
 
   const handleSubmit = async () => {
     setIsLoading(true);
-    // TODO: integrate with Supabase auth
-    setTimeout(() => {
+    
+
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: window.location.origin },
+    });
+
+    if (signUpError) {
       setIsLoading(false);
-      navigate('/app');
-    }, 1500);
+      toast.error(signUpError.message);
+      return;
+    }
+
+    if (data.user) {
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          name,
+          avatar_id: selectedAvatarId || 'strawberry',
+          tiktok_handle: tiktokHandle,
+        })
+        .eq('user_id', data.user.id);
+
+      if (profileError) {
+        console.error('Profile update error:', profileError);
+      }
+    }
+
+    setIsLoading(false);
+    toast.success('Conta criada com sucesso!');
+    navigate('/app');
   };
 
   const canProceedStep1 = email.length > 0 && password.length >= 6;
   const canProceedStep2 = name.length > 0 && tiktokHandle.length > 0;
-  const canFinish = selectedAvatar !== null;
+  const canFinish = selectedAvatarId !== null;
 
   const inputClass = "w-full h-12 pl-11 pr-4 rounded-xl bg-white/[0.05] border border-white/[0.08] text-white text-sm placeholder:text-zinc-600 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/30 transition-all";
   const inputClassPassword = "w-full h-12 pl-11 pr-12 rounded-xl bg-white/[0.05] border border-white/[0.08] text-white text-sm placeholder:text-zinc-600 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/30 transition-all";
@@ -245,17 +275,17 @@ const Register = () => {
                   <div className="grid grid-cols-4 gap-3 justify-items-center">
                     {avatars.map(av => (
                       <button
-                        key={av.label}
+                        key={av.id}
                         type="button"
-                        onClick={() => setSelectedAvatar(av.src)}
+                        onClick={() => setSelectedAvatarId(av.id)}
                         className={`relative w-16 h-16 rounded-2xl overflow-hidden transition-all duration-300 ring-2 ${
-                          selectedAvatar === av.src
+                          selectedAvatarId === av.id
                             ? 'ring-primary scale-110 shadow-[0_0_20px_rgba(124,58,237,0.4)]'
                             : 'ring-transparent hover:ring-white/20 hover:scale-105'
                         }`}
                       >
                         <img src={av.src} alt={av.label} className="w-full h-full object-cover" />
-                        {selectedAvatar === av.src && (
+                        {selectedAvatarId === av.id && (
                           <div className="absolute inset-0 bg-primary/30 flex items-center justify-center">
                             <Check size={20} className="text-white drop-shadow-lg" />
                           </div>

@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import logo from '@/assets/logo.png';
 
 import thumb1 from '@/assets/thumbnails/video1.jpg';
@@ -38,11 +40,15 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // TODO: integrate with Supabase auth
-    setTimeout(() => {
-      setIsLoading(false);
-      navigate('/app');
-    }, 1500);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    setIsLoading(false);
+    if (error) {
+      toast.error(error.message === 'Invalid login credentials'
+        ? 'E-mail ou senha incorretos'
+        : error.message);
+      return;
+    }
+    navigate('/app');
   };
 
   return (
