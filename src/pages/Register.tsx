@@ -144,11 +144,9 @@ const Register = () => {
                     initial={false}
                     animate={{
                       scaleX: step >= s.id ? 1 : 0,
-                    }}
-                    style={{
                       originX: step >= s.id ? 0 : 1,
-                      ...(step === s.id ? { boxShadow: '0 0 12px rgba(124,58,237,0.5)' } : {}),
                     }}
+                    style={step === s.id ? { boxShadow: '0 0 12px rgba(124,58,237,0.5)' } : {}}
                     transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                   />
                 </div>
