@@ -64,8 +64,9 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState('');
   const [tiktokHandle, setTiktokHandle] = useState('');
-  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
+  const [selectedAvatarId, setSelectedAvatarId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const goNext = () => { setDirection(1); setStep(s => s + 1); };
@@ -73,16 +74,43 @@ const Register = () => {
 
   const handleSubmit = async () => {
     setIsLoading(true);
-    // TODO: integrate with Supabase auth
-    setTimeout(() => {
+    setError('');
+
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: window.location.origin },
+    });
+
+    if (signUpError) {
       setIsLoading(false);
-      navigate('/app');
-    }, 1500);
+      toast.error(signUpError.message);
+      return;
+    }
+
+    if (data.user) {
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          name,
+          avatar_id: selectedAvatarId || 'strawberry',
+          tiktok_handle: tiktokHandle,
+        })
+        .eq('user_id', data.user.id);
+
+      if (profileError) {
+        console.error('Profile update error:', profileError);
+      }
+    }
+
+    setIsLoading(false);
+    toast.success('Conta criada com sucesso!');
+    navigate('/app');
   };
 
   const canProceedStep1 = email.length > 0 && password.length >= 6;
   const canProceedStep2 = name.length > 0 && tiktokHandle.length > 0;
-  const canFinish = selectedAvatar !== null;
+  const canFinish = selectedAvatarId !== null;
 
   const inputClass = "w-full h-12 pl-11 pr-4 rounded-xl bg-white/[0.05] border border-white/[0.08] text-white text-sm placeholder:text-zinc-600 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/30 transition-all";
   const inputClassPassword = "w-full h-12 pl-11 pr-12 rounded-xl bg-white/[0.05] border border-white/[0.08] text-white text-sm placeholder:text-zinc-600 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/30 transition-all";
