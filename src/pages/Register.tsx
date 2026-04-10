@@ -275,17 +275,17 @@ const Register = () => {
                   <div className="grid grid-cols-4 gap-3 justify-items-center">
                     {avatars.map(av => (
                       <button
-                        key={av.label}
+                        key={av.id}
                         type="button"
-                        onClick={() => setSelectedAvatar(av.src)}
+                        onClick={() => setSelectedAvatarId(av.id)}
                         className={`relative w-16 h-16 rounded-2xl overflow-hidden transition-all duration-300 ring-2 ${
-                          selectedAvatar === av.src
+                          selectedAvatarId === av.id
                             ? 'ring-primary scale-110 shadow-[0_0_20px_rgba(124,58,237,0.4)]'
                             : 'ring-transparent hover:ring-white/20 hover:scale-105'
                         }`}
                       >
                         <img src={av.src} alt={av.label} className="w-full h-full object-cover" />
-                        {selectedAvatar === av.src && (
+                        {selectedAvatarId === av.id && (
                           <div className="absolute inset-0 bg-primary/30 flex items-center justify-center">
                             <Check size={20} className="text-white drop-shadow-lg" />
                           </div>
