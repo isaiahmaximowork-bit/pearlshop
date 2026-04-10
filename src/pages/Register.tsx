@@ -74,7 +74,7 @@ const Register = () => {
 
   const handleSubmit = async () => {
     setIsLoading(true);
-    setError('');
+    
 
     const { data, error: signUpError } = await supabase.auth.signUp({
       email,
