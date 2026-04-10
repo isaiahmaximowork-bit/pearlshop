@@ -48,7 +48,7 @@ const Login = () => {
         : error.message);
       return;
     }
-    navigate('/app');
+    navigate('/');
   };
 
   return (
