@@ -138,14 +138,15 @@ const Register = () => {
               <div key={s.id} className="flex-1 flex flex-col items-center gap-1.5">
                 <div className="relative w-full h-[3px] rounded-full bg-white/[0.08] overflow-hidden">
                   <motion.div
-                    className="absolute inset-y-0 h-full rounded-full bg-primary"
+                    className="absolute inset-y-0 left-0 h-full w-full rounded-full bg-primary"
                     initial={false}
                     animate={{
-                      width: step >= s.id ? '100%' : '0%',
-                      left: direction >= 0 ? 0 : 'auto',
-                      right: direction < 0 ? 0 : 'auto',
+                      scaleX: step >= s.id ? 1 : 0,
                     }}
-                    style={step >= s.id && step === s.id ? { boxShadow: '0 0 12px rgba(124,58,237,0.5)' } : {}}
+                    style={{
+                      originX: step >= s.id ? 0 : 1,
+                      ...(step === s.id ? { boxShadow: '0 0 12px rgba(124,58,237,0.5)' } : {}),
+                    }}
                     transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                   />
                 </div>
