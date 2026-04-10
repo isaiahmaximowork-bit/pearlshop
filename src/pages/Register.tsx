@@ -79,28 +79,20 @@ const Register = () => {
     const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: window.location.origin },
+      options: {
+        emailRedirectTo: window.location.origin,
+        data: {
+          name,
+          avatar_id: selectedAvatarId || 'strawberry',
+          tiktok_handle: tiktokHandle,
+        },
+      },
     });
 
     if (signUpError) {
       setIsLoading(false);
       toast.error(signUpError.message);
       return;
-    }
-
-    if (data.user) {
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          name,
-          avatar_id: selectedAvatarId || 'strawberry',
-          tiktok_handle: tiktokHandle,
-        })
-        .eq('user_id', data.user.id);
-
-      if (profileError) {
-        console.error('Profile update error:', profileError);
-      }
     }
 
     setIsLoading(false);
