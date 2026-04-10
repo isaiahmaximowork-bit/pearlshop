@@ -136,15 +136,19 @@ const Register = () => {
               { id: 3, label: 'Sua cara na PearlShop' },
             ].map((s) => (
               <div key={s.id} className="flex-1 flex flex-col items-center gap-1.5">
-                <div
-                  className={`w-full h-[3px] rounded-full transition-all duration-500 ${
-                    step > s.id
-                      ? 'bg-primary'
-                      : step === s.id
-                        ? 'bg-primary shadow-[0_0_12px_rgba(124,58,237,0.5)]'
-                        : 'bg-white/[0.08]'
-                  }`}
-                />
+                <div className="relative w-full h-[3px] rounded-full bg-white/[0.08] overflow-hidden">
+                  <motion.div
+                    className="absolute inset-y-0 h-full rounded-full bg-primary"
+                    initial={false}
+                    animate={{
+                      width: step >= s.id ? '100%' : '0%',
+                      left: direction >= 0 ? 0 : 'auto',
+                      right: direction < 0 ? 0 : 'auto',
+                    }}
+                    style={step >= s.id && step === s.id ? { boxShadow: '0 0 12px rgba(124,58,237,0.5)' } : {}}
+                    transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                  />
+                </div>
                 <AnimatePresence mode="wait">
                   {step === s.id && (
                     <motion.span
@@ -152,7 +156,7 @@ const Register = () => {
                       initial={{ opacity: 0, y: -4 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 4 }}
-                      transition={{ duration: 0.3 }}
+                      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                       className="text-[10px] font-semibold text-primary tracking-wide"
                     >
                       {s.label}
