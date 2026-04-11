@@ -126,8 +126,8 @@ export const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetai
       };
     }
     // Fallback
-    const skuPrice = skus[0]?.price;
-    const sale = parseFloat(skuPrice?.sale_price || '') || null;
+    const skuPrice = skus[0]?.price as Record<string, unknown> | undefined;
+    const sale = Number(skuPrice?.sale_price ?? skuPrice?.tax_exclusive_price) || null;
     if (!sale) return null;
     return { salePrice: sale, originalPrice: null, hasDiscount: false };
   })();

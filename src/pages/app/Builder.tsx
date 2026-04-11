@@ -356,8 +356,10 @@ const Builder = () => {
     const payload = product.raw_payload as Record<string, unknown> | null;
     if (!payload) return null;
     const skuList = Array.isArray(payload.skus) ? (payload.skus as Array<Record<string, unknown>>) : [];
-    const skuPrice = skuList[0]?.price as Record<string, unknown> | undefined;
-    const sale = Number(skuPrice?.sale_price) || null;
+    const firstSku = skuList[0];
+    const skuPrice = (firstSku?.price as Record<string, unknown> | undefined) ?? firstSku;
+    if (!skuPrice) return null;
+    const sale = Number(skuPrice.sale_price ?? skuPrice.tax_exclusive_price) || null;
     if (!sale) return null;
     return { salePrice: sale, originalPrice: null, hasDiscount: false };
   };
