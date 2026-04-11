@@ -83,6 +83,36 @@ export type Database = {
         }
         Relationships: []
       }
+      stores: {
+        Row: {
+          created_at: string
+          id: string
+          preview_cache: string | null
+          slug: string
+          store_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          preview_cache?: string | null
+          slug?: string
+          store_name?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          preview_cache?: string | null
+          slug?: string
+          store_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       tiktok_shop_tokens: {
         Row: {
           access_token: string
