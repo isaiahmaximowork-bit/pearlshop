@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Plus, Trash2, Upload, Clock, Search, Image, Bold, Italic, X
+  Plus, Trash2, Upload, Clock, Search, Image, Bold, Italic, X, Loader2
 } from "lucide-react";
 import { toast } from "sonner";
 import type {
@@ -23,17 +23,59 @@ import {
   defaultTextConfig, fontOptions, textPositionOptions, maskTypeOptions,
 } from "./types";
 
-// Free image search via Unsplash Source (no API key needed for demo URLs)
-const DEMO_IMAGES = [
-  "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80",
-  "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&q=80",
-  "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80",
-  "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800&q=80",
-  "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80",
-  "https://images.unsplash.com/photo-1526178613552-2b45c6c302f0?w=800&q=80",
-  "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=800&q=80",
-  "https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=800&q=80",
-];
+// Categories of images for quick browsing
+const IMAGE_CATEGORIES: Record<string, string[]> = {
+  "Loja": [
+    "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80",
+    "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800&q=80",
+    "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=800&q=80",
+    "https://images.unsplash.com/photo-1528698827591-e19cef791f48?w=800&q=80",
+  ],
+  "Moda": [
+    "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80",
+    "https://images.unsplash.com/photo-1445205170230-053b83016050?w=800&q=80",
+    "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&q=80",
+    "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=800&q=80",
+  ],
+  "Tecnologia": [
+    "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80",
+    "https://images.unsplash.com/photo-1526178613552-2b45c6c302f0?w=800&q=80",
+    "https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=800&q=80",
+    "https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=800&q=80",
+  ],
+  "Comida": [
+    "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80",
+    "https://images.unsplash.com/photo-1493770348161-369560ae357d?w=800&q=80",
+    "https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=800&q=80",
+    "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80",
+  ],
+  "Natureza": [
+    "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80",
+    "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=800&q=80",
+    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80",
+    "https://images.unsplash.com/photo-1518173946687-a1e7506f55c0?w=800&q=80",
+  ],
+  "Promoção": [
+    "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&q=80",
+    "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80",
+    "https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=800&q=80",
+    "https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?w=800&q=80",
+  ],
+  "Beleza": [
+    "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&q=80",
+    "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&q=80",
+    "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=800&q=80",
+    "https://images.unsplash.com/photo-1487412912498-0447578fcca8?w=800&q=80",
+  ],
+  "Fitness": [
+    "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800&q=80",
+    "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800&q=80",
+    "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80",
+    "https://images.unsplash.com/photo-1549060279-7e168fcee0c2?w=800&q=80",
+  ],
+};
+
+const ALL_IMAGES = Object.values(IMAGE_CATEGORIES).flat();
 
 interface BannerConfigProps {
   section: BuilderSection;
@@ -51,8 +93,25 @@ const BannerConfig = ({
   );
   const [showImagePicker, setShowImagePicker] = useState<string | null>(null);
   const [imageSearch, setImageSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  const filteredImages = DEMO_IMAGES; // In production, search Unsplash API
+  // Filter images based on search and category
+  const filteredImages = (() => {
+    if (selectedCategory && IMAGE_CATEGORIES[selectedCategory]) {
+      return IMAGE_CATEGORIES[selectedCategory];
+    }
+    if (!imageSearch.trim()) return ALL_IMAGES;
+    const term = imageSearch.toLowerCase();
+    // Match category names
+    const matchedCategories = Object.keys(IMAGE_CATEGORIES).filter(cat =>
+      cat.toLowerCase().includes(term)
+    );
+    if (matchedCategories.length > 0) {
+      return matchedCategories.flatMap(cat => IMAGE_CATEGORIES[cat]);
+    }
+    // Fallback: return all
+    return ALL_IMAGES;
+  })();
 
   return (
     <div className="space-y-3">
@@ -130,19 +189,40 @@ const BannerConfig = ({
                         <div className="relative">
                           <Search size={12} className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
                           <Input
-                            placeholder="Buscar imagens..."
+                            placeholder="Buscar por categoria..."
                             value={imageSearch}
-                            onChange={(e) => setImageSearch(e.target.value)}
+                            onChange={(e) => { setImageSearch(e.target.value); setSelectedCategory(null); }}
                             className="h-8 text-xs pl-7"
                           />
                         </div>
-                        <div className="grid grid-cols-2 gap-1.5 max-h-40 overflow-y-auto">
+                        {/* Category chips */}
+                        <div className="flex flex-wrap gap-1">
+                          {Object.keys(IMAGE_CATEGORIES).map((cat) => (
+                            <button
+                              key={cat}
+                              onClick={() => {
+                                setSelectedCategory(selectedCategory === cat ? null : cat);
+                                setImageSearch("");
+                              }}
+                              className={`px-2 py-0.5 rounded-full text-[10px] border transition-colors ${
+                                selectedCategory === cat
+                                  ? "bg-primary text-primary-foreground border-primary"
+                                  : "border-border text-muted-foreground hover:border-primary/30"
+                              }`}
+                            >
+                              {cat}
+                            </button>
+                          ))}
+                        </div>
+                        <div className="grid grid-cols-2 gap-1.5 max-h-48 overflow-y-auto">
                           {filteredImages.map((url, i) => (
                             <button
                               key={i}
                               onClick={() => {
                                 onUpdateBanner(section.id, banner.id, { imageUrl: url });
                                 setShowImagePicker(null);
+                                setImageSearch("");
+                                setSelectedCategory(null);
                               }}
                               className="aspect-video rounded-md overflow-hidden border border-border hover:border-primary transition-colors"
                             >
