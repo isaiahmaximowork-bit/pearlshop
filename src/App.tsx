@@ -17,6 +17,7 @@ import Produtos from "./pages/app/Produtos.tsx";
 import Conexoes from "./pages/app/Conexoes.tsx";
 import Opcoes from "./pages/app/Opcoes.tsx";
 import Builder from "./pages/app/Builder.tsx";
+import StoreSettings from "./pages/app/StoreSettings.tsx";
 import EditarPerfil from "./pages/app/EditarPerfil.tsx";
 
 const queryClient = new QueryClient();
