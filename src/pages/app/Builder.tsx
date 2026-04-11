@@ -217,16 +217,16 @@ const Builder = () => {
   const [leftTab, setLeftTab] = useState<LeftTab>("sections");
   const [showSectionBorders, setShowSectionBorders] = useState(false);
   const [catalogProducts, setCatalogProducts] = useState<CatalogProduct[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<CatalogProduct | null>(null);
 
   // Fetch products from Supabase
   useEffect(() => {
     const fetchProducts = async () => {
       const { data } = await supabase
         .from("catalog_products")
-        .select("id, product_name, image_url")
-        .eq("status", "active")
+        .select("*")
         .limit(20);
-      if (data) setCatalogProducts(data);
+      if (data) setCatalogProducts(data as CatalogProduct[]);
     };
     fetchProducts();
   }, []);
