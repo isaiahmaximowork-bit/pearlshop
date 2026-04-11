@@ -70,7 +70,7 @@ export function AppHeader() {
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-44">
-            <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => navigate("/perfil")}>
+            <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => navigate("/app/perfil")}>
               <Pencil size={16} />
               Editar
             </DropdownMenuItem>
