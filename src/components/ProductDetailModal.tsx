@@ -326,7 +326,9 @@ export const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetai
                           <td className="p-3">{sku.sales_attributes?.map(a => a.value_name).filter(Boolean).join(", ") || "—"}</td>
                           <td className="p-3 text-right font-semibold">
                             {(() => {
-                              const price = (sku.price as Record<string, unknown> | undefined) ?? sku;
+                              const price = sku.price
+                                ? (sku.price as Record<string, unknown>)
+                                : (sku as unknown as Record<string, unknown>);
                               const parsedPrice =
                                 parsePriceValue(price?.sale_price) ??
                                 parsePriceValue(price?.tax_exclusive_price) ??
