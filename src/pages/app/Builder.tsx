@@ -597,13 +597,21 @@ const Builder = () => {
                           <div key={product?.id || i} className="aspect-[3/4] rounded-xl bg-muted/50 border border-border flex flex-col items-center justify-center overflow-hidden">
                             {product?.image_url ? (
                               <>
-                                <div className="flex-1 w-full overflow-hidden">
+                          <div className="flex-1 w-full overflow-hidden">
                                   <img src={product.image_url} alt={product.product_name} className="w-full h-full object-cover" />
                                 </div>
-                                <p className="text-[10px] text-foreground font-medium p-2 text-center truncate w-full">{product.product_name}</p>
+                                <div className="p-2 w-full">
+                                  <p className="text-xs text-foreground font-medium text-center truncate">{product.product_name}</p>
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); setSelectedProduct(product); }}
+                                    className="mt-1.5 w-full py-1.5 bg-primary text-primary-foreground rounded-lg font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-all"
+                                  >
+                                    Comprar
+                                  </button>
+                                </div>
                               </>
                             ) : (
-                              <p className="text-[10px] text-muted-foreground">Produto {i + 1}</p>
+                              <p className="text-xs text-muted-foreground">Produto {i + 1}</p>
                             )}
                           </div>
                         ))}
@@ -619,7 +627,15 @@ const Builder = () => {
                                 <div className="aspect-square w-full overflow-hidden">
                                   <img src={product.image_url} alt={product.product_name} className="w-full h-full object-cover" />
                                 </div>
-                                <p className="text-[10px] text-foreground font-medium p-2 text-center truncate">{product.product_name}</p>
+                                <div className="p-2">
+                                  <p className="text-xs text-foreground font-medium text-center truncate">{product.product_name}</p>
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); setSelectedProduct(product); }}
+                                    className="mt-1.5 w-full py-1.5 bg-primary text-primary-foreground rounded-lg font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-all"
+                                  >
+                                    Comprar
+                                  </button>
+                                </div>
                               </>
                             ) : (
                               <div className="aspect-square flex items-center justify-center">
