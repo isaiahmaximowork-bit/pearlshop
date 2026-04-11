@@ -235,7 +235,7 @@ const Builder = () => {
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [deviceMode, setDeviceMode] = useState<DeviceMode>("desktop");
   const [leftTab, setLeftTab] = useState<LeftTab>("sections");
-  const [showSectionBorders] = useState(false); // kept for compat
+  const [theme, setTheme] = useState<StoreTheme>({ ...defaultTheme });
   const [theme, setTheme] = useState<StoreTheme>({ ...defaultTheme });
   const [catalogProducts, setCatalogProducts] = useState<CatalogProduct[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<CatalogProduct | null>(null);
