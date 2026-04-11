@@ -39,10 +39,10 @@ const App = () => (
               <Route path="produtos" element={<Produtos />} />
               <Route path="opcoes" element={<Opcoes />} />
               <Route path="conexoes" element={<Conexoes />} />
-              <Route path="builder" element={<Builder />} />
               <Route path="minha-loja" element={<StoreSettings />} />
               <Route path="perfil" element={<EditarPerfil />} />
             </Route>
+            <Route path="/app/builder" element={<ProtectedRoute><Builder /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
