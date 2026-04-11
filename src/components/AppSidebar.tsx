@@ -3,14 +3,14 @@ import logo from "@/assets/logo.png";
 import { NavLink as RouterNavLink, useLocation } from "react-router-dom";
 
 const mainItems = [
-  { title: "Home", url: "/", icon: Home, end: true },
-  { title: "Meus Produtos", url: "/meus-produtos", icon: Package },
-  { title: "Catálogo", url: "/produtos", icon: ShoppingBag },
+  { title: "Home", url: "/app", icon: Home, end: true },
+  { title: "Meus Produtos", url: "/app/meus-produtos", icon: Package },
+  { title: "Catálogo", url: "/app/produtos", icon: ShoppingBag },
 ];
 
 const configItems = [
-  { title: "Opções", url: "/opcoes", icon: Settings },
-  { title: "Conexões", url: "/conexoes", icon: Link },
+  { title: "Opções", url: "/app/opcoes", icon: Settings },
+  { title: "Conexões", url: "/app/conexoes", icon: Link },
 ];
 
 export function AppSidebar() {
