@@ -40,6 +40,7 @@ const App = () => (
               <Route path="opcoes" element={<Opcoes />} />
               <Route path="conexoes" element={<Conexoes />} />
               <Route path="builder" element={<Builder />} />
+              <Route path="minha-loja" element={<StoreSettings />} />
               <Route path="perfil" element={<EditarPerfil />} />
             </Route>
             <Route path="*" element={<NotFound />} />
