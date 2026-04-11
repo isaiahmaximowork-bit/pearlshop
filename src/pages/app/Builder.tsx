@@ -339,14 +339,16 @@ const Builder = () => {
     setSections((prev) => prev.map((s) => (s.id === sectionId ? { ...s, [field]: value } : s)));
   }, []);
 
-  const getProductPrice = (product: CatalogProduct) => {
+  const getProductPriceInfo = (product: CatalogProduct) => {
     const payload = product.raw_payload;
-    const skus = payload?.skus as Array<{ price?: { sale_price?: string; tax_exclusive_price?: string; currency?: string } }> | undefined;
+    const skus = payload?.skus as Array<{ price?: { sale_price?: string; tax_exclusive_price?: string; original_price?: string; currency?: string } }> | undefined;
     if (!skus?.length) return null;
     const sku = skus[0]?.price;
-    const price = sku?.sale_price || sku?.tax_exclusive_price;
-    if (!price) return null;
-    return `R$${parseFloat(price).toFixed(2)}`;
+    const salePrice = sku?.sale_price ? parseFloat(sku.sale_price) : null;
+    const originalPrice = sku?.original_price ? parseFloat(sku.original_price) : (sku?.tax_exclusive_price ? parseFloat(sku.tax_exclusive_price) : null);
+    if (!salePrice && !originalPrice) return null;
+    const hasDiscount = salePrice && originalPrice && salePrice < originalPrice;
+    return { salePrice, originalPrice, hasDiscount };
   };
 
   const updateSectionBorder = useCallback((sectionId: string, showBorder: boolean) => {
