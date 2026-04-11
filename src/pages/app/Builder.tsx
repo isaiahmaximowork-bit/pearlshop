@@ -576,9 +576,18 @@ const Builder = () => {
 
                     {section.type === "destaque" && (
                       <div className={`grid gap-3 ${deviceMode === "mobile" ? "grid-cols-2" : "grid-cols-2 md:grid-cols-3"}`}>
-                        {[1, 2, 3].map((i) => (
-                          <div key={i} className="aspect-[3/4] rounded-xl bg-muted/50 border border-border flex items-center justify-center">
-                            <p className="text-[10px] text-muted-foreground">Produto {i}</p>
+                        {(catalogProducts.length > 0 ? catalogProducts.slice(0, 3) : [null, null, null]).map((product, i) => (
+                          <div key={product?.id || i} className="aspect-[3/4] rounded-xl bg-muted/50 border border-border flex flex-col items-center justify-center overflow-hidden">
+                            {product?.image_url ? (
+                              <>
+                                <div className="flex-1 w-full overflow-hidden">
+                                  <img src={product.image_url} alt={product.product_name} className="w-full h-full object-cover" />
+                                </div>
+                                <p className="text-[10px] text-foreground font-medium p-2 text-center truncate w-full">{product.product_name}</p>
+                              </>
+                            ) : (
+                              <p className="text-[10px] text-muted-foreground">Produto {i + 1}</p>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -586,9 +595,20 @@ const Builder = () => {
 
                     {section.type === "produtos" && (
                       <div className={`grid gap-3 ${deviceMode === "mobile" ? "grid-cols-2" : "grid-cols-2 md:grid-cols-4"}`}>
-                        {[1, 2, 3, 4].map((i) => (
-                          <div key={i} className="aspect-square rounded-xl bg-muted/50 border border-border flex items-center justify-center">
-                            <p className="text-[10px] text-muted-foreground">Produto</p>
+                        {(catalogProducts.length > 0 ? catalogProducts : [null, null, null, null]).map((product, i) => (
+                          <div key={product?.id || i} className="rounded-xl bg-muted/50 border border-border flex flex-col overflow-hidden">
+                            {product?.image_url ? (
+                              <>
+                                <div className="aspect-square w-full overflow-hidden">
+                                  <img src={product.image_url} alt={product.product_name} className="w-full h-full object-cover" />
+                                </div>
+                                <p className="text-[10px] text-foreground font-medium p-2 text-center truncate">{product.product_name}</p>
+                              </>
+                            ) : (
+                              <div className="aspect-square flex items-center justify-center">
+                                <p className="text-[10px] text-muted-foreground">Produto</p>
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>
