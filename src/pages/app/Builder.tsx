@@ -711,7 +711,8 @@ const Builder = () => {
                                   <p className="text-xs text-foreground font-medium text-center truncate">{product.product_name}</p>
                                   <button
                                     onClick={(e) => { e.stopPropagation(); setSelectedProduct(product); }}
-                                    className="mt-1.5 w-full py-1.5 bg-primary text-primary-foreground rounded-lg font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-all"
+                                    className="mt-1.5 w-full py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-all"
+                                    style={{ backgroundColor: theme.buttonBgColor, color: theme.buttonTextColor }}
                                   >
                                     Comprar
                                   </button>
