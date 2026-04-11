@@ -41,6 +41,7 @@ export interface BuilderSection {
   type: SectionType;
   title: string;
   subtitle: string;
+  showBorder?: boolean;
   banners?: BannerItem[];
 }
 
