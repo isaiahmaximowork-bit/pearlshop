@@ -1,10 +1,10 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Plus, Trash2, GripVertical, Image, Star, ShoppingBag,
-  ChevronUp, ChevronDown, X, ArrowLeft, Save, Settings2
+  X, ArrowLeft, Save, Settings2, Monitor, Tablet, Smartphone
 } from "lucide-react";
 import { toast } from "sonner";
 import logo from "@/assets/logo.png";
@@ -23,6 +23,14 @@ const sectionIcons: Record<SectionType, React.ReactNode> = {
   produtos: <ShoppingBag size={16} />,
 };
 
+type DeviceMode = "desktop" | "tablet" | "mobile";
+
+const deviceWidths: Record<DeviceMode, string> = {
+  desktop: "100%",
+  tablet: "768px",
+  mobile: "375px",
+};
+
 const Builder = () => {
   const [sections, setSections] = useState<BuilderSection[]>([
     { id: "1", type: "banner", title: "", subtitle: "", banners: [] },
@@ -31,19 +39,65 @@ const Builder = () => {
   ]);
   const [addingSection, setAddingSection] = useState(false);
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
+  const [deviceMode, setDeviceMode] = useState<DeviceMode>("desktop");
+
+  // Drag and drop state
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dropIndicator, setDropIndicator] = useState<number | null>(null);
 
   const selectedSection = sections.find((s) => s.id === selectedSectionId) || null;
   const hasRightPanel = selectedSection && (selectedSection.type === "banner" || selectedSection.type === "destaque");
 
-  const moveSection = useCallback((index: number, direction: "up" | "down") => {
+  const handleDragStart = useCallback((e: React.DragEvent, index: number) => {
+    setDragIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", index.toString());
+    // Make the drag image semi-transparent
+    if (e.currentTarget instanceof HTMLElement) {
+      e.currentTarget.style.opacity = "0.4";
+    }
+  }, []);
+
+  const handleDragEnd = useCallback((e: React.DragEvent) => {
+    if (e.currentTarget instanceof HTMLElement) {
+      e.currentTarget.style.opacity = "1";
+    }
+    setDragIndex(null);
+    setDropIndicator(null);
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (dragIndex === null || dragIndex === index) {
+      setDropIndicator(null);
+      return;
+    }
+    // Determine if above or below midpoint
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const midY = rect.top + rect.height / 2;
+    const targetLine = e.clientY < midY ? index : index + 1;
+    if (targetLine !== dragIndex && targetLine !== dragIndex + 1) {
+      setDropIndicator(targetLine);
+    } else {
+      setDropIndicator(null);
+    }
+  }, [dragIndex]);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    if (dragIndex === null || dropIndicator === null) return;
+
     setSections((prev) => {
       const arr = [...prev];
-      const target = direction === "up" ? index - 1 : index + 1;
-      if (target < 0 || target >= arr.length) return prev;
-      [arr[index], arr[target]] = [arr[target], arr[index]];
+      const [moved] = arr.splice(dragIndex, 1);
+      const insertAt = dropIndicator > dragIndex ? dropIndicator - 1 : dropIndicator;
+      arr.splice(insertAt, 0, moved);
       return arr;
     });
-  }, []);
+    setDragIndex(null);
+    setDropIndicator(null);
+  }, [dragIndex, dropIndicator]);
 
   const removeSection = useCallback((id: string) => {
     setSections((prev) => prev.filter((s) => s.id !== id));
@@ -137,46 +191,47 @@ const Builder = () => {
           </Button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 space-y-2">
+        <div className="flex-1 overflow-y-auto p-4 space-y-0">
           <div className="flex items-center justify-between mb-3">
             <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Seções</p>
             <span className="text-xs text-muted-foreground">{sections.length}</span>
           </div>
+
           {sections.map((section, index) => {
             const isSelected = selectedSectionId === section.id;
             return (
-              <div
-                key={section.id}
-                onClick={() => setSelectedSectionId(section.id)}
-                className={`group flex items-center gap-2 p-3 rounded-xl border transition-all cursor-pointer ${
-                  isSelected ? "border-primary bg-primary/5" : "border-border bg-background hover:border-primary/30"
-                }`}
-              >
-                <GripVertical size={14} className="text-muted-foreground/40 flex-shrink-0 cursor-grab" />
-                <span className="flex-shrink-0 text-foreground">{sectionIcons[section.type]}</span>
-                <span className="text-sm font-medium text-foreground truncate flex-1">{sectionLabels[section.type]}</span>
-                <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); moveSection(index, "up"); }}
-                    disabled={index === 0}
-                    className="p-1 rounded hover:bg-muted disabled:opacity-30 text-muted-foreground"
-                  >
-                    <ChevronUp size={12} />
-                  </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); moveSection(index, "down"); }}
-                    disabled={index === sections.length - 1}
-                    className="p-1 rounded hover:bg-muted disabled:opacity-30 text-muted-foreground"
-                  >
-                    <ChevronDown size={12} />
-                  </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); removeSection(section.id); }}
-                    className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
-                  >
-                    <Trash2 size={12} />
-                  </button>
+              <div key={section.id}>
+                {/* Drop indicator line */}
+                {dropIndicator === index && (
+                  <div className="h-0.5 bg-primary rounded-full mx-2 my-1 transition-all" />
+                )}
+                <div
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, index)}
+                  onDragEnd={handleDragEnd}
+                  onDragOver={(e) => handleDragOver(e, index)}
+                  onDrop={handleDrop}
+                  onClick={() => setSelectedSectionId(section.id)}
+                  className={`group flex items-center gap-2 p-3 rounded-xl border transition-all cursor-pointer mb-2 ${
+                    isSelected ? "border-primary bg-primary/5" : "border-border bg-background hover:border-primary/30"
+                  } ${dragIndex === index ? "opacity-40" : ""}`}
+                >
+                  <GripVertical size={14} className="text-muted-foreground/40 flex-shrink-0 cursor-grab active:cursor-grabbing" />
+                  <span className="flex-shrink-0 text-foreground">{sectionIcons[section.type]}</span>
+                  <span className="text-sm font-medium text-foreground truncate flex-1">{sectionLabels[section.type]}</span>
+                  <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); removeSection(section.id); }}
+                      className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
                 </div>
+                {/* Drop indicator for last position */}
+                {index === sections.length - 1 && dropIndicator === sections.length && (
+                  <div className="h-0.5 bg-primary rounded-full mx-2 my-1 transition-all" />
+                )}
               </div>
             );
           })}
@@ -215,14 +270,58 @@ const Builder = () => {
 
       {/* Main Preview Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="h-14 border-b border-border bg-card flex items-center justify-end px-4 shrink-0">
-          <Button onClick={handleSave} size="sm" className="gap-2">
-            <Save size={14} /> Salvar
-          </Button>
+        {/* Top Bar */}
+        <div className="h-14 border-b border-border bg-card flex items-center px-4 shrink-0">
+          {/* Left spacer */}
+          <div className="flex-1" />
+
+          {/* Device toggles - center */}
+          <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+            <button
+              onClick={() => setDeviceMode("desktop")}
+              className={`p-1.5 rounded-md transition-colors ${
+                deviceMode === "desktop" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+              }`}
+              title="Desktop"
+            >
+              <Monitor size={16} />
+            </button>
+            <button
+              onClick={() => setDeviceMode("tablet")}
+              className={`p-1.5 rounded-md transition-colors ${
+                deviceMode === "tablet" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+              }`}
+              title="Tablet"
+            >
+              <Tablet size={16} />
+            </button>
+            <button
+              onClick={() => setDeviceMode("mobile")}
+              className={`p-1.5 rounded-md transition-colors ${
+                deviceMode === "mobile" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+              }`}
+              title="Mobile"
+            >
+              <Smartphone size={16} />
+            </button>
+          </div>
+
+          {/* Save button - right */}
+          <div className="flex-1 flex justify-end">
+            <Button onClick={handleSave} size="sm" className="gap-2">
+              <Save size={14} /> Salvar
+            </Button>
+          </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 md:p-10 bg-muted/30">
-          <div className="max-w-3xl mx-auto space-y-4">
+        <div className="flex-1 overflow-y-auto p-6 md:p-10 bg-muted/30 flex justify-center">
+          <div
+            className="space-y-4 transition-all duration-300"
+            style={{
+              width: deviceWidths[deviceMode],
+              maxWidth: "100%",
+            }}
+          >
             {sections.length === 0 && (
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <ShoppingBag size={48} className="text-muted-foreground/30 mb-4" />
@@ -241,9 +340,21 @@ const Builder = () => {
                     isSelected ? "border-primary bg-primary/5" : "border-border bg-card hover:border-primary/30"
                   }`}
                 >
+                  {/* Section title & subtitle from config */}
+                  {(section.title || section.subtitle) && (
+                    <div className="mb-4">
+                      {section.title && (
+                        <h3 className="font-bold text-foreground text-lg">{section.title}</h3>
+                      )}
+                      {section.subtitle && (
+                        <p className="text-sm text-muted-foreground">{section.subtitle}</p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Section label (small) - no icon */}
                   <div className="flex items-center gap-3 mb-4">
-                    <span className="text-foreground">{sectionIcons[section.type]}</span>
-                    <span className="font-bold text-foreground text-sm">{sectionLabels[section.type]}</span>
+                    <span className="text-xs text-muted-foreground">{sectionLabels[section.type]}</span>
                     <span className="text-xs text-muted-foreground ml-auto">{sectionDescriptions[section.type]}</span>
                   </div>
 
@@ -281,26 +392,20 @@ const Builder = () => {
                   )}
 
                   {section.type === "destaque" && (
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <div className={`grid gap-3 ${deviceMode === "mobile" ? "grid-cols-2" : "grid-cols-2 md:grid-cols-3"}`}>
                       {[1, 2, 3].map((i) => (
                         <div key={i} className="aspect-[3/4] rounded-xl bg-muted/50 border border-border flex items-center justify-center">
-                          <div className="text-center">
-                            <Star size={20} className="text-muted-foreground/30 mx-auto mb-1" />
-                            <p className="text-[10px] text-muted-foreground">Produto {i}</p>
-                          </div>
+                          <p className="text-[10px] text-muted-foreground">Produto {i}</p>
                         </div>
                       ))}
                     </div>
                   )}
 
                   {section.type === "produtos" && (
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className={`grid gap-3 ${deviceMode === "mobile" ? "grid-cols-2" : "grid-cols-2 md:grid-cols-4"}`}>
                       {[1, 2, 3, 4].map((i) => (
                         <div key={i} className="aspect-square rounded-xl bg-muted/50 border border-border flex items-center justify-center">
-                          <div className="text-center">
-                            <ShoppingBag size={16} className="text-muted-foreground/30 mx-auto mb-1" />
-                            <p className="text-[10px] text-muted-foreground">Produto</p>
-                          </div>
+                          <p className="text-[10px] text-muted-foreground">Produto</p>
                         </div>
                       ))}
                     </div>
