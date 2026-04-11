@@ -16,6 +16,8 @@ export type FontFamily = "Poppins" | "Arial" | "Montserrat" | "Playfair Display"
 export interface BannerTextConfig {
   title: string;
   subtitle: string;
+  titleColor: string;
+  subtitleColor: string;
   position: TextPosition;
   fontFamily: FontFamily;
   fontBold: boolean;
@@ -45,6 +47,8 @@ export interface BuilderSection {
 export const defaultTextConfig: BannerTextConfig = {
   title: "",
   subtitle: "",
+  titleColor: "#ffffff",
+  subtitleColor: "#ffffffcc",
   position: "center",
   fontFamily: "Arial",
   fontBold: false,
