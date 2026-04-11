@@ -15,6 +15,10 @@ interface CatalogProduct {
   status: string;
   created_at: string;
   raw_payload: Record<string, unknown> | null;
+  price: number | null;
+  original_price: number | null;
+  currency: string | null;
+  is_on_sale: boolean | null;
 }
 
 interface ProductDetailModalProps {
