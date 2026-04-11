@@ -533,13 +533,13 @@ const Builder = () => {
                   }`}
                 >
                   {(section.title || section.subtitle) && (
-                    <div className="px-6 pt-6 md:px-8 md:pt-8">
-                      {section.title && <h3 className="font-bold text-foreground text-lg">{section.title}</h3>}
-                      {section.subtitle && <p className="text-sm text-muted-foreground">{section.subtitle}</p>}
+                    <div className="px-6 pt-4 pb-0 md:px-8 md:pt-5">
+                      {section.title && <h3 className="font-bold text-foreground text-lg leading-tight">{section.title}</h3>}
+                      {section.subtitle && <p className="text-sm text-muted-foreground mt-0.5">{section.subtitle}</p>}
                     </div>
                   )}
 
-                  <div className="p-6 md:p-8">
+                  <div className="px-6 pb-6 pt-3 md:px-8 md:pb-8 md:pt-4">
                     {section.type === "banner" && (
                       section.banners && section.banners.length > 0 ? (
                         <BannerPreview banners={section.banners} deviceMode={deviceMode} />
