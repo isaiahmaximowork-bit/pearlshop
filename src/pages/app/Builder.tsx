@@ -727,6 +727,9 @@ const Builder = () => {
                                 </div>
                                 <div className="p-2">
                                   <p className="text-xs text-foreground font-medium text-center truncate">{product.product_name}</p>
+                                  {getProductPrice(product) && (
+                                    <p className="text-xs font-bold text-center mt-0.5" style={{ color: theme.titleColor }}>{getProductPrice(product)}</p>
+                                  )}
                                   <button
                                     onClick={(e) => { e.stopPropagation(); setSelectedProduct(product); }}
                                     className="mt-1.5 w-full py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-all"
