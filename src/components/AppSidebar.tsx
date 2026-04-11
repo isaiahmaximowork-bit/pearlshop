@@ -13,7 +13,7 @@ const configItems = [
   { title: "Conexões", url: "/app/conexoes", icon: Link },
 ];
 
-export function AppSidebar() {
+export function AppSidebarContent() {
   const location = useLocation();
 
   const isActive = (path: string, end?: boolean) =>
@@ -41,7 +41,7 @@ export function AppSidebar() {
   };
 
   return (
-    <aside className="w-72 bg-card border-r border-border flex flex-col p-6 sticky top-0 h-screen shrink-0">
+    <div className="flex flex-col p-6 h-full">
       <div className="flex items-center gap-2.5 mb-12 px-2">
         <img src={logo} alt="PearlShop" width={32} height={32} className="rounded-lg" />
         <span className="text-xl font-black tracking-tighter text-foreground pr-1" style={{ fontFamily: "'Poppins', sans-serif" }}>
@@ -77,6 +77,14 @@ export function AppSidebar() {
           </div>
         </div>
       </nav>
+    </div>
+  );
+}
+
+export function AppSidebar() {
+  return (
+    <aside className="w-72 bg-card border-r border-border hidden md:flex flex-col sticky top-0 h-screen shrink-0">
+      <AppSidebarContent />
     </aside>
   );
 }

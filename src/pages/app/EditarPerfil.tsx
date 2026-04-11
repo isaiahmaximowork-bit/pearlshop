@@ -137,7 +137,7 @@ const EditarPerfil = () => {
   };
 
   return (
-    <div className="p-8 space-y-8 max-w-2xl">
+    <div className="p-4 md:p-8 space-y-6 md:space-y-8 max-w-2xl">
       <div>
         <h1 className="text-2xl font-black tracking-tight text-foreground">Editar Perfil</h1>
         <p className="text-sm text-muted-foreground mt-1">Atualize suas informações pessoais</p>
@@ -164,7 +164,7 @@ const EditarPerfil = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-7 gap-3">
+          <div className="grid grid-cols-4 sm:grid-cols-7 gap-3">
             {avatarOptions.map((opt) => (
               <button
                 key={opt.label}

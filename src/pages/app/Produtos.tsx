@@ -80,11 +80,11 @@ const Produtos = () => {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto w-full space-y-10">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto w-full space-y-6 md:space-y-10">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6">
         <div className="space-y-1">
-          <h1 className="text-3xl font-black tracking-tighter text-foreground uppercase">
+          <h1 className="text-2xl md:text-3xl font-black tracking-tighter text-foreground uppercase">
             Catálogo de Produtos
           </h1>
           <p className="text-muted-foreground font-medium tracking-tight">
@@ -94,7 +94,7 @@ const Produtos = () => {
         <button
           onClick={handleImport}
           disabled={isImporting}
-          className="px-8 py-4 bg-foreground text-background rounded-2xl font-black text-sm uppercase tracking-widest flex items-center gap-3 hover:opacity-90 transition-all shadow-xl active:scale-95 disabled:opacity-50"
+          className="w-full md:w-auto px-6 md:px-8 py-3 md:py-4 bg-foreground text-background rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 hover:opacity-90 transition-all shadow-xl active:scale-95 disabled:opacity-50"
         >
           <ExternalLink size={18} />
           {isImporting ? "Importando..." : "Importar do TikTok"}
