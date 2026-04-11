@@ -235,7 +235,7 @@ const Builder = () => {
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [deviceMode, setDeviceMode] = useState<DeviceMode>("desktop");
   const [leftTab, setLeftTab] = useState<LeftTab>("sections");
-  const [showSectionBorders, setShowSectionBorders] = useState(false);
+  const [showSectionBorders] = useState(false); // kept for compat
   const [theme, setTheme] = useState<StoreTheme>({ ...defaultTheme });
   const [catalogProducts, setCatalogProducts] = useState<CatalogProduct[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<CatalogProduct | null>(null);
@@ -257,7 +257,7 @@ const Builder = () => {
   const [dropIndicator, setDropIndicator] = useState<number | null>(null);
 
   const selectedSection = sections.find((s) => s.id === selectedSectionId) || null;
-  const hasRightPanel = selectedSection && (selectedSection.type === "banner" || selectedSection.type === "destaque");
+  const hasRightPanel = !!selectedSection;
 
   const handleDragStart = useCallback((e: React.DragEvent, index: number) => {
     setDragIndex(index);
