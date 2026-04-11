@@ -505,30 +505,80 @@ const Builder = () => {
             </div>
           </>
         ) : (
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Configurações Gerais</p>
-            <div className="space-y-3">
-              <div className="space-y-1.5">
-                <Label className="text-xs text-muted-foreground">Nome da Loja</Label>
-                <Input placeholder="Minha Loja" className="h-9" />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs text-muted-foreground">Descrição</Label>
-                <Input placeholder="Uma breve descrição da sua loja" className="h-9" />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs text-muted-foreground">Cor Principal</Label>
-                <div className="flex gap-2 items-center">
-                  <input type="color" defaultValue="#7c3aed" className="w-9 h-9 rounded border border-border cursor-pointer p-0.5" />
-                  <span className="text-xs text-muted-foreground">Selecione a cor tema</span>
+          <div className="flex-1 overflow-y-auto p-4 space-y-6">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Configurações Gerais</p>
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Nome da Loja</Label>
+                  <Input placeholder="Minha Loja" className="h-9" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Descrição</Label>
+                  <Input placeholder="Uma breve descrição da sua loja" className="h-9" />
+                </div>
+                <div className="flex items-center justify-between pt-2">
+                  <Label className="text-xs text-muted-foreground">Bordas das Seções</Label>
+                  <Switch checked={showSectionBorders} onCheckedChange={setShowSectionBorders} />
                 </div>
               </div>
-              <div className="flex items-center justify-between pt-2">
-                <Label className="text-xs text-muted-foreground">Bordas das Seções</Label>
-                <Switch
-                  checked={showSectionBorders}
-                  onCheckedChange={setShowSectionBorders}
-                />
+            </div>
+
+            {/* Fontes */}
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Fontes</p>
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Fonte do Título</Label>
+                  <select
+                    value={theme.titleFont}
+                    onChange={(e) => setTheme((t) => ({ ...t, titleFont: e.target.value as FontFamily }))}
+                    className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+                  >
+                    {fontOptions.map((f) => (
+                      <option key={f.value} value={f.value}>{f.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Fonte do Subtítulo</Label>
+                  <select
+                    value={theme.subtitleFont}
+                    onChange={(e) => setTheme((t) => ({ ...t, subtitleFont: e.target.value as FontFamily }))}
+                    className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+                  >
+                    {fontOptions.map((f) => (
+                      <option key={f.value} value={f.value}>{f.label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Cores */}
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Cores</p>
+              <div className="space-y-3">
+                {([
+                  { key: "titleColor" as const, label: "Cor do Título" },
+                  { key: "subtitleColor" as const, label: "Cor do Subtítulo" },
+                  { key: "buttonBgColor" as const, label: "Fundo do Botão" },
+                  { key: "buttonTextColor" as const, label: "Texto do Botão" },
+                  { key: "iconColor" as const, label: "Cor dos Ícones" },
+                ]).map(({ key, label }) => (
+                  <div key={key} className="flex items-center justify-between">
+                    <Label className="text-xs text-muted-foreground">{label}</Label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={theme[key]}
+                        onChange={(e) => setTheme((t) => ({ ...t, [key]: e.target.value }))}
+                        className="w-8 h-8 rounded border border-border cursor-pointer p-0.5"
+                      />
+                      <span className="text-[10px] font-mono text-muted-foreground w-16">{theme[key]}</span>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
