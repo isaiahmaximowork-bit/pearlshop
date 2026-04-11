@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { ProductDetailModal } from "@/components/ProductDetailModal";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -22,8 +23,13 @@ import DestaqueConfig from "@/components/builder/DestaqueConfig";
 
 interface CatalogProduct {
   id: string;
+  product_id: string;
   product_name: string;
   image_url: string | null;
+  source_platform: string;
+  status: string;
+  created_at: string;
+  raw_payload: Record<string, unknown> | null;
 }
 
 const sectionIcons: Record<SectionType, React.ReactNode> = {
@@ -211,16 +217,16 @@ const Builder = () => {
   const [leftTab, setLeftTab] = useState<LeftTab>("sections");
   const [showSectionBorders, setShowSectionBorders] = useState(false);
   const [catalogProducts, setCatalogProducts] = useState<CatalogProduct[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<CatalogProduct | null>(null);
 
   // Fetch products from Supabase
   useEffect(() => {
     const fetchProducts = async () => {
       const { data } = await supabase
         .from("catalog_products")
-        .select("id, product_name, image_url")
-        .eq("status", "active")
+        .select("*")
         .limit(20);
-      if (data) setCatalogProducts(data);
+      if (data) setCatalogProducts(data as CatalogProduct[]);
     };
     fetchProducts();
   }, []);
@@ -591,13 +597,21 @@ const Builder = () => {
                           <div key={product?.id || i} className="aspect-[3/4] rounded-xl bg-muted/50 border border-border flex flex-col items-center justify-center overflow-hidden">
                             {product?.image_url ? (
                               <>
-                                <div className="flex-1 w-full overflow-hidden">
+                          <div className="flex-1 w-full overflow-hidden">
                                   <img src={product.image_url} alt={product.product_name} className="w-full h-full object-cover" />
                                 </div>
-                                <p className="text-[10px] text-foreground font-medium p-2 text-center truncate w-full">{product.product_name}</p>
+                                <div className="p-2 w-full">
+                                  <p className="text-xs text-foreground font-medium text-center truncate">{product.product_name}</p>
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); setSelectedProduct(product); }}
+                                    className="mt-1.5 w-full py-1.5 bg-primary text-primary-foreground rounded-lg font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-all"
+                                  >
+                                    Comprar
+                                  </button>
+                                </div>
                               </>
                             ) : (
-                              <p className="text-[10px] text-muted-foreground">Produto {i + 1}</p>
+                              <p className="text-xs text-muted-foreground">Produto {i + 1}</p>
                             )}
                           </div>
                         ))}
@@ -613,7 +627,15 @@ const Builder = () => {
                                 <div className="aspect-square w-full overflow-hidden">
                                   <img src={product.image_url} alt={product.product_name} className="w-full h-full object-cover" />
                                 </div>
-                                <p className="text-[10px] text-foreground font-medium p-2 text-center truncate">{product.product_name}</p>
+                                <div className="p-2">
+                                  <p className="text-xs text-foreground font-medium text-center truncate">{product.product_name}</p>
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); setSelectedProduct(product); }}
+                                    className="mt-1.5 w-full py-1.5 bg-primary text-primary-foreground rounded-lg font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-all"
+                                  >
+                                    Comprar
+                                  </button>
+                                </div>
                               </>
                             ) : (
                               <div className="aspect-square flex items-center justify-center">
@@ -699,6 +721,12 @@ const Builder = () => {
           </div>
         </div>
       )}
+
+      <ProductDetailModal
+        product={selectedProduct}
+        open={!!selectedProduct}
+        onOpenChange={(open) => { if (!open) setSelectedProduct(null); }}
+      />
     </div>
   );
 };
