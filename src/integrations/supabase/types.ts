@@ -17,8 +17,12 @@ export type Database = {
       catalog_products: {
         Row: {
           created_at: string
+          currency: string | null
           id: string
           image_url: string | null
+          is_on_sale: boolean | null
+          original_price: number | null
+          price: number | null
           product_id: string
           product_name: string
           raw_payload: Json | null
@@ -29,8 +33,12 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          currency?: string | null
           id?: string
           image_url?: string | null
+          is_on_sale?: boolean | null
+          original_price?: number | null
+          price?: number | null
           product_id: string
           product_name: string
           raw_payload?: Json | null
@@ -41,8 +49,12 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          currency?: string | null
           id?: string
           image_url?: string | null
+          is_on_sale?: boolean | null
+          original_price?: number | null
+          price?: number | null
           product_id?: string
           product_name?: string
           raw_payload?: Json | null

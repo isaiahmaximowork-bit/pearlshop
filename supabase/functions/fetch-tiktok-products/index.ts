@@ -165,6 +165,14 @@ Deno.serve(async (req) => {
         || p.images?.main_images?.[0]?.urls?.[0]
         || null
 
+      // Extract price from first SKU
+      const firstSku = Array.isArray(p.skus) ? p.skus[0] : null
+      const skuPrice = firstSku?.price || {}
+      const salePrice = parseFloat(skuPrice.sale_price) || null
+      const originalPrice = parseFloat(skuPrice.original_price) || null
+      const currency = skuPrice.currency || 'BRL'
+      const isOnSale = salePrice !== null && originalPrice !== null && salePrice < originalPrice
+
       return {
         product_id: p.id,
         product_name: p.title || 'Sem título',
@@ -173,6 +181,10 @@ Deno.serve(async (req) => {
         shop_cipher: shopCipher,
         status: (p.status === 'ACTIVATE' || p.status === 4) ? 'active' : 'inactive',
         raw_payload: p,
+        price: salePrice,
+        original_price: originalPrice,
+        currency,
+        is_on_sale: isOnSale,
       }
     })
 

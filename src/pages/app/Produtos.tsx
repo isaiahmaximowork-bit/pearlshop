@@ -16,6 +16,10 @@ interface CatalogProduct {
   status: string;
   created_at: string;
   raw_payload: Record<string, unknown> | null;
+  price: number | null;
+  original_price: number | null;
+  currency: string | null;
+  is_on_sale: boolean | null;
 }
 
 const Produtos = () => {
@@ -69,14 +73,16 @@ const Produtos = () => {
   const handleSearch = () => setSearch(searchInput);
 
   const getPrice = (product: CatalogProduct) => {
+    if (product.price != null) {
+      return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: product.currency || 'BRL' }).format(product.price);
+    }
+    // Fallback: raw_payload
     const payload = product.raw_payload as Record<string, unknown> | null;
     const skus = payload?.skus as Array<{ price?: { sale_price?: string; tax_exclusive_price?: string; currency?: string } }> | undefined;
-    if (!skus?.length) return "—";
-    const sku = skus[0]?.price;
+    const sku = skus?.[0]?.price;
     const price = sku?.sale_price || sku?.tax_exclusive_price;
-    const currency = sku?.currency || "BRL";
     if (!price) return "—";
-    return `${currency} ${parseFloat(price).toFixed(2)}`;
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: sku?.currency || 'BRL' }).format(parseFloat(price));
   };
 
   return (
