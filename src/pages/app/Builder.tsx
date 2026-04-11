@@ -13,13 +13,33 @@ import { toast } from "sonner";
 import logo from "@/assets/logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import type {
-  SectionType, BuilderSection, BannerItem, BannerTextConfig, TextPosition,
+  SectionType, BuilderSection, BannerItem, BannerTextConfig, TextPosition, FontFamily,
 } from "@/components/builder/types";
 import {
-  defaultTextConfig, sectionLabels, sectionDescriptions,
+  defaultTextConfig, sectionLabels, sectionDescriptions, fontOptions,
 } from "@/components/builder/types";
 import BannerConfig from "@/components/builder/BannerConfig";
 import DestaqueConfig from "@/components/builder/DestaqueConfig";
+
+interface StoreTheme {
+  titleFont: FontFamily;
+  subtitleFont: FontFamily;
+  titleColor: string;
+  subtitleColor: string;
+  buttonBgColor: string;
+  buttonTextColor: string;
+  iconColor: string;
+}
+
+const defaultTheme: StoreTheme = {
+  titleFont: "Arial",
+  subtitleFont: "Arial",
+  titleColor: "#ffffff",
+  subtitleColor: "#a1a1aa",
+  buttonBgColor: "#7c3aed",
+  buttonTextColor: "#ffffff",
+  iconColor: "#a1a1aa",
+};
 
 interface CatalogProduct {
   id: string;
@@ -216,6 +236,7 @@ const Builder = () => {
   const [deviceMode, setDeviceMode] = useState<DeviceMode>("desktop");
   const [leftTab, setLeftTab] = useState<LeftTab>("sections");
   const [showSectionBorders, setShowSectionBorders] = useState(false);
+  const [theme, setTheme] = useState<StoreTheme>({ ...defaultTheme });
   const [catalogProducts, setCatalogProducts] = useState<CatalogProduct[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<CatalogProduct | null>(null);
 
@@ -484,30 +505,80 @@ const Builder = () => {
             </div>
           </>
         ) : (
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Configurações Gerais</p>
-            <div className="space-y-3">
-              <div className="space-y-1.5">
-                <Label className="text-xs text-muted-foreground">Nome da Loja</Label>
-                <Input placeholder="Minha Loja" className="h-9" />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs text-muted-foreground">Descrição</Label>
-                <Input placeholder="Uma breve descrição da sua loja" className="h-9" />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs text-muted-foreground">Cor Principal</Label>
-                <div className="flex gap-2 items-center">
-                  <input type="color" defaultValue="#7c3aed" className="w-9 h-9 rounded border border-border cursor-pointer p-0.5" />
-                  <span className="text-xs text-muted-foreground">Selecione a cor tema</span>
+          <div className="flex-1 overflow-y-auto p-4 space-y-6">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Configurações Gerais</p>
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Nome da Loja</Label>
+                  <Input placeholder="Minha Loja" className="h-9" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Descrição</Label>
+                  <Input placeholder="Uma breve descrição da sua loja" className="h-9" />
+                </div>
+                <div className="flex items-center justify-between pt-2">
+                  <Label className="text-xs text-muted-foreground">Bordas das Seções</Label>
+                  <Switch checked={showSectionBorders} onCheckedChange={setShowSectionBorders} />
                 </div>
               </div>
-              <div className="flex items-center justify-between pt-2">
-                <Label className="text-xs text-muted-foreground">Bordas das Seções</Label>
-                <Switch
-                  checked={showSectionBorders}
-                  onCheckedChange={setShowSectionBorders}
-                />
+            </div>
+
+            {/* Fontes */}
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Fontes</p>
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Fonte do Título</Label>
+                  <select
+                    value={theme.titleFont}
+                    onChange={(e) => setTheme((t) => ({ ...t, titleFont: e.target.value as FontFamily }))}
+                    className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+                  >
+                    {fontOptions.map((f) => (
+                      <option key={f.value} value={f.value}>{f.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Fonte do Subtítulo</Label>
+                  <select
+                    value={theme.subtitleFont}
+                    onChange={(e) => setTheme((t) => ({ ...t, subtitleFont: e.target.value as FontFamily }))}
+                    className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+                  >
+                    {fontOptions.map((f) => (
+                      <option key={f.value} value={f.value}>{f.label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Cores */}
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Cores</p>
+              <div className="space-y-3">
+                {([
+                  { key: "titleColor" as const, label: "Cor do Título" },
+                  { key: "subtitleColor" as const, label: "Cor do Subtítulo" },
+                  { key: "buttonBgColor" as const, label: "Fundo do Botão" },
+                  { key: "buttonTextColor" as const, label: "Texto do Botão" },
+                  { key: "iconColor" as const, label: "Cor dos Ícones" },
+                ]).map(({ key, label }) => (
+                  <div key={key} className="flex items-center justify-between">
+                    <Label className="text-xs text-muted-foreground">{label}</Label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={theme[key]}
+                        onChange={(e) => setTheme((t) => ({ ...t, [key]: e.target.value }))}
+                        className="w-8 h-8 rounded border border-border cursor-pointer p-0.5"
+                      />
+                      <span className="text-[10px] font-mono text-muted-foreground w-16">{theme[key]}</span>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -572,8 +643,16 @@ const Builder = () => {
                 >
                   {(section.title || section.subtitle) && (
                     <div className="px-6 pt-4 pb-0 md:px-8 md:pt-5">
-                      {section.title && <h3 className="font-bold text-foreground text-lg leading-tight">{section.title}</h3>}
-                      {section.subtitle && <p className="text-sm text-muted-foreground mt-0.5">{section.subtitle}</p>}
+                      {section.title && (
+                        <h3 className="font-bold text-lg leading-tight" style={{ color: theme.titleColor, fontFamily: `'${theme.titleFont}', sans-serif` }}>
+                          {section.title}
+                        </h3>
+                      )}
+                      {section.subtitle && (
+                        <p className="text-sm mt-0.5" style={{ color: theme.subtitleColor, fontFamily: `'${theme.subtitleFont}', sans-serif` }}>
+                          {section.subtitle}
+                        </p>
+                      )}
                     </div>
                   )}
 
@@ -604,7 +683,8 @@ const Builder = () => {
                                   <p className="text-xs text-foreground font-medium text-center truncate">{product.product_name}</p>
                                   <button
                                     onClick={(e) => { e.stopPropagation(); setSelectedProduct(product); }}
-                                    className="mt-1.5 w-full py-1.5 bg-primary text-primary-foreground rounded-lg font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-all"
+                                    className="mt-1.5 w-full py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-all"
+                                    style={{ backgroundColor: theme.buttonBgColor, color: theme.buttonTextColor }}
                                   >
                                     Comprar
                                   </button>
@@ -631,7 +711,8 @@ const Builder = () => {
                                   <p className="text-xs text-foreground font-medium text-center truncate">{product.product_name}</p>
                                   <button
                                     onClick={(e) => { e.stopPropagation(); setSelectedProduct(product); }}
-                                    className="mt-1.5 w-full py-1.5 bg-primary text-primary-foreground rounded-lg font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-all"
+                                    className="mt-1.5 w-full py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-all"
+                                    style={{ backgroundColor: theme.buttonBgColor, color: theme.buttonTextColor }}
                                   >
                                     Comprar
                                   </button>
