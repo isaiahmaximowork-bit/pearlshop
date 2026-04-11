@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, Package, Pencil, ExternalLink, Globe, Lock, Unlock, RefreshCw, ShieldCheck, CheckCircle2, Circle, Video, ImageIcon, ShoppingBag } from "lucide-react";
+import { Eye, Package, Pencil, ExternalLink, Globe, Lock, Unlock, RefreshCw, ShieldCheck, CheckCircle2, Circle, Video, ImageIcon } from "lucide-react";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
