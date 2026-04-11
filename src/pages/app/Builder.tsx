@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,7 +9,7 @@ import {
 import { toast } from "sonner";
 import logo from "@/assets/logo.png";
 import type {
-  SectionType, BuilderSection, BannerItem, BannerTextConfig,
+  SectionType, BuilderSection, BannerItem, BannerTextConfig, TextPosition,
 } from "@/components/builder/types";
 import {
   defaultTextConfig, sectionLabels, sectionDescriptions,
@@ -332,17 +332,50 @@ const Builder = () => {
 
             {sections.map((section) => {
               const isSelected = selectedSectionId === section.id;
+              const activeBanner = section.banners?.[0];
+              const tc = activeBanner?.textConfig;
+
+              // Compute text position classes
+              const getPositionClasses = (position?: TextPosition) => {
+                switch (position) {
+                  case "center": return "items-center justify-center text-center";
+                  case "center-left": return "items-center justify-start text-left pl-8";
+                  case "center-right": return "items-center justify-end text-right pr-8";
+                  case "top-left": return "items-start justify-start text-left pt-6 pl-8";
+                  case "top-right": return "items-start justify-end text-right pt-6 pr-8";
+                  case "bottom-left": return "items-end justify-start text-left pb-6 pl-8";
+                  case "bottom-right": return "items-end justify-end text-right pb-6 pr-8";
+                  default: return "items-center justify-center text-center";
+                }
+              };
+
+              // Compute mask gradient
+              const getMaskStyle = (mask?: BannerTextConfig["mask"]) => {
+                if (!mask?.enabled) return undefined;
+                const alpha = mask.intensity / 100;
+                const color = `rgba(0,0,0,${alpha})`;
+                const transparent = "rgba(0,0,0,0)";
+                switch (mask.type) {
+                  case "full": return { background: color };
+                  case "bottom": return { background: `linear-gradient(to top, ${color}, ${transparent})` };
+                  case "top": return { background: `linear-gradient(to bottom, ${color}, ${transparent})` };
+                  case "left": return { background: `linear-gradient(to right, ${color}, ${transparent})` };
+                  case "right": return { background: `linear-gradient(to left, ${color}, ${transparent})` };
+                  default: return { background: color };
+                }
+              };
+
               return (
                 <div
                   key={section.id}
                   onClick={() => setSelectedSectionId(section.id)}
-                  className={`rounded-2xl border-2 border-dashed p-6 md:p-8 transition-all cursor-pointer ${
+                  className={`rounded-2xl border-2 border-dashed transition-all cursor-pointer overflow-hidden ${
                     isSelected ? "border-primary bg-primary/5" : "border-border bg-card hover:border-primary/30"
                   }`}
                 >
                   {/* Section title & subtitle from config */}
                   {(section.title || section.subtitle) && (
-                    <div className="mb-4">
+                    <div className="px-6 pt-6 md:px-8 md:pt-8">
                       {section.title && (
                         <h3 className="font-bold text-foreground text-lg">{section.title}</h3>
                       )}
@@ -352,64 +385,79 @@ const Builder = () => {
                     </div>
                   )}
 
-                  {/* Section label (small) - no icon */}
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="text-xs text-muted-foreground">{sectionLabels[section.type]}</span>
-                    <span className="text-xs text-muted-foreground ml-auto">{sectionDescriptions[section.type]}</span>
+                  <div className="p-6 md:p-8">
+                    {section.type === "banner" && (
+                      <div className="h-40 md:h-56 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-border flex items-center justify-center overflow-hidden relative">
+                        {activeBanner?.imageUrl ? (
+                          <>
+                            <img src={activeBanner.imageUrl} alt="" className="w-full h-full object-cover absolute inset-0" />
+                            {/* Mask overlay */}
+                            {tc?.mask?.enabled && (
+                              <div className="absolute inset-0 z-10" style={getMaskStyle(tc.mask)} />
+                            )}
+                            {/* Text overlay */}
+                            {(tc?.title || tc?.subtitle) && (
+                              <div className={`absolute inset-0 flex flex-col z-20 ${getPositionClasses(tc?.position)}`}>
+                                {tc?.title && (
+                                  <p
+                                    className="text-white text-lg md:text-2xl drop-shadow-lg"
+                                    style={{
+                                      fontFamily: `'${tc.fontFamily}', sans-serif`,
+                                      fontWeight: tc.fontBold ? 700 : 400,
+                                      fontStyle: tc.fontItalic ? "italic" : "normal",
+                                    }}
+                                  >
+                                    {tc.title}
+                                  </p>
+                                )}
+                                {tc?.subtitle && (
+                                  <p
+                                    className="text-white/90 text-sm md:text-base drop-shadow-lg mt-1"
+                                    style={{
+                                      fontFamily: `'${tc.fontFamily}', sans-serif`,
+                                      fontWeight: tc.fontBold ? 600 : 400,
+                                      fontStyle: tc.fontItalic ? "italic" : "normal",
+                                    }}
+                                  >
+                                    {tc.subtitle}
+                                  </p>
+                                )}
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <div className="text-center">
+                            <Image size={32} className="text-muted-foreground/40 mx-auto mb-2" />
+                            <p className="text-xs text-muted-foreground">
+                              {(section.banners?.length || 0) > 0
+                                ? `${section.banners!.length}/3 banners adicionados`
+                                : "Clique para configurar banners"}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {section.type === "destaque" && (
+                      <div className={`grid gap-3 ${deviceMode === "mobile" ? "grid-cols-2" : "grid-cols-2 md:grid-cols-3"}`}>
+                        {[1, 2, 3].map((i) => (
+                          <div key={i} className="aspect-[3/4] rounded-xl bg-muted/50 border border-border flex items-center justify-center">
+                            <p className="text-[10px] text-muted-foreground">Produto {i}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {section.type === "produtos" && (
+                      <div className={`grid gap-3 ${deviceMode === "mobile" ? "grid-cols-2" : "grid-cols-2 md:grid-cols-4"}`}>
+                        {[1, 2, 3, 4].map((i) => (
+                          <div key={i} className="aspect-square rounded-xl bg-muted/50 border border-border flex items-center justify-center">
+                            <p className="text-[10px] text-muted-foreground">Produto</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-
-                  {section.type === "banner" && (
-                    <div className="h-40 md:h-56 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-border flex items-center justify-center overflow-hidden relative">
-                      {section.banners?.[0]?.imageUrl ? (
-                        <>
-                          <img src={section.banners[0].imageUrl} alt="" className="w-full h-full object-cover absolute inset-0" />
-                          {section.banners[0].textConfig.title && (
-                            <div className="absolute inset-0 flex items-center justify-center z-10">
-                              <p
-                                className="text-white text-lg md:text-2xl drop-shadow-lg"
-                                style={{
-                                  fontFamily: section.banners[0].textConfig.fontFamily,
-                                  fontWeight: section.banners[0].textConfig.fontBold ? 700 : 400,
-                                  fontStyle: section.banners[0].textConfig.fontItalic ? "italic" : "normal",
-                                }}
-                              >
-                                {section.banners[0].textConfig.title}
-                              </p>
-                            </div>
-                          )}
-                        </>
-                      ) : (
-                        <div className="text-center">
-                          <Image size={32} className="text-muted-foreground/40 mx-auto mb-2" />
-                          <p className="text-xs text-muted-foreground">
-                            {(section.banners?.length || 0) > 0
-                              ? `${section.banners!.length}/3 banners adicionados`
-                              : "Clique para configurar banners"}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {section.type === "destaque" && (
-                    <div className={`grid gap-3 ${deviceMode === "mobile" ? "grid-cols-2" : "grid-cols-2 md:grid-cols-3"}`}>
-                      {[1, 2, 3].map((i) => (
-                        <div key={i} className="aspect-[3/4] rounded-xl bg-muted/50 border border-border flex items-center justify-center">
-                          <p className="text-[10px] text-muted-foreground">Produto {i}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {section.type === "produtos" && (
-                    <div className={`grid gap-3 ${deviceMode === "mobile" ? "grid-cols-2" : "grid-cols-2 md:grid-cols-4"}`}>
-                      {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="aspect-square rounded-xl bg-muted/50 border border-border flex items-center justify-center">
-                          <p className="text-[10px] text-muted-foreground">Produto</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
               );
             })}

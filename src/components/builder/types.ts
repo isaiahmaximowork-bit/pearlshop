@@ -46,7 +46,7 @@ export const defaultTextConfig: BannerTextConfig = {
   title: "",
   subtitle: "",
   position: "center",
-  fontFamily: "Poppins",
+  fontFamily: "Arial",
   fontBold: false,
   fontItalic: false,
   mask: {
