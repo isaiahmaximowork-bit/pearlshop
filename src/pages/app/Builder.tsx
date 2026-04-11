@@ -158,12 +158,14 @@ const Builder = () => {
           </div>
 
           {/* Right - Preview */}
-          <div className="w-full md:w-64 lg:w-72 aspect-square bg-muted border-t md:border-t-0 md:border-l border-border flex-shrink-0 overflow-hidden">
-            <img
-              src={previewImage}
-              alt="Preview da loja"
-              className="w-full h-full object-cover"
-            />
+          <div className="flex items-center justify-center p-5 md:p-6">
+            <div className="w-40 h-40 md:w-48 md:h-48 rounded-2xl overflow-hidden border border-border shadow-sm flex-shrink-0">
+              <img
+                src={previewImage}
+                alt="Preview da loja"
+                className="w-full h-full object-cover"
+              />
+            </div>
           </div>
         </div>
       </div>
