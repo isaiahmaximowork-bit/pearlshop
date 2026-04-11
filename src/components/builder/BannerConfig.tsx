@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Plus, Trash2, Upload, Clock, Search, Image, Bold, Italic, X, Loader2
+  Plus, Trash2, Upload, Clock, Search, Image, Bold, Italic, X, Palette
 } from "lucide-react";
 import { toast } from "sonner";
 import type {
@@ -23,7 +23,6 @@ import {
   defaultTextConfig, fontOptions, textPositionOptions, maskTypeOptions,
 } from "./types";
 
-// Categories of images for quick browsing
 const IMAGE_CATEGORIES: Record<string, string[]> = {
   "Loja": [
     "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80",
@@ -77,6 +76,8 @@ const IMAGE_CATEGORIES: Record<string, string[]> = {
 
 const ALL_IMAGES = Object.values(IMAGE_CATEGORIES).flat();
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
 interface BannerConfigProps {
   section: BuilderSection;
   onAddBanner: (sectionId: string) => void;
@@ -94,27 +95,60 @@ const BannerConfig = ({
   const [showImagePicker, setShowImagePicker] = useState<string | null>(null);
   const [imageSearch, setImageSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingForBannerId, setUploadingForBannerId] = useState<string | null>(null);
 
-  // Filter images based on search and category
   const filteredImages = (() => {
     if (selectedCategory && IMAGE_CATEGORIES[selectedCategory]) {
       return IMAGE_CATEGORIES[selectedCategory];
     }
     if (!imageSearch.trim()) return ALL_IMAGES;
     const term = imageSearch.toLowerCase();
-    // Match category names
     const matchedCategories = Object.keys(IMAGE_CATEGORIES).filter(cat =>
       cat.toLowerCase().includes(term)
     );
     if (matchedCategories.length > 0) {
       return matchedCategories.flatMap(cat => IMAGE_CATEGORIES[cat]);
     }
-    // Fallback: return all
     return ALL_IMAGES;
   })();
 
+  const handleFileUpload = useCallback((bannerId: string, file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Apenas imagens são permitidas");
+      return;
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error("Arquivo muito grande. Máximo 5MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target?.result as string;
+      onUpdateBanner(section.id, bannerId, { imageUrl: dataUrl });
+      setShowImagePicker(null);
+      toast.success("Imagem carregada!");
+    };
+    reader.readAsDataURL(file);
+  }, [section.id, onUpdateBanner]);
+
   return (
     <div className="space-y-3">
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file && uploadingForBannerId) {
+            handleFileUpload(uploadingForBannerId, file);
+          }
+          e.target.value = "";
+        }}
+      />
+
       <div className="flex items-center justify-between">
         <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
           Banners ({section.banners?.length || 0}/3)
@@ -132,7 +166,6 @@ const BannerConfig = ({
 
           return (
             <div key={banner.id} className="rounded-xl border border-border bg-background overflow-hidden">
-              {/* Banner Header */}
               <div
                 className="flex items-center gap-3 p-3 cursor-pointer hover:bg-muted/30 transition-colors"
                 onClick={() => setExpandedBannerId(isExpanded ? null : banner.id)}
@@ -158,7 +191,6 @@ const BannerConfig = ({
                 </button>
               </div>
 
-              {/* Expanded Config */}
               {isExpanded && (
                 <div className="p-3 pt-0 space-y-4 border-t border-border">
                   {/* Image Selection */}
@@ -175,14 +207,27 @@ const BannerConfig = ({
                         </button>
                       </div>
                     )}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full gap-2"
-                      onClick={() => setShowImagePicker(showImagePicker === banner.id ? null : banner.id)}
-                    >
-                      <Image size={14} /> {banner.imageUrl ? "Trocar Imagem" : "Escolher Imagem"}
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 gap-2"
+                        onClick={() => setShowImagePicker(showImagePicker === banner.id ? null : banner.id)}
+                      >
+                        <Image size={14} /> Galeria
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 gap-2"
+                        onClick={() => {
+                          setUploadingForBannerId(banner.id);
+                          fileInputRef.current?.click();
+                        }}
+                      >
+                        <Upload size={14} /> Upload
+                      </Button>
+                    </div>
 
                     {showImagePicker === banner.id && (
                       <div className="space-y-2 p-2 rounded-lg border border-border bg-muted/30">
@@ -195,7 +240,6 @@ const BannerConfig = ({
                             className="h-8 text-xs pl-7"
                           />
                         </div>
-                        {/* Category chips */}
                         <div className="flex flex-wrap gap-1">
                           {Object.keys(IMAGE_CATEGORIES).map((cat) => (
                             <button
@@ -256,21 +300,43 @@ const BannerConfig = ({
 
                     <div className="space-y-1.5">
                       <Label className="text-xs text-muted-foreground">Título</Label>
-                      <Input
-                        value={tc.title}
-                        onChange={(e) => onUpdateBannerText(section.id, banner.id, { title: e.target.value })}
-                        placeholder="Título do banner"
-                        className="h-8 text-xs"
-                      />
+                      <div className="flex gap-2">
+                        <Input
+                          value={tc.title}
+                          onChange={(e) => onUpdateBannerText(section.id, banner.id, { title: e.target.value })}
+                          placeholder="Título do banner"
+                          className="h-8 text-xs flex-1"
+                        />
+                        <div className="relative">
+                          <input
+                            type="color"
+                            value={tc.titleColor}
+                            onChange={(e) => onUpdateBannerText(section.id, banner.id, { titleColor: e.target.value })}
+                            className="w-8 h-8 rounded border border-border cursor-pointer p-0.5"
+                            title="Cor do título"
+                          />
+                        </div>
+                      </div>
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs text-muted-foreground">Subtítulo</Label>
-                      <Input
-                        value={tc.subtitle}
-                        onChange={(e) => onUpdateBannerText(section.id, banner.id, { subtitle: e.target.value })}
-                        placeholder="Subtítulo do banner"
-                        className="h-8 text-xs"
-                      />
+                      <div className="flex gap-2">
+                        <Input
+                          value={tc.subtitle}
+                          onChange={(e) => onUpdateBannerText(section.id, banner.id, { subtitle: e.target.value })}
+                          placeholder="Subtítulo do banner"
+                          className="h-8 text-xs flex-1"
+                        />
+                        <div className="relative">
+                          <input
+                            type="color"
+                            value={tc.subtitleColor}
+                            onChange={(e) => onUpdateBannerText(section.id, banner.id, { subtitleColor: e.target.value })}
+                            className="w-8 h-8 rounded border border-border cursor-pointer p-0.5"
+                            title="Cor do subtítulo"
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -306,7 +372,7 @@ const BannerConfig = ({
                       </SelectTrigger>
                       <SelectContent>
                         {fontOptions.map((opt) => (
-                          <SelectItem key={opt.value} value={opt.value} className="text-xs" style={{ fontFamily: opt.value }}>
+                          <SelectItem key={opt.value} value={opt.value} className="text-xs" style={{ fontFamily: `'${opt.value}', sans-serif` }}>
                             {opt.label}
                           </SelectItem>
                         ))}
