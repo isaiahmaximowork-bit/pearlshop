@@ -13,13 +13,33 @@ import { toast } from "sonner";
 import logo from "@/assets/logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import type {
-  SectionType, BuilderSection, BannerItem, BannerTextConfig, TextPosition,
+  SectionType, BuilderSection, BannerItem, BannerTextConfig, TextPosition, FontFamily,
 } from "@/components/builder/types";
 import {
-  defaultTextConfig, sectionLabels, sectionDescriptions,
+  defaultTextConfig, sectionLabels, sectionDescriptions, fontOptions,
 } from "@/components/builder/types";
 import BannerConfig from "@/components/builder/BannerConfig";
 import DestaqueConfig from "@/components/builder/DestaqueConfig";
+
+interface StoreTheme {
+  titleFont: FontFamily;
+  subtitleFont: FontFamily;
+  titleColor: string;
+  subtitleColor: string;
+  buttonBgColor: string;
+  buttonTextColor: string;
+  iconColor: string;
+}
+
+const defaultTheme: StoreTheme = {
+  titleFont: "Arial",
+  subtitleFont: "Arial",
+  titleColor: "#ffffff",
+  subtitleColor: "#a1a1aa",
+  buttonBgColor: "#7c3aed",
+  buttonTextColor: "#ffffff",
+  iconColor: "#a1a1aa",
+};
 
 interface CatalogProduct {
   id: string;
