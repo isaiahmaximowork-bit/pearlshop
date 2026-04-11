@@ -23,8 +23,13 @@ import DestaqueConfig from "@/components/builder/DestaqueConfig";
 
 interface CatalogProduct {
   id: string;
+  product_id: string;
   product_name: string;
   image_url: string | null;
+  source_platform: string;
+  status: string;
+  created_at: string;
+  raw_payload: Record<string, unknown> | null;
 }
 
 const sectionIcons: Record<SectionType, React.ReactNode> = {
