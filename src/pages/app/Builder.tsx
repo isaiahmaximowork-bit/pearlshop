@@ -721,6 +721,12 @@ const Builder = () => {
           </div>
         </div>
       )}
+
+      <ProductDetailModal
+        product={selectedProduct}
+        open={!!selectedProduct}
+        onOpenChange={(open) => { if (!open) setSelectedProduct(null); }}
+      />
     </div>
   );
 };
