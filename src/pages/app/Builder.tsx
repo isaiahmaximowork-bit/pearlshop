@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import logo from "@/assets/logo.png";
+import { supabase } from "@/integrations/supabase/client";
 import type {
   SectionType, BuilderSection, BannerItem, BannerTextConfig, TextPosition,
 } from "@/components/builder/types";
@@ -17,6 +18,12 @@ import {
 } from "@/components/builder/types";
 import BannerConfig from "@/components/builder/BannerConfig";
 import DestaqueConfig from "@/components/builder/DestaqueConfig";
+
+interface CatalogProduct {
+  id: string;
+  product_name: string;
+  image_url: string | null;
+}
 
 const sectionIcons: Record<SectionType, React.ReactNode> = {
   banner: <Image size={16} />,
