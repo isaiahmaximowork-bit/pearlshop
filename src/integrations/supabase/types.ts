@@ -85,8 +85,10 @@ export type Database = {
       }
       stores: {
         Row: {
+          access_code: string
           created_at: string
           id: string
+          is_public: boolean
           preview_cache: string | null
           slug: string
           store_name: string
@@ -94,8 +96,10 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          access_code?: string
           created_at?: string
           id?: string
+          is_public?: boolean
           preview_cache?: string | null
           slug?: string
           store_name?: string
@@ -103,8 +107,10 @@ export type Database = {
           user_id: string
         }
         Update: {
+          access_code?: string
           created_at?: string
           id?: string
+          is_public?: boolean
           preview_cache?: string | null
           slug?: string
           store_name?: string
