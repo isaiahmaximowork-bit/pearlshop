@@ -643,8 +643,16 @@ const Builder = () => {
                 >
                   {(section.title || section.subtitle) && (
                     <div className="px-6 pt-4 pb-0 md:px-8 md:pt-5">
-                      {section.title && <h3 className="font-bold text-foreground text-lg leading-tight">{section.title}</h3>}
-                      {section.subtitle && <p className="text-sm text-muted-foreground mt-0.5">{section.subtitle}</p>}
+                      {section.title && (
+                        <h3 className="font-bold text-lg leading-tight" style={{ color: theme.titleColor, fontFamily: `'${theme.titleFont}', sans-serif` }}>
+                          {section.title}
+                        </h3>
+                      )}
+                      {section.subtitle && (
+                        <p className="text-sm mt-0.5" style={{ color: theme.subtitleColor, fontFamily: `'${theme.subtitleFont}', sans-serif` }}>
+                          {section.subtitle}
+                        </p>
+                      )}
                     </div>
                   )}
 
