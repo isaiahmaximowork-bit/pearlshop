@@ -27,57 +27,8 @@ interface ProductDetailModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const parsePriceValue = (value: unknown) => {
-  if (typeof value === "number") return Number.isFinite(value) ? value : null;
-  if (typeof value !== "string") return null;
-
-  const normalized = value.replace(/[^\d.,-]/g, "").replace(/\.(?=.*\.)/g, "").replace(",", ".");
-  const parsed = Number(normalized);
-  return Number.isFinite(parsed) ? parsed : null;
-};
-
-const getProductPriceInfo = (payload: Record<string, unknown> | null) => {
-  if (!payload) return null;
-
-  const skuList = Array.isArray(payload.skus)
-    ? (payload.skus as Array<Record<string, unknown>>)
-    : [];
-
-  const skuPrices = skuList.flatMap((sku) => {
-    const price = (sku.price as Record<string, unknown> | undefined) ?? sku;
-
-    return [
-      parsePriceValue(price?.sale_price),
-      parsePriceValue(price?.tax_exclusive_price),
-      parsePriceValue(price?.price),
-    ].filter((value): value is number => value !== null);
-  });
-
-  const topLevelSale = parsePriceValue(payload.sale_price);
-  const topLevelOriginal = parsePriceValue(payload.original_price);
-  const topLevelTax = parsePriceValue(payload.tax_exclusive_price);
-  const topLevelPrice = parsePriceValue(payload.price);
-
-  const fallbackPrice = skuPrices.length > 0 ? Math.min(...skuPrices) : null;
-  const salePrice = topLevelSale ?? fallbackPrice ?? topLevelPrice ?? topLevelTax;
-  const originalCandidates = [topLevelOriginal, topLevelTax, topLevelPrice, ...skuPrices].filter(
-    (value): value is number => value !== null,
-  );
-  const originalPrice = originalCandidates.length > 0 ? Math.max(...originalCandidates) : null;
-
-  if (salePrice === null && originalPrice === null) return null;
-
-  const finalSalePrice = salePrice ?? originalPrice;
-  const hasDiscount = finalSalePrice !== null && originalPrice !== null && finalSalePrice < originalPrice;
-
-  return {
-    salePrice: finalSalePrice,
-    originalPrice: hasDiscount ? originalPrice : null,
-    hasDiscount,
-  };
-};
-
-const formatPrice = (value: number) => `R$${value.toFixed(2)}`;
+const formatPrice = (value: number, currency = 'BRL') =>
+  new Intl.NumberFormat('pt-BR', { style: 'currency', currency }).format(value);
 
 export const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetailModalProps) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -165,7 +116,22 @@ export const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetai
     });
   }
 
-  const priceInfo = getProductPriceInfo(payload);
+  // Use persisted price columns with raw_payload fallback
+  const priceInfo = (() => {
+    if (product.price != null) {
+      return {
+        salePrice: product.price,
+        originalPrice: product.is_on_sale ? product.original_price : null,
+        hasDiscount: !!product.is_on_sale,
+      };
+    }
+    // Fallback
+    const skuPrice = skus[0]?.price;
+    const sale = parseFloat(skuPrice?.sale_price || '') || null;
+    if (!sale) return null;
+    return { salePrice: sale, originalPrice: null, hasDiscount: false };
+  })();
+  const productCurrency = product.currency || 'BRL';
 
   const getTotalStock = () => skus.reduce((total, sku) => {
     return total + (sku.inventory?.reduce((sum, inv) => sum + (inv.quantity || 0), 0) || 0);
@@ -269,11 +235,11 @@ export const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetai
                 <div className="space-y-1">
                   {priceInfo.originalPrice !== null && (
                     <p className="text-sm font-semibold text-muted-foreground line-through">
-                      {formatPrice(priceInfo.originalPrice)}
+                      {formatPrice(priceInfo.originalPrice, productCurrency)}
                     </p>
                   )}
                   <p className="text-3xl font-black text-primary">
-                    {formatPrice(priceInfo.salePrice ?? priceInfo.originalPrice ?? 0)}
+                    {formatPrice(priceInfo.salePrice ?? priceInfo.originalPrice ?? 0, productCurrency)}
                   </p>
                 </div>
               )}
@@ -330,15 +296,8 @@ export const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetai
                           <td className="p-3">{sku.sales_attributes?.map(a => a.value_name).filter(Boolean).join(", ") || "—"}</td>
                           <td className="p-3 text-right font-semibold">
                             {(() => {
-                              const price = sku.price
-                                ? (sku.price as Record<string, unknown>)
-                                : (sku as unknown as Record<string, unknown>);
-                              const parsedPrice =
-                                parsePriceValue(price?.sale_price) ??
-                                parsePriceValue(price?.tax_exclusive_price) ??
-                                parsePriceValue(price?.price);
-
-                              return parsedPrice !== null ? formatPrice(parsedPrice) : "—";
+                              const p = parseFloat(sku.price?.sale_price || '') || parseFloat(sku.price?.tax_exclusive_price || '') || null;
+                              return p !== null ? formatPrice(p, productCurrency) : "—";
                             })()}
                           </td>
                           <td className="p-3 text-right">{sku.inventory?.reduce((s, inv) => s + (inv.quantity || 0), 0) || 0}</td>
