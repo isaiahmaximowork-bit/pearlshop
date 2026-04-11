@@ -339,14 +339,16 @@ const Builder = () => {
     setSections((prev) => prev.map((s) => (s.id === sectionId ? { ...s, [field]: value } : s)));
   }, []);
 
-  const getProductPrice = (product: CatalogProduct) => {
+  const getProductPriceInfo = (product: CatalogProduct) => {
     const payload = product.raw_payload;
-    const skus = payload?.skus as Array<{ price?: { sale_price?: string; tax_exclusive_price?: string; currency?: string } }> | undefined;
+    const skus = payload?.skus as Array<{ price?: { sale_price?: string; tax_exclusive_price?: string; original_price?: string; currency?: string } }> | undefined;
     if (!skus?.length) return null;
     const sku = skus[0]?.price;
-    const price = sku?.sale_price || sku?.tax_exclusive_price;
-    if (!price) return null;
-    return `R$${parseFloat(price).toFixed(2)}`;
+    const salePrice = sku?.sale_price ? parseFloat(sku.sale_price) : null;
+    const originalPrice = sku?.original_price ? parseFloat(sku.original_price) : (sku?.tax_exclusive_price ? parseFloat(sku.tax_exclusive_price) : null);
+    if (!salePrice && !originalPrice) return null;
+    const hasDiscount = salePrice && originalPrice && salePrice < originalPrice;
+    return { salePrice, originalPrice, hasDiscount };
   };
 
   const updateSectionBorder = useCallback((sectionId: string, showBorder: boolean) => {
@@ -695,9 +697,20 @@ const Builder = () => {
                                 </div>
                                 <div className="p-2 w-full">
                                   <p className="text-xs text-foreground font-medium text-center truncate">{product.product_name}</p>
-                                  {getProductPrice(product) && (
-                                    <p className="text-xs font-bold text-center mt-0.5" style={{ color: theme.titleColor }}>{getProductPrice(product)}</p>
-                                  )}
+                                  {(() => {
+                                    const info = getProductPriceInfo(product);
+                                    if (!info) return null;
+                                    return (
+                                      <div className="flex items-center justify-center gap-1.5 mt-0.5">
+                                        {info.hasDiscount && (
+                                          <span className="text-[10px] line-through text-muted-foreground">R${info.originalPrice!.toFixed(2)}</span>
+                                        )}
+                                        <span className="text-xs font-bold" style={{ color: info.hasDiscount ? '#ef4444' : theme.titleColor }}>
+                                          R${(info.salePrice || info.originalPrice)!.toFixed(2)}
+                                        </span>
+                                      </div>
+                                    );
+                                  })()}
                                   <button
                                     onClick={(e) => { e.stopPropagation(); setSelectedProduct(product); }}
                                     className="mt-1.5 w-full py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-all"
@@ -726,9 +739,20 @@ const Builder = () => {
                                 </div>
                                 <div className="p-2">
                                   <p className="text-xs text-foreground font-medium text-center truncate">{product.product_name}</p>
-                                  {getProductPrice(product) && (
-                                    <p className="text-xs font-bold text-center mt-0.5" style={{ color: theme.titleColor }}>{getProductPrice(product)}</p>
-                                  )}
+                                  {(() => {
+                                    const info = getProductPriceInfo(product);
+                                    if (!info) return null;
+                                    return (
+                                      <div className="flex items-center justify-center gap-1.5 mt-0.5">
+                                        {info.hasDiscount && (
+                                          <span className="text-[10px] line-through text-muted-foreground">R${info.originalPrice!.toFixed(2)}</span>
+                                        )}
+                                        <span className="text-xs font-bold" style={{ color: info.hasDiscount ? '#ef4444' : theme.titleColor }}>
+                                          R${(info.salePrice || info.originalPrice)!.toFixed(2)}
+                                        </span>
+                                      </div>
+                                    );
+                                  })()}
                                   <button
                                     onClick={(e) => { e.stopPropagation(); setSelectedProduct(product); }}
                                     className="mt-1.5 w-full py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-all"
