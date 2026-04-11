@@ -137,7 +137,7 @@ const Builder = () => {
                 <div className="space-y-2">
                   <Label htmlFor="slug" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Slug</Label>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground whitespace-nowrap">pearlshop.io/</span>
+                    <span className="text-sm text-muted-foreground whitespace-nowrap">pearlshop.io/shop/</span>
                     <Input
                       id="slug"
                       value={slug}
@@ -167,7 +167,7 @@ const Builder = () => {
                 {store?.slug ? (
                   <p className="text-sm text-muted-foreground flex items-center gap-1.5">
                     <ExternalLink size={14} />
-                    pearlshop.io/{store.slug}
+                    pearlshop.io/shop/{store.slug}
                   </p>
                 ) : (
                   <p className="text-sm text-muted-foreground">Configure o nome e slug da sua loja</p>
