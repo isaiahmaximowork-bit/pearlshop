@@ -29,19 +29,19 @@ const sectionConfig: Record<SectionType, { label: string; icon: React.ReactNode;
     label: "Banner",
     icon: <Image size={16} />,
     description: "Até 3 banners rotativos (5s)",
-    color: "text-blue-400",
+    color: "text-foreground",
   },
   destaque: {
     label: "Destaque",
     icon: <Star size={16} />,
     description: "Até 5 produtos em destaque (7s)",
-    color: "text-amber-400",
+    color: "text-foreground",
   },
   produtos: {
     label: "Produtos",
     icon: <ShoppingBag size={16} />,
     description: "Seção normal de produtos",
-    color: "text-emerald-400",
+    color: "text-foreground",
   },
 };
 
@@ -113,8 +113,8 @@ const Builder = () => {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-background">
-      {/* Main Preview Area */}
-      <div className="flex-1 overflow-y-auto p-6 md:p-10 bg-muted/30">
+      {/* Left Sidebar */}
+      <div className="w-80 lg:w-96 border-r border-border bg-card flex flex-col h-full shrink-0">
         <div className="max-w-3xl mx-auto space-y-4">
           {sections.length === 0 && (
             <div className="flex flex-col items-center justify-center py-20 text-center">
