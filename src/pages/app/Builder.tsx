@@ -718,7 +718,7 @@ const Builder = () => {
                                         {info.hasDiscount && (
                                           <span className="text-[10px] line-through text-muted-foreground">R${info.originalPrice!.toFixed(2)}</span>
                                         )}
-                                        <span className="text-xs font-bold" style={{ color: info.hasDiscount ? '#ef4444' : theme.titleColor }}>
+                                        <span className="text-xs font-bold" style={{ color: info.hasDiscount ? 'hsl(var(--destructive))' : 'hsl(var(--foreground))' }}>
                                           R${(info.salePrice || info.originalPrice)!.toFixed(2)}
                                         </span>
                                       </div>
@@ -760,7 +760,7 @@ const Builder = () => {
                                         {info.hasDiscount && (
                                           <span className="text-[10px] line-through text-muted-foreground">R${info.originalPrice!.toFixed(2)}</span>
                                         )}
-                                        <span className="text-xs font-bold" style={{ color: info.hasDiscount ? '#ef4444' : theme.titleColor }}>
+                                        <span className="text-xs font-bold" style={{ color: info.hasDiscount ? 'hsl(var(--destructive))' : 'hsl(var(--foreground))' }}>
                                           R${(info.salePrice || info.originalPrice)!.toFixed(2)}
                                         </span>
                                       </div>
