@@ -651,7 +651,7 @@ const Builder = () => {
                   key={section.id}
                   onClick={() => setSelectedSectionId(section.id)}
                   className={`rounded-2xl transition-all cursor-pointer overflow-hidden ${
-                    showSectionBorders
+                    section.showBorder
                       ? `border-2 border-dashed ${isSelected ? "border-primary bg-primary/5" : "border-border bg-card hover:border-primary/30"}`
                       : isSelected ? "ring-2 ring-primary/30 bg-primary/5" : "hover:bg-muted/20"
                   }`}
@@ -696,6 +696,9 @@ const Builder = () => {
                                 </div>
                                 <div className="p-2 w-full">
                                   <p className="text-xs text-foreground font-medium text-center truncate">{product.product_name}</p>
+                                  {getProductPrice(product) && (
+                                    <p className="text-xs font-bold text-center mt-0.5" style={{ color: theme.titleColor }}>{getProductPrice(product)}</p>
+                                  )}
                                   <button
                                     onClick={(e) => { e.stopPropagation(); setSelectedProduct(product); }}
                                     className="mt-1.5 w-full py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-all"
