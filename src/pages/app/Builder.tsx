@@ -344,53 +344,22 @@ const Builder = () => {
   }, []);
 
   const getProductPriceInfo = (product: CatalogProduct) => {
+    // Use persisted columns first
+    if (product.price != null) {
+      return {
+        salePrice: product.price,
+        originalPrice: product.is_on_sale ? product.original_price : null,
+        hasDiscount: !!product.is_on_sale,
+      };
+    }
+    // Fallback: raw_payload
     const payload = product.raw_payload as Record<string, unknown> | null;
     if (!payload) return null;
-
-    const parsePriceValue = (value: unknown) => {
-      if (typeof value === "number") return Number.isFinite(value) ? value : null;
-      if (typeof value !== "string") return null;
-
-      const normalized = value.replace(/[^\d.,-]/g, "").replace(/\.(?=.*\.)/g, "").replace(",", ".");
-      const parsed = Number(normalized);
-      return Number.isFinite(parsed) ? parsed : null;
-    };
-
-    const skuList = Array.isArray(payload.skus)
-      ? (payload.skus as Array<Record<string, unknown>>)
-      : [];
-
-    const skuPrices = skuList.flatMap((sku) => {
-      const price = (sku.price as Record<string, unknown> | undefined) ?? sku;
-      return [
-        parsePriceValue(price?.sale_price),
-        parsePriceValue(price?.tax_exclusive_price),
-        parsePriceValue(price?.price),
-      ].filter((value): value is number => value !== null);
-    });
-
-    const topLevelSale = parsePriceValue(payload.sale_price);
-    const topLevelOriginal = parsePriceValue(payload.original_price);
-    const topLevelTax = parsePriceValue(payload.tax_exclusive_price);
-    const topLevelPrice = parsePriceValue(payload.price);
-
-    const fallbackPrice = skuPrices.length > 0 ? Math.min(...skuPrices) : null;
-    const salePrice = topLevelSale ?? fallbackPrice ?? topLevelPrice ?? topLevelTax;
-    const originalCandidates = [topLevelOriginal, topLevelTax, topLevelPrice, ...skuPrices].filter(
-      (value): value is number => value !== null,
-    );
-    const originalPrice = originalCandidates.length > 0 ? Math.max(...originalCandidates) : null;
-
-    if (salePrice === null && originalPrice === null) return null;
-
-    const finalSalePrice = salePrice ?? originalPrice;
-    const hasDiscount = finalSalePrice !== null && originalPrice !== null && finalSalePrice < originalPrice;
-
-    return {
-      salePrice: finalSalePrice,
-      originalPrice: hasDiscount ? originalPrice : null,
-      hasDiscount,
-    };
+    const skuList = Array.isArray(payload.skus) ? (payload.skus as Array<Record<string, unknown>>) : [];
+    const skuPrice = skuList[0]?.price as Record<string, unknown> | undefined;
+    const sale = Number(skuPrice?.sale_price) || null;
+    if (!sale) return null;
+    return { salePrice: sale, originalPrice: null, hasDiscount: false };
   };
 
   const updateSectionBorder = useCallback((sectionId: string, showBorder: boolean) => {
