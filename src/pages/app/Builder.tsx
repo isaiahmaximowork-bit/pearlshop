@@ -341,14 +341,24 @@ const Builder = () => {
 
   const getProductPriceInfo = (product: CatalogProduct) => {
     const payload = product.raw_payload;
-    const skus = payload?.skus as Array<{ price?: { sale_price?: string; tax_exclusive_price?: string; original_price?: string; currency?: string } }> | undefined;
-    if (!skus?.length) return null;
-    const sku = skus[0]?.price;
-    const salePrice = sku?.sale_price ? parseFloat(sku.sale_price) : null;
-    const originalPrice = sku?.original_price ? parseFloat(sku.original_price) : (sku?.tax_exclusive_price ? parseFloat(sku.tax_exclusive_price) : null);
+    if (!payload) return null;
+    
+    // Try skus array first
+    const skus = payload.skus as Array<{ price?: Record<string, unknown> }> | undefined;
+    const sku = skus?.[0]?.price;
+    
+    // Also check top-level price fields
+    const saleRaw = sku?.sale_price ?? (payload as any).sale_price;
+    const originalRaw = sku?.original_price ?? (payload as any).original_price;
+    const taxRaw = sku?.tax_exclusive_price ?? (payload as any).tax_exclusive_price;
+    
+    const salePrice = saleRaw ? Number(saleRaw) : null;
+    const originalPrice = originalRaw ? Number(originalRaw) : (taxRaw ? Number(taxRaw) : null);
+    
     if (!salePrice && !originalPrice) return null;
-    const hasDiscount = salePrice && originalPrice && salePrice < originalPrice;
-    return { salePrice, originalPrice, hasDiscount };
+    const displayPrice = salePrice || originalPrice;
+    const hasDiscount = !!(salePrice && originalPrice && salePrice < originalPrice);
+    return { salePrice: displayPrice, originalPrice, hasDiscount };
   };
 
   const updateSectionBorder = useCallback((sectionId: string, showBorder: boolean) => {
