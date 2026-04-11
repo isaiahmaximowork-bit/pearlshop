@@ -792,6 +792,12 @@ const Builder = () => {
                   placeholder="Ex: Confira os lançamentos"
                   className="h-9"
                 />
+              <div className="flex items-center justify-between pt-2">
+                <Label className="text-xs text-muted-foreground">Bordas da Seção</Label>
+                <Switch
+                  checked={!!selectedSection.showBorder}
+                  onCheckedChange={(v) => updateSectionBorder(selectedSection.id, v)}
+                />
               </div>
             </div>
           </div>
