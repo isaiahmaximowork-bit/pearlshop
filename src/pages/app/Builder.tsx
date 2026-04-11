@@ -228,8 +228,8 @@ const BannerPreview = ({ banners, deviceMode }: { banners: BannerItem[]; deviceM
 const Builder = () => {
   const [sections, setSections] = useState<BuilderSection[]>([
     { id: "1", type: "banner", title: "", subtitle: "", banners: [] },
-    { id: "2", type: "destaque", title: "", subtitle: "" },
-    { id: "3", type: "produtos", title: "", subtitle: "" },
+    { id: "2", type: "destaque", title: "Destaques", subtitle: "" },
+    { id: "3", type: "produtos", title: "Produtos", subtitle: "" },
   ]);
   const [addingSection, setAddingSection] = useState(false);
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
