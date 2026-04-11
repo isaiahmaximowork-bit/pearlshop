@@ -340,25 +340,53 @@ const Builder = () => {
   }, []);
 
   const getProductPriceInfo = (product: CatalogProduct) => {
-    const payload = product.raw_payload;
+    const payload = product.raw_payload as Record<string, unknown> | null;
     if (!payload) return null;
-    
-    // Try skus array first
-    const skus = payload.skus as Array<{ price?: Record<string, unknown> }> | undefined;
-    const sku = skus?.[0]?.price;
-    
-    // Also check top-level price fields
-    const saleRaw = sku?.sale_price ?? (payload as any).sale_price;
-    const originalRaw = sku?.original_price ?? (payload as any).original_price;
-    const taxRaw = sku?.tax_exclusive_price ?? (payload as any).tax_exclusive_price;
-    
-    const salePrice = saleRaw ? Number(saleRaw) : null;
-    const originalPrice = originalRaw ? Number(originalRaw) : (taxRaw ? Number(taxRaw) : null);
-    
-    if (!salePrice && !originalPrice) return null;
-    const displayPrice = salePrice || originalPrice;
-    const hasDiscount = !!(salePrice && originalPrice && salePrice < originalPrice);
-    return { salePrice: displayPrice, originalPrice, hasDiscount };
+
+    const parsePriceValue = (value: unknown) => {
+      if (typeof value === "number") return Number.isFinite(value) ? value : null;
+      if (typeof value !== "string") return null;
+
+      const normalized = value.replace(/[^\d.,-]/g, "").replace(/\.(?=.*\.)/g, "").replace(",", ".");
+      const parsed = Number(normalized);
+      return Number.isFinite(parsed) ? parsed : null;
+    };
+
+    const skuList = Array.isArray(payload.skus)
+      ? (payload.skus as Array<Record<string, unknown>>)
+      : [];
+
+    const skuPrices = skuList.flatMap((sku) => {
+      const price = (sku.price as Record<string, unknown> | undefined) ?? sku;
+      return [
+        parsePriceValue(price?.sale_price),
+        parsePriceValue(price?.tax_exclusive_price),
+        parsePriceValue(price?.price),
+      ].filter((value): value is number => value !== null);
+    });
+
+    const topLevelSale = parsePriceValue(payload.sale_price);
+    const topLevelOriginal = parsePriceValue(payload.original_price);
+    const topLevelTax = parsePriceValue(payload.tax_exclusive_price);
+    const topLevelPrice = parsePriceValue(payload.price);
+
+    const fallbackPrice = skuPrices.length > 0 ? Math.min(...skuPrices) : null;
+    const salePrice = topLevelSale ?? fallbackPrice ?? topLevelPrice ?? topLevelTax;
+    const originalCandidates = [topLevelOriginal, topLevelTax, topLevelPrice, ...skuPrices].filter(
+      (value): value is number => value !== null,
+    );
+    const originalPrice = originalCandidates.length > 0 ? Math.max(...originalCandidates) : null;
+
+    if (salePrice === null && originalPrice === null) return null;
+
+    const finalSalePrice = salePrice ?? originalPrice;
+    const hasDiscount = finalSalePrice !== null && originalPrice !== null && finalSalePrice < originalPrice;
+
+    return {
+      salePrice: finalSalePrice,
+      originalPrice: hasDiscount ? originalPrice : null,
+      hasDiscount,
+    };
   };
 
   const updateSectionBorder = useCallback((sectionId: string, showBorder: boolean) => {

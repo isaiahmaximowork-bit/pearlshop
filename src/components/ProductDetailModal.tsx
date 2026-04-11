@@ -109,13 +109,34 @@ export const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetai
     });
   }
 
+  const parsePriceValue = (value: unknown) => {
+    if (typeof value === "number") return Number.isFinite(value) ? value : null;
+    if (typeof value !== "string") return null;
+
+    const normalized = value.replace(/[^\d.,-]/g, "").replace(/\.(?=.*\.)/g, "").replace(",", ".");
+    const parsed = Number(normalized);
+    return Number.isFinite(parsed) ? parsed : null;
+  };
+
   const getPrice = () => {
-    if (!skus.length) return null;
-    const prices = skus.map(s => {
-      const p = s.price?.sale_price || s.price?.tax_exclusive_price;
-      return p ? parseFloat(p) : null;
-    }).filter((p): p is number => p !== null);
+    const skuPrices = skus.flatMap((sku) => {
+      const price = sku.price;
+      return [
+        parsePriceValue(price?.sale_price),
+        parsePriceValue(price?.tax_exclusive_price),
+      ].filter((p): p is number => p !== null);
+    });
+
+    const topLevelPrices = [
+      parsePriceValue(payload?.sale_price),
+      parsePriceValue(payload?.tax_exclusive_price),
+      parsePriceValue(payload?.original_price),
+      parsePriceValue(payload?.price),
+    ].filter((p): p is number => p !== null);
+
+    const prices = [...skuPrices, ...topLevelPrices];
     if (prices.length === 0) return null;
+
     const min = Math.min(...prices);
     const max = Math.max(...prices);
     if (min === max) return `R$${min.toFixed(2)}`;
@@ -275,9 +296,10 @@ export const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetai
                           <td className="p-3 text-muted-foreground font-mono text-xs">{sku.seller_sku || "—"}</td>
                           <td className="p-3">{sku.sales_attributes?.map(a => a.value_name).filter(Boolean).join(", ") || "—"}</td>
                           <td className="p-3 text-right font-semibold">
-                            {sku.price?.sale_price || sku.price?.tax_exclusive_price
-                              ? `R$${parseFloat(sku.price.sale_price || sku.price.tax_exclusive_price || "0").toFixed(2)}`
-                              : "—"}
+                            {(() => {
+                              const parsedPrice = parsePriceValue(sku.price?.sale_price) ?? parsePriceValue(sku.price?.tax_exclusive_price);
+                              return parsedPrice !== null ? `R$${parsedPrice.toFixed(2)}` : "—";
+                            })()}
                           </td>
                           <td className="p-3 text-right">{sku.inventory?.reduce((s, inv) => s + (inv.quantity || 0), 0) || 0}</td>
                         </tr>
