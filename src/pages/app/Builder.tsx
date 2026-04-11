@@ -228,14 +228,13 @@ const BannerPreview = ({ banners, deviceMode }: { banners: BannerItem[]; deviceM
 const Builder = () => {
   const [sections, setSections] = useState<BuilderSection[]>([
     { id: "1", type: "banner", title: "", subtitle: "", banners: [] },
-    { id: "2", type: "destaque", title: "", subtitle: "" },
-    { id: "3", type: "produtos", title: "", subtitle: "" },
+    { id: "2", type: "destaque", title: "Destaques", subtitle: "" },
+    { id: "3", type: "produtos", title: "Produtos", subtitle: "" },
   ]);
   const [addingSection, setAddingSection] = useState(false);
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [deviceMode, setDeviceMode] = useState<DeviceMode>("desktop");
   const [leftTab, setLeftTab] = useState<LeftTab>("sections");
-  const [showSectionBorders, setShowSectionBorders] = useState(false);
   const [theme, setTheme] = useState<StoreTheme>({ ...defaultTheme });
   const [catalogProducts, setCatalogProducts] = useState<CatalogProduct[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<CatalogProduct | null>(null);
@@ -257,7 +256,7 @@ const Builder = () => {
   const [dropIndicator, setDropIndicator] = useState<number | null>(null);
 
   const selectedSection = sections.find((s) => s.id === selectedSectionId) || null;
-  const hasRightPanel = selectedSection && (selectedSection.type === "banner" || selectedSection.type === "destaque");
+  const hasRightPanel = !!selectedSection;
 
   const handleDragStart = useCallback((e: React.DragEvent, index: number) => {
     setDragIndex(index);
@@ -319,10 +318,15 @@ const Builder = () => {
   }, [selectedSectionId]);
 
   const addSection = useCallback((type: SectionType) => {
+    const defaultTitles: Record<SectionType, string> = {
+      banner: "",
+      destaque: "Destaques",
+      produtos: "Produtos",
+    };
     const newSection: BuilderSection = {
       id: Date.now().toString(),
       type,
-      title: "",
+      title: defaultTitles[type],
       subtitle: "",
       ...(type === "banner" ? { banners: [] } : {}),
     };
@@ -333,6 +337,20 @@ const Builder = () => {
 
   const updateSectionField = useCallback((sectionId: string, field: "title" | "subtitle", value: string) => {
     setSections((prev) => prev.map((s) => (s.id === sectionId ? { ...s, [field]: value } : s)));
+  }, []);
+
+  const getProductPrice = (product: CatalogProduct) => {
+    const payload = product.raw_payload;
+    const skus = payload?.skus as Array<{ price?: { sale_price?: string; tax_exclusive_price?: string; currency?: string } }> | undefined;
+    if (!skus?.length) return null;
+    const sku = skus[0]?.price;
+    const price = sku?.sale_price || sku?.tax_exclusive_price;
+    if (!price) return null;
+    return `R$${parseFloat(price).toFixed(2)}`;
+  };
+
+  const updateSectionBorder = useCallback((sectionId: string, showBorder: boolean) => {
+    setSections((prev) => prev.map((s) => (s.id === sectionId ? { ...s, showBorder } : s)));
   }, []);
 
   const addBannerToSection = useCallback((sectionId: string) => {
@@ -517,10 +535,6 @@ const Builder = () => {
                   <Label className="text-xs text-muted-foreground">Descrição</Label>
                   <Input placeholder="Uma breve descrição da sua loja" className="h-9" />
                 </div>
-                <div className="flex items-center justify-between pt-2">
-                  <Label className="text-xs text-muted-foreground">Bordas das Seções</Label>
-                  <Switch checked={showSectionBorders} onCheckedChange={setShowSectionBorders} />
-                </div>
               </div>
             </div>
 
@@ -636,7 +650,7 @@ const Builder = () => {
                   key={section.id}
                   onClick={() => setSelectedSectionId(section.id)}
                   className={`rounded-2xl transition-all cursor-pointer overflow-hidden ${
-                    showSectionBorders
+                    section.showBorder
                       ? `border-2 border-dashed ${isSelected ? "border-primary bg-primary/5" : "border-border bg-card hover:border-primary/30"}`
                       : isSelected ? "ring-2 ring-primary/30 bg-primary/5" : "hover:bg-muted/20"
                   }`}
@@ -681,6 +695,9 @@ const Builder = () => {
                                 </div>
                                 <div className="p-2 w-full">
                                   <p className="text-xs text-foreground font-medium text-center truncate">{product.product_name}</p>
+                                  {getProductPrice(product) && (
+                                    <p className="text-xs font-bold text-center mt-0.5" style={{ color: theme.titleColor }}>{getProductPrice(product)}</p>
+                                  )}
                                   <button
                                     onClick={(e) => { e.stopPropagation(); setSelectedProduct(product); }}
                                     className="mt-1.5 w-full py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-all"
@@ -709,6 +726,9 @@ const Builder = () => {
                                 </div>
                                 <div className="p-2">
                                   <p className="text-xs text-foreground font-medium text-center truncate">{product.product_name}</p>
+                                  {getProductPrice(product) && (
+                                    <p className="text-xs font-bold text-center mt-0.5" style={{ color: theme.titleColor }}>{getProductPrice(product)}</p>
+                                  )}
                                   <button
                                     onClick={(e) => { e.stopPropagation(); setSelectedProduct(product); }}
                                     className="mt-1.5 w-full py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-all"
@@ -770,6 +790,13 @@ const Builder = () => {
                   onChange={(e) => updateSectionField(selectedSection.id, "subtitle", e.target.value)}
                   placeholder="Ex: Confira os lançamentos"
                   className="h-9"
+                />
+              </div>
+              <div className="flex items-center justify-between pt-2">
+                <Label className="text-xs text-muted-foreground">Bordas da Seção</Label>
+                <Switch
+                  checked={!!selectedSection.showBorder}
+                  onCheckedChange={(v) => updateSectionBorder(selectedSection.id, v)}
                 />
               </div>
             </div>
