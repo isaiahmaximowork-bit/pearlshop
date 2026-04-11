@@ -208,6 +208,7 @@ const Builder = () => {
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [deviceMode, setDeviceMode] = useState<DeviceMode>("desktop");
   const [leftTab, setLeftTab] = useState<LeftTab>("sections");
+  const [showSectionBorders, setShowSectionBorders] = useState(false);
   const [catalogProducts, setCatalogProducts] = useState<CatalogProduct[]>([]);
 
   // Fetch products from Supabase
@@ -494,6 +495,13 @@ const Builder = () => {
                   <span className="text-xs text-muted-foreground">Selecione a cor tema</span>
                 </div>
               </div>
+              <div className="flex items-center justify-between pt-2">
+                <Label className="text-xs text-muted-foreground">Bordas das Seções</Label>
+                <Switch
+                  checked={showSectionBorders}
+                  onCheckedChange={setShowSectionBorders}
+                />
+              </div>
             </div>
           </div>
         )}
@@ -549,8 +557,10 @@ const Builder = () => {
                 <div
                   key={section.id}
                   onClick={() => setSelectedSectionId(section.id)}
-                  className={`rounded-2xl border-2 border-dashed transition-all cursor-pointer overflow-hidden ${
-                    isSelected ? "border-primary bg-primary/5" : "border-border bg-card hover:border-primary/30"
+                  className={`rounded-2xl transition-all cursor-pointer overflow-hidden ${
+                    showSectionBorders
+                      ? `border-2 border-dashed ${isSelected ? "border-primary bg-primary/5" : "border-border bg-card hover:border-primary/30"}`
+                      : isSelected ? "ring-2 ring-primary/30 bg-primary/5" : "hover:bg-muted/20"
                   }`}
                 >
                   {(section.title || section.subtitle) && (
