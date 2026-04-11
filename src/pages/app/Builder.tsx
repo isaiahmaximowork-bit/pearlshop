@@ -319,10 +319,15 @@ const Builder = () => {
   }, [selectedSectionId]);
 
   const addSection = useCallback((type: SectionType) => {
+    const defaultTitles: Record<SectionType, string> = {
+      banner: "",
+      destaque: "Destaques",
+      produtos: "Produtos",
+    };
     const newSection: BuilderSection = {
       id: Date.now().toString(),
       type,
-      title: "",
+      title: defaultTitles[type],
       subtitle: "",
       ...(type === "banner" ? { banners: [] } : {}),
     };
