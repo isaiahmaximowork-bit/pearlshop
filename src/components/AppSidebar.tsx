@@ -64,7 +64,7 @@ export function AppSidebar() {
             Loja Virtual
           </p>
           <div className="space-y-1">
-            {[{ title: "Builder", url: "/builder", icon: LayoutTemplate }].map(renderItem)}
+            {[{ title: "Builder", url: "/app/builder", icon: LayoutTemplate }].map(renderItem)}
           </div>
         </div>
 
