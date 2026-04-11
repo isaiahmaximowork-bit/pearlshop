@@ -340,6 +340,20 @@ const Builder = () => {
     setSections((prev) => prev.map((s) => (s.id === sectionId ? { ...s, [field]: value } : s)));
   }, []);
 
+  const getProductPrice = (product: CatalogProduct) => {
+    const payload = product.raw_payload;
+    const skus = payload?.skus as Array<{ price?: { sale_price?: string; tax_exclusive_price?: string; currency?: string } }> | undefined;
+    if (!skus?.length) return null;
+    const sku = skus[0]?.price;
+    const price = sku?.sale_price || sku?.tax_exclusive_price;
+    if (!price) return null;
+    return `R$${parseFloat(price).toFixed(2)}`;
+  };
+
+  const updateSectionBorder = useCallback((sectionId: string, showBorder: boolean) => {
+    setSections((prev) => prev.map((s) => (s.id === sectionId ? { ...s, showBorder } : s)));
+  }, []);
+
   const addBannerToSection = useCallback((sectionId: string) => {
     setSections((prev) =>
       prev.map((s) => {
