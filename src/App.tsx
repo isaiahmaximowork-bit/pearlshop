@@ -6,7 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import NotFound from "./pages/NotFound.tsx";
-import Index from "./pages/Index.tsx";
+
 import Login from "./pages/Login.tsx";
 import Register from "./pages/Register.tsx";
 import AppLayout from "./layouts/AppLayout.tsx";
