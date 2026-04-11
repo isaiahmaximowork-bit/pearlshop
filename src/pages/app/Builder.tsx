@@ -208,6 +208,20 @@ const Builder = () => {
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [deviceMode, setDeviceMode] = useState<DeviceMode>("desktop");
   const [leftTab, setLeftTab] = useState<LeftTab>("sections");
+  const [catalogProducts, setCatalogProducts] = useState<CatalogProduct[]>([]);
+
+  // Fetch products from Supabase
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const { data } = await supabase
+        .from("catalog_products")
+        .select("id, product_name, image_url")
+        .eq("status", "active")
+        .limit(20);
+      if (data) setCatalogProducts(data);
+    };
+    fetchProducts();
+  }, []);
 
   // Drag and drop state
   const [dragIndex, setDragIndex] = useState<number | null>(null);
