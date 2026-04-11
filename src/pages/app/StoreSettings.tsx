@@ -171,7 +171,7 @@ const StoreSettings = () => {
               <div className="flex flex-wrap gap-2 pt-2">
                 {store ? (
                   <>
-                    <Button size="sm" className="gap-2" onClick={() => navigate("/app/builder")}>
+                    <Button size="sm" className="gap-2" onClick={() => window.open("/app/builder", "_blank")}>
                       <Pencil size={14} /> Editar Minha Loja
                     </Button>
                     <Button size="sm" variant="outline" className="gap-2" onClick={() => setEditing(true)}>Configurações</Button>
