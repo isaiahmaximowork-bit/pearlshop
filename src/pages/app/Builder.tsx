@@ -281,7 +281,7 @@ const Builder = () => {
       )}
 
       {/* Privacy / Go Public Section */}
-      {store && !store.is_public && (
+      {store && (
         <div className="rounded-2xl border border-border bg-card p-6 md:p-8 space-y-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
