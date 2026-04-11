@@ -516,7 +516,9 @@ const Builder = () => {
                 <div className="space-y-1.5">
                   <Label className="text-xs text-muted-foreground">Descrição</Label>
                   <Input placeholder="Uma breve descrição da sua loja" className="h-9" />
+                </div>
               </div>
+            </div>
 
             {/* Fontes */}
             <div>
