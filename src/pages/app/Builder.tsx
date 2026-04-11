@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,7 +9,7 @@ import {
 import { toast } from "sonner";
 import logo from "@/assets/logo.png";
 import type {
-  SectionType, BuilderSection, BannerItem, BannerTextConfig,
+  SectionType, BuilderSection, BannerItem, BannerTextConfig, TextPosition,
 } from "@/components/builder/types";
 import {
   defaultTextConfig, sectionLabels, sectionDescriptions,
