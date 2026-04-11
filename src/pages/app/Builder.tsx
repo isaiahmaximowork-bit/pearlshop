@@ -791,6 +791,7 @@ const Builder = () => {
                   placeholder="Ex: Confira os lançamentos"
                   className="h-9"
                 />
+              </div>
               <div className="flex items-center justify-between pt-2">
                 <Label className="text-xs text-muted-foreground">Bordas da Seção</Label>
                 <Switch
