@@ -62,6 +62,23 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
     enabled: open,
   });
 
+  // Auto-slide every 5 seconds
+  const nextImageAuto = useCallback(() => {
+    if (!product) return;
+    setSlideDirection(1);
+    setSelectedImageIndex(i => i + 1);
+  }, [product]);
+
+  useEffect(() => {
+    if (!open || !product) return;
+    // We need imageUrls length but can't compute here; use a large number and mod later
+    const timer = setInterval(() => {
+      setSlideDirection(1);
+      setSelectedImageIndex(i => i + 1); // will be modded in render
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [open, product?.id]);
+
   if (!product) return null;
 
   const payload = product.raw_payload as Record<string, unknown> | null;
