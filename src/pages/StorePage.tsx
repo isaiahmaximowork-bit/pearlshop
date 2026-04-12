@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { motion, AnimatePresence } from "framer-motion";
 import { Search, X, ShoppingBag, ChevronLeft, ChevronRight, Image } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -50,6 +49,7 @@ interface CatalogProduct {
   source_platform: string;
   status: string;
   created_at: string;
+  currency: string | null;
   raw_payload: Record<string, unknown> | null;
   price?: number | null;
   original_price?: number | null;
