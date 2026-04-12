@@ -51,9 +51,9 @@ interface CatalogProduct {
   created_at: string;
   currency: string | null;
   raw_payload: Record<string, unknown> | null;
-  price?: number | null;
-  original_price?: number | null;
-  is_on_sale?: boolean | null;
+  price: number | null;
+  original_price: number | null;
+  is_on_sale: boolean | null;
 }
 
 const defaultTheme: StoreTheme = {
