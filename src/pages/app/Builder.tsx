@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ProductDetailModal } from "@/components/ProductDetailModal";
@@ -8,7 +8,8 @@ import { Switch } from "@/components/ui/switch";
 import {
   Plus, Trash2, GripVertical, Image, Star, ShoppingBag,
   X, ArrowLeft, Save, Settings2, Monitor, Tablet, Smartphone,
-  Layers, Settings, ChevronLeft, ChevronRight, Bold, Italic
+  Layers, Settings, ChevronLeft, ChevronRight, Bold, Italic,
+  Search, Upload, Type, PanelTop
 } from "lucide-react";
 import { toast } from "sonner";
 import logo from "@/assets/logo.png";
