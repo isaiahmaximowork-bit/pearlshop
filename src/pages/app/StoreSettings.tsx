@@ -54,16 +54,22 @@ const StoreSettings = () => {
   }, [user]);
 
   const fetchStore = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("stores")
       .select("*")
       .eq("user_id", user!.id)
       .maybeSingle();
 
+    if (error) {
+      console.error("Error fetching store:", error);
+    }
+
     if (data) {
       setStore(data as Store);
       setStoreName(data.store_name);
       setSlug(data.slug);
+    } else {
+      setStore(null);
     }
     setLoading(false);
   };
@@ -72,20 +78,29 @@ const StoreSettings = () => {
     if (!user) return;
     setSaving(true);
 
+    let error;
     if (store) {
-      await supabase
+      ({ error } = await supabase
         .from("stores")
         .update({ store_name: storeName, slug })
-        .eq("id", store.id);
+        .eq("id", store.id));
     } else {
-      await supabase
+      ({ error } = await supabase
         .from("stores")
-        .insert({ user_id: user.id, store_name: storeName, slug });
+        .insert({ user_id: user.id, store_name: storeName, slug }));
+    }
+
+    if (error) {
+      console.error("Error saving store:", error);
+      toast.error("Erro ao salvar loja: " + error.message);
+      setSaving(false);
+      return;
     }
 
     await fetchStore();
     setEditing(false);
     setSaving(false);
+    toast.success(store ? "Loja atualizada!" : "Loja criada com sucesso!");
   };
 
   const handleRegenerateCode = async () => {
