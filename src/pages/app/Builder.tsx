@@ -10,7 +10,7 @@ import {
   Plus, Trash2, GripVertical, Image, Star, ShoppingBag,
   X, ArrowLeft, Save, Settings2, Monitor, Tablet, Smartphone,
   Layers, Settings, ChevronLeft, ChevronRight, Bold, Italic,
-  Search, Upload, Type, PanelTop, Eye, ExternalLink
+  Search, Upload, Type, PanelTop, Eye, ExternalLink, ChevronDown
 } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
