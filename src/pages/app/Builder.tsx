@@ -699,26 +699,45 @@ const Builder = () => {
                       )
                     )}
 
-                    {section.type === "destaque" && (
-                      <div className={`grid gap-3 ${deviceMode === "mobile" ? "grid-cols-2" : "grid-cols-2 md:grid-cols-3"}`}>
-                        {(catalogProducts.length > 0 ? catalogProducts.slice(0, 3) : [null, null, null]).map((product, i) => (
-                          <div key={product?.id || i} className="aspect-[3/4] rounded-xl bg-muted/50 border border-border flex flex-col items-center justify-center overflow-hidden">
-                            {product?.image_url ? (
-                              <>
-                          <div className="flex-1 w-full overflow-hidden">
+                    {section.type === "destaque" && (() => {
+                      const destaqueProducts = catalogProducts.length > 0 ? catalogProducts.slice(0, 5) : [];
+                      const [destaqueIndex, setDestaqueIndex] = React.useState(0);
+                      const product = destaqueProducts[destaqueIndex] || null;
+
+                      React.useEffect(() => {
+                        if (destaqueProducts.length <= 1) return;
+                        const interval = setInterval(() => {
+                          setDestaqueIndex(prev => (prev + 1) % destaqueProducts.length);
+                        }, 7000);
+                        return () => clearInterval(interval);
+                      }, [destaqueProducts.length]);
+
+                      return (
+                        <div className="relative w-full rounded-2xl bg-muted/50 border border-border overflow-hidden" style={{ minHeight: deviceMode === "mobile" ? 360 : 420 }}>
+                          {product?.image_url ? (
+                            <AnimatePresence mode="wait">
+                              <motion.div
+                                key={product.id}
+                                initial={{ opacity: 0, scale: 0.97 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.97 }}
+                                transition={{ duration: 0.4 }}
+                                className="flex flex-col h-full"
+                              >
+                                <div className="flex-1 w-full overflow-hidden" style={{ minHeight: deviceMode === "mobile" ? 240 : 300 }}>
                                   <img src={product.image_url} alt={product.product_name} className="w-full h-full object-cover" />
                                 </div>
-                                <div className="p-2 w-full">
-                                  <p className="text-xs text-foreground font-medium text-center truncate">{product.product_name}</p>
+                                <div className="p-4 space-y-2">
+                                  <p className="text-sm font-bold text-foreground truncate">{product.product_name}</p>
                                   {(() => {
                                     const info = getProductPriceInfo(product);
                                     if (!info) return null;
                                     return (
-                                      <div className="flex items-center justify-center gap-1.5 mt-0.5">
+                                      <div className="flex items-center gap-2">
                                         {info.hasDiscount && (
-                                          <span className="text-[10px] line-through text-muted-foreground">R${info.originalPrice!.toFixed(2)}</span>
+                                          <span className="text-xs line-through text-muted-foreground">R${info.originalPrice!.toFixed(2)}</span>
                                         )}
-                                        <span className="text-xs font-bold" style={{ color: info.hasDiscount ? 'hsl(var(--destructive))' : 'hsl(var(--foreground))' }}>
+                                        <span className="text-lg font-black" style={{ color: info.hasDiscount ? 'hsl(var(--destructive))' : 'hsl(var(--foreground))' }}>
                                           R${(info.salePrice || info.originalPrice)!.toFixed(2)}
                                         </span>
                                       </div>
@@ -726,20 +745,34 @@ const Builder = () => {
                                   })()}
                                   <button
                                     onClick={(e) => { e.stopPropagation(); setSelectedProduct(product); }}
-                                    className="mt-1.5 w-full py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-all"
+                                    className="w-full py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider hover:opacity-90 transition-all"
                                     style={{ backgroundColor: theme.buttonBgColor, color: theme.buttonTextColor }}
                                   >
                                     Comprar
                                   </button>
                                 </div>
-                              </>
-                            ) : (
-                              <p className="text-xs text-muted-foreground">Produto {i + 1}</p>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                              </motion.div>
+                            </AnimatePresence>
+                          ) : (
+                            <div className="flex items-center justify-center h-full min-h-[300px]">
+                              <p className="text-sm text-muted-foreground">Nenhum produto em destaque</p>
+                            </div>
+                          )}
+                          {/* Dots indicator */}
+                          {destaqueProducts.length > 1 && (
+                            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+                              {destaqueProducts.map((_, i) => (
+                                <button
+                                  key={i}
+                                  onClick={() => setDestaqueIndex(i)}
+                                  className={`w-2 h-2 rounded-full transition-all ${i === destaqueIndex ? 'bg-primary scale-125' : 'bg-muted-foreground/40'}`}
+                                />
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
 
                     {section.type === "produtos" && (
                       <div className={`grid gap-3 ${deviceMode === "mobile" ? "grid-cols-2" : "grid-cols-2 md:grid-cols-4"}`}>
