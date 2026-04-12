@@ -434,6 +434,29 @@ const Builder = () => {
   const [theme, setTheme] = useState<StoreTheme>({ ...defaultTheme });
   const [catalogProducts, setCatalogProducts] = useState<CatalogProduct[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<CatalogProduct | null>(null);
+  const [headerConfig, setHeaderConfig] = useState<HeaderConfig>({ ...defaultHeaderConfig });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [announcementIndex, setAnnouncementIndex] = useState(0);
+
+  // Rotate announcement messages
+  useEffect(() => {
+    const msgs = headerConfig.announcementMessages.filter((m) => m.text.trim());
+    if (!headerConfig.announcementEnabled || msgs.length <= 1) return;
+    const interval = setInterval(() => {
+      setAnnouncementIndex((prev) => (prev + 1) % msgs.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [headerConfig.announcementEnabled, headerConfig.announcementMessages]);
+
+  // Search results
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const q = searchQuery.toLowerCase();
+    return catalogProducts
+      .filter((p) => p.product_name.toLowerCase().includes(q))
+      .slice(0, 6);
+  }, [searchQuery, catalogProducts]);
 
   useEffect(() => {
     const fetchProducts = async () => {
