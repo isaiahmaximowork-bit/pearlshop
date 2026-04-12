@@ -248,9 +248,17 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
               )}
 
               {/* Action Button */}
-              <button className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-[0.98] shadow-lg">
-                {mode === "buy" ? <ShoppingBag size={16} /> : <UserPlus size={16} />}
-                {mode === "buy" ? "Comprar" : "Afiliar-se"}
+              <button
+                onClick={() => onAffiliate?.()}
+                disabled={isAffiliated}
+                className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg ${
+                  isAffiliated
+                    ? "bg-muted text-muted-foreground cursor-default"
+                    : "bg-primary text-primary-foreground hover:opacity-90"
+                }`}
+              >
+                {isAffiliated ? <UserPlus size={16} /> : mode === "buy" ? <ShoppingBag size={16} /> : <UserPlus size={16} />}
+                {isAffiliated ? "Afiliado ✓" : mode === "buy" ? "Comprar" : "Afiliar-se"}
               </button>
 
               {/* Shipping Info */}
