@@ -605,15 +605,15 @@ const StorePage = () => {
               )}
 
               {section.type === "destaque" && (
-                <StoreDestaquePreview products={catalogProducts.slice(0, 5)} theme={theme} onSelect={setSelectedProduct} />
+                <StoreDestaquePreview products={storeProducts.slice(0, 5)} theme={theme} onSelect={(p) => setSelectedProduct(p as StoreProduct)} />
               )}
 
               {section.type === "produtos" && (
                 <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
-                  {catalogProducts.map((product) => {
+                  {storeProducts.map((product) => {
                     const info = getProductPriceInfo(product);
                     return (
-                      <div key={product.id} className="rounded-xl bg-card border border-border flex flex-col overflow-hidden">
+                      <div key={product.id} className="rounded-xl bg-card border border-border flex flex-col overflow-hidden cursor-pointer" onClick={() => setSelectedProduct(product)}>
                         <div className="aspect-square w-full overflow-hidden">
                           {product.image_url ? (
                             <img src={product.image_url} alt={product.product_name} className="w-full h-full object-cover" />
@@ -633,7 +633,7 @@ const StorePage = () => {
                               </span>
                             </div>
                           )}
-                          <button onClick={() => window.open(getProductShopUrl(product), '_blank')}
+                          <button onClick={(e) => { e.stopPropagation(); setSelectedProduct(product); }}
                             className="mt-1.5 w-full py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-all"
                             style={{ backgroundColor: theme.buttonBgColor, color: theme.buttonTextColor }}>
                             Comprar
