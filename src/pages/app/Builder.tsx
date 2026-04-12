@@ -1106,6 +1106,8 @@ const Builder = () => {
                   )}
                 </div>
               )}
+            </div>
+
             {sections.length === 0 && (
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <ShoppingBag size={48} className="text-muted-foreground/30 mb-4" />
