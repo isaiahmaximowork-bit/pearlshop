@@ -441,6 +441,26 @@ const Builder = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [announcementIndex, setAnnouncementIndex] = useState(0);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewPassword, setPreviewPassword] = useState("");
+  const [previewError, setPreviewError] = useState("");
+  const [store, setStore] = useState<{ slug: string; is_public: boolean; access_code: string; store_name: string } | null>(null);
+  const { user } = useAuth();
+
+  // Fetch user's store
+  useEffect(() => {
+    if (!user) return;
+    const fetchStore = async () => {
+      const { data } = await supabase
+        .from("stores")
+        .select("slug, is_public, access_code, store_name")
+        .eq("user_id", user.id)
+        .limit(1)
+        .single();
+      if (data) setStore(data);
+    };
+    fetchStore();
+  }, [user]);
 
   // Rotate announcement messages
   useEffect(() => {
