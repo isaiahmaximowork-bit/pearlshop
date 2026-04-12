@@ -486,7 +486,7 @@ const StorePage = () => {
           {searchOpen && (
             <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border shadow-lg z-50 p-3 space-y-2">
               <div className="flex items-center gap-2 border border-border rounded-lg px-3 py-2">
-                <Search size={14} style={{ color: theme.iconColor }} />
+                <Search size={14} style={{ color: theme.subtitleColor }} />
                 <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Buscar produtos..."
                   className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground text-foreground" autoFocus />
                 {searchQuery && <button onClick={() => setSearchQuery("")} className="text-muted-foreground hover:text-foreground"><X size={12} /></button>}
@@ -536,7 +536,7 @@ const StorePage = () => {
             {/* Row 2: Search bar */}
             <div className="pb-4 max-w-xl mx-auto relative">
               <div className="flex items-center gap-2 border border-border rounded-xl px-4 py-2.5 bg-muted/30">
-                <Search size={16} style={{ color: theme.iconColor }} />
+                <Search size={16} style={{ color: theme.subtitleColor }} />
                 <input
                   type="text"
                   value={searchQuery}
