@@ -62,15 +62,6 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
     enabled: open,
   });
 
-  useEffect(() => {
-    if (!open || !product) return;
-    const timer = setInterval(() => {
-      setSlideDirection(1);
-      setSelectedImageIndex(i => i + 1);
-    }, 5000);
-    return () => clearInterval(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, product?.id]);
 
   if (!product) return null;
 
