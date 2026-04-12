@@ -649,7 +649,7 @@ const StorePage = () => {
         ))}
       </main>
 
-      <ProductDetailModal product={selectedProduct} open={!!selectedProduct} onOpenChange={(open) => { if (!open) setSelectedProduct(null); }} mode="buy" />
+      <ProductDetailModal product={selectedProduct} open={!!selectedProduct} onOpenChange={(open) => { if (!open) setSelectedProduct(null); }} mode="buy" buyUrl={selectedProduct?.user_affiliate_url} />
     </div>
   );
 };
