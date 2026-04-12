@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import {
   Plus, Trash2, GripVertical, Image, Star, ShoppingBag,
   X, ArrowLeft, Save, Settings2, Monitor, Tablet, Smartphone,
-  Layers, Settings, ChevronLeft, ChevronRight
+  Layers, Settings, ChevronLeft, ChevronRight, Bold, Italic
 } from "lucide-react";
 import { toast } from "sonner";
 import logo from "@/assets/logo.png";
@@ -27,9 +27,14 @@ interface StoreTheme {
   subtitleFont: FontFamily;
   titleColor: string;
   subtitleColor: string;
+  titleBold: boolean;
+  titleItalic: boolean;
+  subtitleBold: boolean;
+  subtitleItalic: boolean;
   buttonBgColor: string;
   buttonTextColor: string;
   iconColor: string;
+  priceColor: string;
 }
 
 const defaultTheme: StoreTheme = {
@@ -37,9 +42,14 @@ const defaultTheme: StoreTheme = {
   subtitleFont: "Arial",
   titleColor: "#ffffff",
   subtitleColor: "#a1a1aa",
+  titleBold: true,
+  titleItalic: false,
+  subtitleBold: false,
+  subtitleItalic: false,
   buttonBgColor: "#7c3aed",
   buttonTextColor: "#ffffff",
   iconColor: "#a1a1aa",
+  priceColor: "#ffffff",
 };
 
 interface CatalogProduct {
@@ -102,13 +112,31 @@ const getMaskStyle = (mask?: BannerTextConfig["mask"]) => {
   }
 };
 
-// Banner carousel with touch swipe for mobile
-const BannerPreview = ({ banners, deviceMode }: { banners: BannerItem[]; deviceMode: DeviceMode }) => {
+const getProductPriceInfo = (product: CatalogProduct) => {
+  if (product.price != null) {
+    return {
+      salePrice: product.price,
+      originalPrice: product.is_on_sale ? product.original_price : null,
+      hasDiscount: !!product.is_on_sale,
+    };
+  }
+  const payload = product.raw_payload as Record<string, unknown> | null;
+  if (!payload) return null;
+  const skuList = Array.isArray(payload.skus) ? (payload.skus as Array<Record<string, unknown>>) : [];
+  const firstSku = skuList[0];
+  const skuPrice = (firstSku?.price as Record<string, unknown> | undefined) ?? firstSku;
+  if (!skuPrice) return null;
+  const sale = Number(skuPrice.sale_price ?? skuPrice.tax_exclusive_price) || null;
+  if (!sale) return null;
+  return { salePrice: sale, originalPrice: null, hasDiscount: false };
+};
+
+// ─── Banner Preview with SLIDE transition ───
+const BannerPreview = ({ banners, deviceMode, iconColor }: { banners: BannerItem[]; deviceMode: DeviceMode; iconColor: string }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const touchStartX = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Auto-rotate
   useEffect(() => {
     if (banners.length <= 1) return;
     const interval = setInterval(() => {
@@ -117,7 +145,6 @@ const BannerPreview = ({ banners, deviceMode }: { banners: BannerItem[]; deviceM
     return () => clearInterval(interval);
   }, [banners.length]);
 
-  // Reset index if banners change
   useEffect(() => {
     if (activeIndex >= banners.length) setActiveIndex(0);
   }, [banners.length, activeIndex]);
@@ -130,86 +157,82 @@ const BannerPreview = ({ banners, deviceMode }: { banners: BannerItem[]; deviceM
     if (touchStartX.current === null) return;
     const diff = touchStartX.current - e.changedTouches[0].clientX;
     if (Math.abs(diff) > 50) {
-      if (diff > 0 && activeIndex < banners.length - 1) {
-        setActiveIndex(activeIndex + 1);
-      } else if (diff < 0 && activeIndex > 0) {
-        setActiveIndex(activeIndex - 1);
-      }
+      if (diff > 0 && activeIndex < banners.length - 1) setActiveIndex(activeIndex + 1);
+      else if (diff < 0 && activeIndex > 0) setActiveIndex(activeIndex - 1);
     }
     touchStartX.current = null;
   };
 
   const activeBanner = banners[activeIndex];
   if (!activeBanner) return null;
-  const tc = activeBanner.textConfig;
 
   return (
     <div
       ref={containerRef}
-      className="h-40 md:h-56 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-border flex items-center justify-center overflow-hidden relative"
+      className="h-40 md:h-56 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-border overflow-hidden relative"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {activeBanner.imageUrl ? (
-        <>
-          <img src={activeBanner.imageUrl} alt="" className="w-full h-full object-cover absolute inset-0 transition-opacity duration-500" />
-          {tc?.mask?.enabled && (
-            <div className="absolute inset-0 z-10" style={getMaskStyle(tc.mask)} />
-          )}
-          {(tc?.title || tc?.subtitle) && (
-            <div className={`absolute inset-0 flex flex-col z-20 ${getPositionClasses(tc?.position)}`}>
-              {tc?.title && (
-                <p
-                  className="text-lg md:text-2xl drop-shadow-lg"
-                  style={{
-                    color: tc.titleColor,
-                    fontFamily: `'${tc.fontFamily}', sans-serif`,
-                    fontWeight: tc.fontBold ? 700 : 400,
-                    fontStyle: tc.fontItalic ? "italic" : "normal",
-                  }}
-                >
-                  {tc.title}
-                </p>
-              )}
-              {tc?.subtitle && (
-                <p
-                  className="text-sm md:text-base drop-shadow-lg mt-1"
-                  style={{
-                    color: tc.subtitleColor,
-                    fontFamily: `'${tc.fontFamily}', sans-serif`,
-                    fontWeight: tc.fontBold ? 600 : 400,
-                    fontStyle: tc.fontItalic ? "italic" : "normal",
-                  }}
-                >
-                  {tc.subtitle}
-                </p>
+      {/* Sliding container */}
+      <div
+        className="flex h-full transition-transform duration-500 ease-in-out"
+        style={{ width: `${banners.length * 100}%`, transform: `translateX(-${activeIndex * (100 / banners.length)}%)` }}
+      >
+        {banners.map((banner) => {
+          const tc = banner.textConfig;
+          return (
+            <div key={banner.id} className="relative h-full flex-shrink-0" style={{ width: `${100 / banners.length}%` }}>
+              {banner.imageUrl ? (
+                <>
+                  <img src={banner.imageUrl} alt="" className="w-full h-full object-cover" />
+                  {tc?.mask?.enabled && (
+                    <div className="absolute inset-0 z-10" style={getMaskStyle(tc.mask)} />
+                  )}
+                  {(tc?.title || tc?.subtitle) && (
+                    <div className={`absolute inset-0 flex flex-col z-20 ${getPositionClasses(tc?.position)}`}>
+                      {tc?.title && (
+                        <p className="text-lg md:text-2xl drop-shadow-lg" style={{ color: tc.titleColor, fontFamily: `'${tc.fontFamily}', sans-serif`, fontWeight: tc.fontBold ? 700 : 400, fontStyle: tc.fontItalic ? "italic" : "normal" }}>
+                          {tc.title}
+                        </p>
+                      )}
+                      {tc?.subtitle && (
+                        <p className="text-sm md:text-base drop-shadow-lg mt-1" style={{ color: tc.subtitleColor, fontFamily: `'${tc.fontFamily}', sans-serif`, fontWeight: tc.fontBold ? 600 : 400, fontStyle: tc.fontItalic ? "italic" : "normal" }}>
+                          {tc.subtitle}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <div className="text-center">
+                    <Image size={32} className="text-muted-foreground/40 mx-auto mb-2" />
+                    <p className="text-xs text-muted-foreground">Banner vazio</p>
+                  </div>
+                </div>
               )}
             </div>
-          )}
-        </>
-      ) : (
-        <div className="text-center">
-          <Image size={32} className="text-muted-foreground/40 mx-auto mb-2" />
-          <p className="text-xs text-muted-foreground">Clique para configurar banners</p>
-        </div>
-      )}
+          );
+        })}
+      </div>
 
-      {/* Dots indicator */}
+      {/* Dots with iconColor */}
       {banners.length > 1 && (
         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-30 flex gap-1.5">
           {banners.map((_, i) => (
             <button
               key={i}
               onClick={(e) => { e.stopPropagation(); setActiveIndex(i); }}
-              className={`w-2 h-2 rounded-full transition-all ${
-                i === activeIndex ? "bg-white scale-125" : "bg-white/50"
-              }`}
+              className="w-2 h-2 rounded-full transition-all"
+              style={{
+                backgroundColor: i === activeIndex ? iconColor : `${iconColor}66`,
+                transform: i === activeIndex ? "scale(1.25)" : "scale(1)",
+              }}
             />
           ))}
         </div>
       )}
 
-      {/* Arrow nav for desktop */}
       {banners.length > 1 && deviceMode !== "mobile" && (
         <>
           <button
@@ -230,6 +253,140 @@ const BannerPreview = ({ banners, deviceMode }: { banners: BannerItem[]; deviceM
   );
 };
 
+// ─── Destaque Preview (extracted as proper component to avoid hooks-in-callback) ───
+const DestaquePreview = ({
+  products, deviceMode, theme, onSelectProduct,
+}: {
+  products: CatalogProduct[];
+  deviceMode: DeviceMode;
+  theme: StoreTheme;
+  onSelectProduct: (p: CatalogProduct) => void;
+}) => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const touchStartX = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (products.length <= 1) return;
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % products.length);
+    }, 7000);
+    return () => clearInterval(interval);
+  }, [products.length]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0 && activeIndex < products.length - 1) setActiveIndex(activeIndex + 1);
+      else if (diff < 0 && activeIndex > 0) setActiveIndex(activeIndex - 1);
+    }
+    touchStartX.current = null;
+  };
+
+  if (products.length === 0) {
+    return (
+      <div className="flex items-center justify-center rounded-2xl bg-muted/50 border border-border min-h-[300px]">
+        <p className="text-sm text-muted-foreground">Nenhum produto em destaque</p>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="relative w-full rounded-2xl bg-muted/50 border border-border overflow-hidden"
+      style={{ minHeight: deviceMode === "mobile" ? 360 : 280, maxHeight: deviceMode === "mobile" ? undefined : 340 }}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* Sliding container */}
+      <div
+        className="flex h-full transition-transform duration-500 ease-in-out"
+        style={{
+          width: `${products.length * 100}%`,
+          transform: `translateX(-${activeIndex * (100 / products.length)}%)`,
+          minHeight: deviceMode === "mobile" ? 360 : 280,
+        }}
+      >
+        {products.map((product) => {
+          const info = getProductPriceInfo(product);
+          return (
+            <div key={product.id} className="flex flex-col flex-shrink-0" style={{ width: `${100 / products.length}%` }}>
+              <div className="flex-1 w-full overflow-hidden" style={{ minHeight: deviceMode === "mobile" ? 240 : 180, maxHeight: deviceMode === "mobile" ? undefined : 220 }}>
+                {product.image_url ? (
+                  <img src={product.image_url} alt={product.product_name} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-muted">
+                    <ShoppingBag size={32} className="text-muted-foreground/30" />
+                  </div>
+                )}
+              </div>
+              <div className="p-4 space-y-2">
+                <p
+                  className="text-sm truncate"
+                  style={{
+                    color: theme.titleColor,
+                    fontFamily: `'${theme.titleFont}', sans-serif`,
+                    fontWeight: theme.titleBold ? 700 : 400,
+                    fontStyle: theme.titleItalic ? "italic" : "normal",
+                  }}
+                >
+                  {product.product_name}
+                </p>
+                {info && (
+                  <div className="flex items-center gap-2">
+                    {info.hasDiscount && (
+                      <span className="text-xs line-through text-muted-foreground">R${info.originalPrice!.toFixed(2)}</span>
+                    )}
+                    <span
+                      className="text-lg"
+                      style={{
+                        color: info.hasDiscount ? 'hsl(var(--destructive))' : theme.priceColor,
+                        fontFamily: `'${theme.subtitleFont}', sans-serif`,
+                        fontWeight: theme.subtitleBold ? 900 : 700,
+                        fontStyle: theme.subtitleItalic ? "italic" : "normal",
+                      }}
+                    >
+                      R${(info.salePrice || info.originalPrice)!.toFixed(2)}
+                    </span>
+                  </div>
+                )}
+                <button
+                  onClick={(e) => { e.stopPropagation(); onSelectProduct(product); }}
+                  className="w-full py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider hover:opacity-90 transition-all"
+                  style={{ backgroundColor: theme.buttonBgColor, color: theme.buttonTextColor }}
+                >
+                  Comprar
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Dots — moved further from button with bottom-6 */}
+      {products.length > 1 && (
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+          {products.map((_, i) => (
+            <button
+              key={i}
+              onClick={(e) => { e.stopPropagation(); setActiveIndex(i); }}
+              className="w-2 h-2 rounded-full transition-all"
+              style={{
+                backgroundColor: i === activeIndex ? theme.iconColor : `${theme.iconColor}66`,
+                transform: i === activeIndex ? "scale(1.25)" : "scale(1)",
+              }}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const Builder = () => {
   const [sections, setSections] = useState<BuilderSection[]>([
     { id: "1", type: "banner", title: "", subtitle: "", banners: [] },
@@ -244,7 +401,6 @@ const Builder = () => {
   const [catalogProducts, setCatalogProducts] = useState<CatalogProduct[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<CatalogProduct | null>(null);
 
-  // Fetch products from Supabase
   useEffect(() => {
     const fetchProducts = async () => {
       const { data } = await supabase
@@ -256,7 +412,6 @@ const Builder = () => {
     fetchProducts();
   }, []);
 
-  // Drag and drop state
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dropIndicator, setDropIndicator] = useState<number | null>(null);
 
@@ -267,15 +422,11 @@ const Builder = () => {
     setDragIndex(index);
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setData("text/plain", index.toString());
-    if (e.currentTarget instanceof HTMLElement) {
-      e.currentTarget.style.opacity = "0.4";
-    }
+    if (e.currentTarget instanceof HTMLElement) e.currentTarget.style.opacity = "0.4";
   }, []);
 
   const handleDragEnd = useCallback((e: React.DragEvent) => {
-    if (e.currentTarget instanceof HTMLElement) {
-      e.currentTarget.style.opacity = "1";
-    }
+    if (e.currentTarget instanceof HTMLElement) e.currentTarget.style.opacity = "1";
     setDragIndex(null);
     setDropIndicator(null);
   }, []);
@@ -283,28 +434,18 @@ const Builder = () => {
   const handleDragOver = useCallback((e: React.DragEvent, index: number) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
-    if (dragIndex === null) {
-      setDropIndicator(null);
-      return;
-    }
+    if (dragIndex === null) { setDropIndicator(null); return; }
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     const midY = rect.top + rect.height / 2;
-    const targetLine = e.clientY < midY ? index : index + 1;
-    // Allow any position, even adjacent — the drop handler will handle no-ops
-    setDropIndicator(targetLine);
+    setDropIndicator(e.clientY < midY ? index : index + 1);
   }, [dragIndex]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     if (dragIndex === null || dropIndicator === null) return;
-
-    // No-op if dropping in same position
     if (dropIndicator === dragIndex || dropIndicator === dragIndex + 1) {
-      setDragIndex(null);
-      setDropIndicator(null);
-      return;
+      setDragIndex(null); setDropIndicator(null); return;
     }
-
     setSections((prev) => {
       const arr = [...prev];
       const [moved] = arr.splice(dragIndex, 1);
@@ -312,8 +453,7 @@ const Builder = () => {
       arr.splice(insertAt, 0, moved);
       return arr;
     });
-    setDragIndex(null);
-    setDropIndicator(null);
+    setDragIndex(null); setDropIndicator(null);
   }, [dragIndex, dropIndicator]);
 
   const removeSection = useCallback((id: string) => {
@@ -323,16 +463,9 @@ const Builder = () => {
   }, [selectedSectionId]);
 
   const addSection = useCallback((type: SectionType) => {
-    const defaultTitles: Record<SectionType, string> = {
-      banner: "",
-      destaque: "Destaques",
-      produtos: "Produtos",
-    };
+    const defaultTitles: Record<SectionType, string> = { banner: "", destaque: "Destaques", produtos: "Produtos" };
     const newSection: BuilderSection = {
-      id: Date.now().toString(),
-      type,
-      title: defaultTitles[type],
-      subtitle: "",
+      id: Date.now().toString(), type, title: defaultTitles[type], subtitle: "",
       ...(type === "banner" ? { banners: [] } : {}),
     };
     setSections((prev) => [...prev, newSection]);
@@ -344,27 +477,6 @@ const Builder = () => {
     setSections((prev) => prev.map((s) => (s.id === sectionId ? { ...s, [field]: value } : s)));
   }, []);
 
-  const getProductPriceInfo = (product: CatalogProduct) => {
-    // Use persisted columns first
-    if (product.price != null) {
-      return {
-        salePrice: product.price,
-        originalPrice: product.is_on_sale ? product.original_price : null,
-        hasDiscount: !!product.is_on_sale,
-      };
-    }
-    // Fallback: raw_payload
-    const payload = product.raw_payload as Record<string, unknown> | null;
-    if (!payload) return null;
-    const skuList = Array.isArray(payload.skus) ? (payload.skus as Array<Record<string, unknown>>) : [];
-    const firstSku = skuList[0];
-    const skuPrice = (firstSku?.price as Record<string, unknown> | undefined) ?? firstSku;
-    if (!skuPrice) return null;
-    const sale = Number(skuPrice.sale_price ?? skuPrice.tax_exclusive_price) || null;
-    if (!sale) return null;
-    return { salePrice: sale, originalPrice: null, hasDiscount: false };
-  };
-
   const updateSectionBorder = useCallback((sectionId: string, showBorder: boolean) => {
     setSections((prev) => prev.map((s) => (s.id === sectionId ? { ...s, showBorder } : s)));
   }, []);
@@ -373,56 +485,25 @@ const Builder = () => {
     setSections((prev) =>
       prev.map((s) => {
         if (s.id !== sectionId || s.type !== "banner") return s;
-        if ((s.banners?.length || 0) >= 3) {
-          toast.error("Máximo de 3 banners por seção");
-          return s;
-        }
-        return {
-          ...s,
-          banners: [...(s.banners || []), { id: Date.now().toString(), textConfig: { ...defaultTextConfig } }],
-        };
+        if ((s.banners?.length || 0) >= 3) { toast.error("Máximo de 3 banners por seção"); return s; }
+        return { ...s, banners: [...(s.banners || []), { id: Date.now().toString(), textConfig: { ...defaultTextConfig } }] };
       })
     );
   }, []);
 
   const removeBannerFromSection = useCallback((sectionId: string, bannerId: string) => {
-    setSections((prev) =>
-      prev.map((s) => {
-        if (s.id !== sectionId) return s;
-        return { ...s, banners: s.banners?.filter((b) => b.id !== bannerId) };
-      })
-    );
+    setSections((prev) => prev.map((s) => s.id !== sectionId ? s : { ...s, banners: s.banners?.filter((b) => b.id !== bannerId) }));
   }, []);
 
   const updateBanner = useCallback((sectionId: string, bannerId: string, updates: Partial<BannerItem>) => {
-    setSections((prev) =>
-      prev.map((s) => {
-        if (s.id !== sectionId) return s;
-        return {
-          ...s,
-          banners: s.banners?.map((b) => (b.id === bannerId ? { ...b, ...updates } : b)),
-        };
-      })
-    );
+    setSections((prev) => prev.map((s) => s.id !== sectionId ? s : { ...s, banners: s.banners?.map((b) => (b.id === bannerId ? { ...b, ...updates } : b)) }));
   }, []);
 
   const updateBannerText = useCallback((sectionId: string, bannerId: string, updates: Partial<BannerTextConfig>) => {
-    setSections((prev) =>
-      prev.map((s) => {
-        if (s.id !== sectionId) return s;
-        return {
-          ...s,
-          banners: s.banners?.map((b) =>
-            b.id === bannerId ? { ...b, textConfig: { ...b.textConfig, ...updates } } : b
-          ),
-        };
-      })
-    );
+    setSections((prev) => prev.map((s) => s.id !== sectionId ? s : { ...s, banners: s.banners?.map((b) => b.id === bannerId ? { ...b, textConfig: { ...b.textConfig, ...updates } } : b) }));
   }, []);
 
-  const handleSave = () => {
-    toast.success("Loja salva com sucesso!");
-  };
+  const handleSave = () => { toast.success("Loja salva com sucesso!"); };
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-background">
@@ -442,21 +523,13 @@ const Builder = () => {
         <div className="flex border-b border-border">
           <button
             onClick={() => setLeftTab("sections")}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-medium transition-colors ${
-              leftTab === "sections"
-                ? "text-foreground border-b-2 border-primary"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-medium transition-colors ${leftTab === "sections" ? "text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
           >
             <Layers size={14} /> Seções
           </button>
           <button
             onClick={() => setLeftTab("settings")}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-medium transition-colors ${
-              leftTab === "settings"
-                ? "text-foreground border-b-2 border-primary"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-medium transition-colors ${leftTab === "settings" ? "text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
           >
             <Settings size={14} /> Configurações
           </button>
@@ -474,7 +547,7 @@ const Builder = () => {
                 const isSelected = selectedSectionId === section.id;
                 return (
                   <div key={section.id}>
-                    {dropIndicator === index && dragIndex !== null && (
+                    {index === 0 && dropIndicator === 0 && dragIndex !== null && (
                       <div className="h-0.5 bg-primary rounded-full mx-2 my-1 transition-all" />
                     )}
                     <div
@@ -484,18 +557,18 @@ const Builder = () => {
                       onDragOver={(e) => handleDragOver(e, index)}
                       onDrop={handleDrop}
                       onClick={() => setSelectedSectionId(section.id)}
-                      className={`group flex items-center gap-2 p-3 rounded-xl border transition-all cursor-pointer mb-2 ${
-                        isSelected ? "border-primary bg-primary/5" : "border-border bg-background hover:border-primary/30"
-                      } ${dragIndex === index ? "opacity-40" : ""}`}
+                      className={`group flex items-center gap-2 p-3 rounded-xl border transition-all cursor-pointer ${isSelected ? "border-primary bg-primary/5 shadow-sm" : "border-transparent hover:bg-muted/50"}`}
                     >
-                      <GripVertical size={14} className="text-muted-foreground/40 flex-shrink-0 cursor-grab active:cursor-grabbing" />
-                      <span className="flex-shrink-0 text-foreground">{sectionIcons[section.type]}</span>
-                      <span className="text-sm font-medium text-foreground truncate flex-1">{sectionLabels[section.type]}</span>
+                      <div className="cursor-grab text-muted-foreground/40 group-hover:text-muted-foreground transition-colors">
+                        <GripVertical size={14} />
+                      </div>
+                      <span className="text-foreground">{sectionIcons[section.type]}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{section.title || sectionLabels[section.type]}</p>
+                        <p className="text-[10px] text-muted-foreground">{sectionDescriptions[section.type]}</p>
+                      </div>
                       <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); removeSection(section.id); }}
-                          className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
-                        >
+                        <button onClick={(e) => { e.stopPropagation(); removeSection(section.id); }} className="p-1 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors" title="Remover">
                           <Trash2 size={12} />
                         </button>
                       </div>
@@ -513,9 +586,7 @@ const Builder = () => {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Adicionar Seção</p>
-                    <button onClick={() => setAddingSection(false)} className="text-muted-foreground hover:text-foreground">
-                      <X size={14} />
-                    </button>
+                    <button onClick={() => setAddingSection(false)} className="text-muted-foreground hover:text-foreground"><X size={14} /></button>
                   </div>
                   {(["banner", "destaque", "produtos"] as SectionType[]).map((type) => (
                     <button
@@ -558,29 +629,59 @@ const Builder = () => {
             <div>
               <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Fontes</p>
               <div className="space-y-3">
+                {/* Title font (product names) */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs text-muted-foreground">Fonte do Título</Label>
+                  <Label className="text-xs text-muted-foreground">Fonte do Título (nome dos produtos)</Label>
                   <select
                     value={theme.titleFont}
                     onChange={(e) => setTheme((t) => ({ ...t, titleFont: e.target.value as FontFamily }))}
                     className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
                   >
-                    {fontOptions.map((f) => (
-                      <option key={f.value} value={f.value}>{f.label}</option>
-                    ))}
+                    {fontOptions.map((f) => <option key={f.value} value={f.value}>{f.label}</option>)}
                   </select>
+                  <div className="flex gap-1 mt-1">
+                    <button
+                      onClick={() => setTheme((t) => ({ ...t, titleBold: !t.titleBold }))}
+                      className={`p-1.5 rounded border transition-colors ${theme.titleBold ? "bg-primary text-primary-foreground border-primary" : "border-input text-muted-foreground hover:text-foreground"}`}
+                      title="Negrito"
+                    >
+                      <Bold size={14} />
+                    </button>
+                    <button
+                      onClick={() => setTheme((t) => ({ ...t, titleItalic: !t.titleItalic }))}
+                      className={`p-1.5 rounded border transition-colors ${theme.titleItalic ? "bg-primary text-primary-foreground border-primary" : "border-input text-muted-foreground hover:text-foreground"}`}
+                      title="Itálico"
+                    >
+                      <Italic size={14} />
+                    </button>
+                  </div>
                 </div>
+                {/* Subtitle font (prices) */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs text-muted-foreground">Fonte do Subtítulo</Label>
+                  <Label className="text-xs text-muted-foreground">Fonte do Subtítulo (preços)</Label>
                   <select
                     value={theme.subtitleFont}
                     onChange={(e) => setTheme((t) => ({ ...t, subtitleFont: e.target.value as FontFamily }))}
                     className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
                   >
-                    {fontOptions.map((f) => (
-                      <option key={f.value} value={f.value}>{f.label}</option>
-                    ))}
+                    {fontOptions.map((f) => <option key={f.value} value={f.value}>{f.label}</option>)}
                   </select>
+                  <div className="flex gap-1 mt-1">
+                    <button
+                      onClick={() => setTheme((t) => ({ ...t, subtitleBold: !t.subtitleBold }))}
+                      className={`p-1.5 rounded border transition-colors ${theme.subtitleBold ? "bg-primary text-primary-foreground border-primary" : "border-input text-muted-foreground hover:text-foreground"}`}
+                      title="Negrito"
+                    >
+                      <Bold size={14} />
+                    </button>
+                    <button
+                      onClick={() => setTheme((t) => ({ ...t, subtitleItalic: !t.subtitleItalic }))}
+                      className={`p-1.5 rounded border transition-colors ${theme.subtitleItalic ? "bg-primary text-primary-foreground border-primary" : "border-input text-muted-foreground hover:text-foreground"}`}
+                      title="Itálico"
+                    >
+                      <Italic size={14} />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -592,6 +693,7 @@ const Builder = () => {
                 {([
                   { key: "titleColor" as const, label: "Cor do Título" },
                   { key: "subtitleColor" as const, label: "Cor do Subtítulo" },
+                  { key: "priceColor" as const, label: "Cor do Preço" },
                   { key: "buttonBgColor" as const, label: "Fundo do Botão" },
                   { key: "buttonTextColor" as const, label: "Texto do Botão" },
                   { key: "iconColor" as const, label: "Cor dos Ícones" },
@@ -617,7 +719,6 @@ const Builder = () => {
 
       {/* Main Preview Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Bar */}
         <div className="h-14 border-b border-border bg-card flex items-center px-4 shrink-0">
           <div className="flex-1" />
           <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
@@ -629,9 +730,7 @@ const Builder = () => {
               <button
                 key={mode}
                 onClick={() => setDeviceMode(mode)}
-                className={`p-1.5 rounded-md transition-colors ${
-                  deviceMode === mode ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-                }`}
+                className={`p-1.5 rounded-md transition-colors ${deviceMode === mode ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
                 title={label}
               >
                 <Icon size={16} />
@@ -646,10 +745,7 @@ const Builder = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 md:p-10 bg-muted/30 flex justify-center">
-          <div
-            className="space-y-4 transition-all duration-300"
-            style={{ width: deviceWidths[deviceMode], maxWidth: "100%" }}
-          >
+          <div className="space-y-4 transition-all duration-300" style={{ width: deviceWidths[deviceMode], maxWidth: "100%" }}>
             {sections.length === 0 && (
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <ShoppingBag size={48} className="text-muted-foreground/30 mb-4" />
@@ -660,7 +756,6 @@ const Builder = () => {
 
             {sections.map((section) => {
               const isSelected = selectedSectionId === section.id;
-
               return (
                 <div
                   key={section.id}
@@ -674,12 +769,28 @@ const Builder = () => {
                   {(section.title || section.subtitle) && (
                     <div className="px-6 pt-4 pb-0 md:px-8 md:pt-5">
                       {section.title && (
-                        <h3 className="font-bold text-lg leading-tight" style={{ color: theme.titleColor, fontFamily: `'${theme.titleFont}', sans-serif` }}>
+                        <h3
+                          className="text-lg leading-tight"
+                          style={{
+                            color: theme.titleColor,
+                            fontFamily: `'${theme.titleFont}', sans-serif`,
+                            fontWeight: theme.titleBold ? 700 : 400,
+                            fontStyle: theme.titleItalic ? "italic" : "normal",
+                          }}
+                        >
                           {section.title}
                         </h3>
                       )}
                       {section.subtitle && (
-                        <p className="text-sm mt-0.5" style={{ color: theme.subtitleColor, fontFamily: `'${theme.subtitleFont}', sans-serif` }}>
+                        <p
+                          className="text-sm mt-0.5"
+                          style={{
+                            color: theme.subtitleColor,
+                            fontFamily: `'${theme.subtitleFont}', sans-serif`,
+                            fontWeight: theme.subtitleBold ? 600 : 400,
+                            fontStyle: theme.subtitleItalic ? "italic" : "normal",
+                          }}
+                        >
                           {section.subtitle}
                         </p>
                       )}
@@ -689,7 +800,7 @@ const Builder = () => {
                   <div className="px-6 pb-6 pt-3 md:px-8 md:pb-8 md:pt-4">
                     {section.type === "banner" && (
                       section.banners && section.banners.length > 0 ? (
-                        <BannerPreview banners={section.banners} deviceMode={deviceMode} />
+                        <BannerPreview banners={section.banners} deviceMode={deviceMode} iconColor={theme.iconColor} />
                       ) : (
                         <div className="h-40 md:h-56 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-border flex items-center justify-center">
                           <div className="text-center">
@@ -700,80 +811,14 @@ const Builder = () => {
                       )
                     )}
 
-                    {section.type === "destaque" && (() => {
-                      const destaqueProducts = catalogProducts.length > 0 ? catalogProducts.slice(0, 5) : [];
-                      const [destaqueIndex, setDestaqueIndex] = React.useState(0);
-                      const product = destaqueProducts[destaqueIndex] || null;
-
-                      React.useEffect(() => {
-                        if (destaqueProducts.length <= 1) return;
-                        const interval = setInterval(() => {
-                          setDestaqueIndex(prev => (prev + 1) % destaqueProducts.length);
-                        }, 7000);
-                        return () => clearInterval(interval);
-                      }, [destaqueProducts.length]);
-
-                      return (
-                        <div className="relative w-full rounded-2xl bg-muted/50 border border-border overflow-hidden" style={{ minHeight: deviceMode === "mobile" ? 360 : 280, maxHeight: deviceMode === "mobile" ? undefined : 340 }}>
-                          {product?.image_url ? (
-                            <AnimatePresence mode="wait">
-                              <motion.div
-                                key={product.id}
-                                initial={{ opacity: 0, scale: 0.97 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.97 }}
-                                transition={{ duration: 0.4 }}
-                                className="flex flex-col h-full"
-                              >
-                                <div className="flex-1 w-full overflow-hidden" style={{ minHeight: deviceMode === "mobile" ? 240 : 180, maxHeight: deviceMode === "mobile" ? undefined : 220 }}>
-                                  <img src={product.image_url} alt={product.product_name} className="w-full h-full object-cover" />
-                                </div>
-                                <div className="p-4 space-y-2">
-                                  <p className="text-sm font-bold text-foreground truncate">{product.product_name}</p>
-                                  {(() => {
-                                    const info = getProductPriceInfo(product);
-                                    if (!info) return null;
-                                    return (
-                                      <div className="flex items-center gap-2">
-                                        {info.hasDiscount && (
-                                          <span className="text-xs line-through text-muted-foreground">R${info.originalPrice!.toFixed(2)}</span>
-                                        )}
-                                        <span className="text-lg font-black" style={{ color: info.hasDiscount ? 'hsl(var(--destructive))' : 'hsl(var(--foreground))' }}>
-                                          R${(info.salePrice || info.originalPrice)!.toFixed(2)}
-                                        </span>
-                                      </div>
-                                    );
-                                  })()}
-                                  <button
-                                    onClick={(e) => { e.stopPropagation(); setSelectedProduct(product); }}
-                                    className="w-full py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider hover:opacity-90 transition-all"
-                                    style={{ backgroundColor: theme.buttonBgColor, color: theme.buttonTextColor }}
-                                  >
-                                    Comprar
-                                  </button>
-                                </div>
-                              </motion.div>
-                            </AnimatePresence>
-                          ) : (
-                            <div className="flex items-center justify-center h-full min-h-[300px]">
-                              <p className="text-sm text-muted-foreground">Nenhum produto em destaque</p>
-                            </div>
-                          )}
-                          {/* Dots indicator */}
-                          {destaqueProducts.length > 1 && (
-                            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
-                              {destaqueProducts.map((_, i) => (
-                                <button
-                                  key={i}
-                                  onClick={() => setDestaqueIndex(i)}
-                                  className={`w-2 h-2 rounded-full transition-all ${i === destaqueIndex ? 'bg-primary scale-125' : 'bg-muted-foreground/40'}`}
-                                />
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })()}
+                    {section.type === "destaque" && (
+                      <DestaquePreview
+                        products={catalogProducts.slice(0, 5)}
+                        deviceMode={deviceMode}
+                        theme={theme}
+                        onSelectProduct={setSelectedProduct}
+                      />
+                    )}
 
                     {section.type === "produtos" && (
                       <div className={`grid gap-3 ${deviceMode === "mobile" ? "grid-cols-2" : "grid-cols-2 md:grid-cols-4"}`}>
@@ -785,7 +830,17 @@ const Builder = () => {
                                   <img src={product.image_url} alt={product.product_name} className="w-full h-full object-cover" />
                                 </div>
                                 <div className="p-2">
-                                  <p className="text-xs text-foreground font-medium text-center truncate">{product.product_name}</p>
+                                  <p
+                                    className="text-xs text-center truncate"
+                                    style={{
+                                      color: theme.titleColor,
+                                      fontFamily: `'${theme.titleFont}', sans-serif`,
+                                      fontWeight: theme.titleBold ? 700 : 500,
+                                      fontStyle: theme.titleItalic ? "italic" : "normal",
+                                    }}
+                                  >
+                                    {product.product_name}
+                                  </p>
                                   {(() => {
                                     const info = getProductPriceInfo(product);
                                     if (!info) return null;
@@ -794,7 +849,15 @@ const Builder = () => {
                                         {info.hasDiscount && (
                                           <span className="text-[10px] line-through text-muted-foreground">R${info.originalPrice!.toFixed(2)}</span>
                                         )}
-                                        <span className="text-xs font-bold" style={{ color: info.hasDiscount ? 'hsl(var(--destructive))' : 'hsl(var(--foreground))' }}>
+                                        <span
+                                          className="text-xs"
+                                          style={{
+                                            color: info.hasDiscount ? 'hsl(var(--destructive))' : theme.priceColor,
+                                            fontFamily: `'${theme.subtitleFont}', sans-serif`,
+                                            fontWeight: theme.subtitleBold ? 800 : 700,
+                                            fontStyle: theme.subtitleItalic ? "italic" : "normal",
+                                          }}
+                                        >
                                           R${(info.salePrice || info.originalPrice)!.toFixed(2)}
                                         </span>
                                       </div>
@@ -833,55 +896,29 @@ const Builder = () => {
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <Settings2 size={14} className="text-foreground" />
-                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  {sectionLabels[selectedSection.type]}
-                </p>
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{sectionLabels[selectedSection.type]}</p>
               </div>
-              <button
-                onClick={() => setSelectedSectionId(null)}
-                className="text-muted-foreground hover:text-foreground p-1 rounded hover:bg-muted"
-              >
-                <X size={14} />
-              </button>
+              <button onClick={() => setSelectedSectionId(null)} className="text-muted-foreground hover:text-foreground p-1 rounded hover:bg-muted"><X size={14} /></button>
             </div>
             <div className="space-y-3">
               <div className="space-y-1.5">
                 <Label className="text-xs text-muted-foreground">Título da Seção</Label>
-                <Input
-                  value={selectedSection.title}
-                  onChange={(e) => updateSectionField(selectedSection.id, "title", e.target.value)}
-                  placeholder="Ex: Novidades da Semana"
-                  className="h-9"
-                />
+                <Input value={selectedSection.title} onChange={(e) => updateSectionField(selectedSection.id, "title", e.target.value)} placeholder="Ex: Novidades da Semana" className="h-9" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs text-muted-foreground">Subtítulo da Seção</Label>
-                <Input
-                  value={selectedSection.subtitle}
-                  onChange={(e) => updateSectionField(selectedSection.id, "subtitle", e.target.value)}
-                  placeholder="Ex: Confira os lançamentos"
-                  className="h-9"
-                />
+                <Input value={selectedSection.subtitle} onChange={(e) => updateSectionField(selectedSection.id, "subtitle", e.target.value)} placeholder="Ex: Confira os lançamentos" className="h-9" />
               </div>
               <div className="flex items-center justify-between pt-2">
                 <Label className="text-xs text-muted-foreground">Bordas da Seção</Label>
-                <Switch
-                  checked={!!selectedSection.showBorder}
-                  onCheckedChange={(v) => updateSectionBorder(selectedSection.id, v)}
-                />
+                <Switch checked={!!selectedSection.showBorder} onCheckedChange={(v) => updateSectionBorder(selectedSection.id, v)} />
               </div>
             </div>
           </div>
 
           <div className="flex-1 overflow-y-auto p-4">
             {selectedSection.type === "banner" && (
-              <BannerConfig
-                section={selectedSection}
-                onAddBanner={addBannerToSection}
-                onRemoveBanner={removeBannerFromSection}
-                onUpdateBanner={updateBanner}
-                onUpdateBannerText={updateBannerText}
-              />
+              <BannerConfig section={selectedSection} onAddBanner={addBannerToSection} onRemoveBanner={removeBannerFromSection} onUpdateBanner={updateBanner} onUpdateBannerText={updateBannerText} />
             )}
             {selectedSection.type === "destaque" && (
               <DestaqueConfig section={selectedSection} />
@@ -889,23 +926,14 @@ const Builder = () => {
           </div>
 
           <div className="p-4 border-t border-border">
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full gap-2 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30"
-              onClick={() => removeSection(selectedSection.id)}
-            >
+            <Button variant="outline" size="sm" className="w-full gap-2 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30" onClick={() => removeSection(selectedSection.id)}>
               <Trash2 size={14} /> Remover Seção
             </Button>
           </div>
         </div>
       )}
 
-      <ProductDetailModal
-        product={selectedProduct}
-        open={!!selectedProduct}
-        onOpenChange={(open) => { if (!open) setSelectedProduct(null); }}
-      />
+      <ProductDetailModal product={selectedProduct} open={!!selectedProduct} onOpenChange={(open) => { if (!open) setSelectedProduct(null); }} />
     </div>
   );
 };
