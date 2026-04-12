@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ProductDetailModal } from "@/components/ProductDetailModal";
@@ -8,7 +8,8 @@ import { Switch } from "@/components/ui/switch";
 import {
   Plus, Trash2, GripVertical, Image, Star, ShoppingBag,
   X, ArrowLeft, Save, Settings2, Monitor, Tablet, Smartphone,
-  Layers, Settings, ChevronLeft, ChevronRight, Bold, Italic
+  Layers, Settings, ChevronLeft, ChevronRight, Bold, Italic,
+  Search, Upload, Type, PanelTop
 } from "lucide-react";
 import { toast } from "sonner";
 import logo from "@/assets/logo.png";
@@ -21,6 +22,39 @@ import {
 } from "@/components/builder/types";
 import BannerConfig from "@/components/builder/BannerConfig";
 import DestaqueConfig from "@/components/builder/DestaqueConfig";
+
+// ─── Header Config Types ───
+type LogoMode = "text" | "image";
+type LogoPosition = "center" | "left";
+
+interface AnnouncementMessage {
+  id: string;
+  text: string;
+}
+
+interface HeaderConfig {
+  logoMode: LogoMode;
+  logoText: string;
+  logoTextColor: string;
+  logoImageUrl: string;
+  logoPosition: LogoPosition;
+  announcementEnabled: boolean;
+  announcementMessages: AnnouncementMessage[];
+  announcementBgColor: string;
+  announcementTextColor: string;
+}
+
+const defaultHeaderConfig: HeaderConfig = {
+  logoMode: "text",
+  logoText: "",
+  logoTextColor: "#ffffff",
+  logoImageUrl: "",
+  logoPosition: "center",
+  announcementEnabled: false,
+  announcementMessages: [{ id: "1", text: "" }],
+  announcementBgColor: "#7c3aed",
+  announcementTextColor: "#ffffff",
+};
 
 interface StoreTheme {
   titleFont: FontFamily;
@@ -74,7 +108,7 @@ const sectionIcons: Record<SectionType, React.ReactNode> = {
 };
 
 type DeviceMode = "desktop" | "tablet" | "mobile";
-type LeftTab = "sections" | "settings";
+type LeftTab = "header" | "sections" | "settings";
 
 const deviceWidths: Record<DeviceMode, string> = {
   desktop: "100%",
@@ -400,6 +434,29 @@ const Builder = () => {
   const [theme, setTheme] = useState<StoreTheme>({ ...defaultTheme });
   const [catalogProducts, setCatalogProducts] = useState<CatalogProduct[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<CatalogProduct | null>(null);
+  const [headerConfig, setHeaderConfig] = useState<HeaderConfig>({ ...defaultHeaderConfig });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [announcementIndex, setAnnouncementIndex] = useState(0);
+
+  // Rotate announcement messages
+  useEffect(() => {
+    const msgs = headerConfig.announcementMessages.filter((m) => m.text.trim());
+    if (!headerConfig.announcementEnabled || msgs.length <= 1) return;
+    const interval = setInterval(() => {
+      setAnnouncementIndex((prev) => (prev + 1) % msgs.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [headerConfig.announcementEnabled, headerConfig.announcementMessages]);
+
+  // Search results
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const q = searchQuery.toLowerCase();
+    return catalogProducts
+      .filter((p) => p.product_name.toLowerCase().includes(q))
+      .slice(0, 6);
+  }, [searchQuery, catalogProducts]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -522,6 +579,12 @@ const Builder = () => {
         {/* Tab switcher */}
         <div className="flex border-b border-border">
           <button
+            onClick={() => setLeftTab("header")}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-medium transition-colors ${leftTab === "header" ? "text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            <PanelTop size={14} /> Header
+          </button>
+          <button
             onClick={() => setLeftTab("sections")}
             className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-medium transition-colors ${leftTab === "sections" ? "text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
           >
@@ -531,11 +594,173 @@ const Builder = () => {
             onClick={() => setLeftTab("settings")}
             className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-medium transition-colors ${leftTab === "settings" ? "text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
           >
-            <Settings size={14} /> Configurações
+            <Settings size={14} /> Config
           </button>
         </div>
 
-        {leftTab === "sections" ? (
+        {leftTab === "header" ? (
+          <div className="flex-1 overflow-y-auto p-4 space-y-6">
+            {/* LOGO */}
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Logo</p>
+              <div className="space-y-3">
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => setHeaderConfig((h) => ({ ...h, logoMode: "text" }))}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium border transition-colors ${headerConfig.logoMode === "text" ? "bg-primary text-primary-foreground border-primary" : "border-input text-muted-foreground hover:text-foreground"}`}
+                  >
+                    <Type size={12} /> Texto
+                  </button>
+                  <button
+                    onClick={() => setHeaderConfig((h) => ({ ...h, logoMode: "image" }))}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium border transition-colors ${headerConfig.logoMode === "image" ? "bg-primary text-primary-foreground border-primary" : "border-input text-muted-foreground hover:text-foreground"}`}
+                  >
+                    <Upload size={12} /> Imagem
+                  </button>
+                </div>
+
+                {headerConfig.logoMode === "text" ? (
+                  <>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground">Nome da Loja</Label>
+                      <Input
+                        value={headerConfig.logoText}
+                        onChange={(e) => setHeaderConfig((h) => ({ ...h, logoText: e.target.value }))}
+                        placeholder="Minha Loja"
+                        className="h-9"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs text-muted-foreground">Cor do Texto</Label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={headerConfig.logoTextColor}
+                          onChange={(e) => setHeaderConfig((h) => ({ ...h, logoTextColor: e.target.value }))}
+                          className="w-8 h-8 rounded border border-border cursor-pointer p-0.5"
+                        />
+                        <span className="text-[10px] font-mono text-muted-foreground w-16">{headerConfig.logoTextColor}</span>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground">URL da Imagem (PNG, até 5MB)</Label>
+                    <Input
+                      value={headerConfig.logoImageUrl}
+                      onChange={(e) => setHeaderConfig((h) => ({ ...h, logoImageUrl: e.target.value }))}
+                      placeholder="https://exemplo.com/logo.png"
+                      className="h-9"
+                    />
+                    {headerConfig.logoImageUrl && (
+                      <div className="mt-2 p-2 border border-border rounded-lg flex items-center justify-center bg-muted/30">
+                        <img src={headerConfig.logoImageUrl} alt="Logo" className="max-h-10 max-w-full object-contain" />
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Posição da Logo</Label>
+                  <div className="flex gap-1">
+                    {(["left", "center"] as LogoPosition[]).map((pos) => (
+                      <button
+                        key={pos}
+                        onClick={() => setHeaderConfig((h) => ({ ...h, logoPosition: pos }))}
+                        className={`flex-1 py-2 rounded-lg text-xs font-medium border transition-colors ${headerConfig.logoPosition === pos ? "bg-primary text-primary-foreground border-primary" : "border-input text-muted-foreground hover:text-foreground"}`}
+                      >
+                        {pos === "left" ? "Esquerda" : "Centro"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* FAIXA DE ANÚNCIO */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Faixa de Anúncio</p>
+                <Switch
+                  checked={headerConfig.announcementEnabled}
+                  onCheckedChange={(v) => setHeaderConfig((h) => ({ ...h, announcementEnabled: v }))}
+                />
+              </div>
+
+              {headerConfig.announcementEnabled && (
+                <div className="space-y-3">
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Mensagens (rotativas)</Label>
+                    {headerConfig.announcementMessages.map((msg, i) => (
+                      <div key={msg.id} className="flex gap-1.5">
+                        <Input
+                          value={msg.text}
+                          onChange={(e) => {
+                            setHeaderConfig((h) => ({
+                              ...h,
+                              announcementMessages: h.announcementMessages.map((m) =>
+                                m.id === msg.id ? { ...m, text: e.target.value } : m
+                              ),
+                            }));
+                          }}
+                          placeholder={`Mensagem ${i + 1}`}
+                          className="h-9 flex-1"
+                        />
+                        {headerConfig.announcementMessages.length > 1 && (
+                          <button
+                            onClick={() => setHeaderConfig((h) => ({ ...h, announcementMessages: h.announcementMessages.filter((m) => m.id !== msg.id) }))}
+                            className="p-2 text-muted-foreground hover:text-destructive"
+                          >
+                            <X size={12} />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full gap-1.5 text-xs"
+                      onClick={() => setHeaderConfig((h) => ({ ...h, announcementMessages: [...h.announcementMessages, { id: Date.now().toString(), text: "" }] }))}
+                    >
+                      <Plus size={12} /> Adicionar Mensagem
+                    </Button>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs text-muted-foreground">Cor da Faixa</Label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={headerConfig.announcementBgColor}
+                        onChange={(e) => setHeaderConfig((h) => ({ ...h, announcementBgColor: e.target.value }))}
+                        className="w-8 h-8 rounded border border-border cursor-pointer p-0.5"
+                      />
+                      <span className="text-[10px] font-mono text-muted-foreground w-16">{headerConfig.announcementBgColor}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs text-muted-foreground">Cor do Texto</Label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={headerConfig.announcementTextColor}
+                        onChange={(e) => setHeaderConfig((h) => ({ ...h, announcementTextColor: e.target.value }))}
+                        className="w-8 h-8 rounded border border-border cursor-pointer p-0.5"
+                      />
+                      <span className="text-[10px] font-mono text-muted-foreground w-16">{headerConfig.announcementTextColor}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* INFO about Search */}
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Pesquisa</p>
+              <p className="text-xs text-muted-foreground">A lupa de pesquisa avançada aparece automaticamente no header. O cliente poderá buscar por nome, palavras-chave e categorias com sugestões visuais em tempo real.</p>
+            </div>
+          </div>
+        ) : leftTab === "sections" ? (
           <>
             <div className="flex-1 overflow-y-auto p-4 space-y-0">
               <div className="flex items-center justify-between mb-3">
@@ -746,6 +971,143 @@ const Builder = () => {
 
         <div className="flex-1 overflow-y-auto p-6 md:p-10 bg-muted/30 flex justify-center">
           <div className="space-y-4 transition-all duration-300" style={{ width: deviceWidths[deviceMode], maxWidth: "100%" }}>
+            {/* ─── Header Preview ─── */}
+            {/* Announcement Bar */}
+            {headerConfig.announcementEnabled && headerConfig.announcementMessages.some((m) => m.text.trim()) && (
+              <div
+                className="w-full py-2 text-center overflow-hidden"
+                style={{ backgroundColor: headerConfig.announcementBgColor }}
+              >
+                <AnimatePresence mode="wait">
+                  <motion.p
+                    key={announcementIndex}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                    className="text-xs font-medium"
+                    style={{ color: headerConfig.announcementTextColor }}
+                  >
+                    {headerConfig.announcementMessages.filter((m) => m.text.trim())[announcementIndex % headerConfig.announcementMessages.filter((m) => m.text.trim()).length]?.text}
+                  </motion.p>
+                </AnimatePresence>
+              </div>
+            )}
+
+            {/* Header Bar */}
+            <div className="w-full rounded-xl bg-card border border-border px-4 py-3 flex items-center gap-3 relative">
+              {headerConfig.logoPosition === "left" ? (
+                <>
+                  <div className="flex-shrink-0">
+                    {headerConfig.logoMode === "image" && headerConfig.logoImageUrl ? (
+                      <img src={headerConfig.logoImageUrl} alt="Logo" className="h-8 max-w-[120px] object-contain" />
+                    ) : (
+                      <span className="text-base font-bold" style={{ color: headerConfig.logoTextColor }}>
+                        {headerConfig.logoText || "Minha Loja"}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex-1" />
+                  <div className="relative">
+                    <button
+                      onClick={() => setSearchOpen(!searchOpen)}
+                      className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <Search size={16} />
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="relative">
+                    <button
+                      onClick={() => setSearchOpen(!searchOpen)}
+                      className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <Search size={16} />
+                    </button>
+                  </div>
+                  <div className="flex-1 flex justify-center">
+                    {headerConfig.logoMode === "image" && headerConfig.logoImageUrl ? (
+                      <img src={headerConfig.logoImageUrl} alt="Logo" className="h-8 max-w-[120px] object-contain" />
+                    ) : (
+                      <span className="text-base font-bold" style={{ color: headerConfig.logoTextColor }}>
+                        {headerConfig.logoText || "Minha Loja"}
+                      </span>
+                    )}
+                  </div>
+                  <div className="w-8" />
+                </>
+              )}
+
+              {/* Search dropdown */}
+              {searchOpen && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-lg z-50 p-3 space-y-2">
+                  <div className="flex items-center gap-2 border border-border rounded-lg px-3 py-2">
+                    <Search size={14} className="text-muted-foreground" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Buscar produtos..."
+                      className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground text-foreground"
+                      autoFocus
+                    />
+                    {searchQuery && (
+                      <button onClick={() => setSearchQuery("")} className="text-muted-foreground hover:text-foreground">
+                        <X size={12} />
+                      </button>
+                    )}
+                  </div>
+                  {searchQuery.trim() && (
+                    <div className="max-h-64 overflow-y-auto space-y-1">
+                      {searchResults.length > 0 ? (
+                        searchResults.map((product) => {
+                          const info = getProductPriceInfo(product);
+                          const q = searchQuery.toLowerCase();
+                          const name = product.product_name;
+                          const matchIdx = name.toLowerCase().indexOf(q);
+                          return (
+                            <button
+                              key={product.id}
+                              onClick={() => { setSelectedProduct(product); setSearchOpen(false); setSearchQuery(""); }}
+                              className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-muted/60 transition-colors text-left"
+                            >
+                              <div className="w-10 h-10 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                                {product.image_url ? (
+                                  <img src={product.image_url} alt="" className="w-full h-full object-cover" />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center">
+                                    <ShoppingBag size={14} className="text-muted-foreground/40" />
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-medium text-foreground truncate">
+                                  {matchIdx >= 0 ? (
+                                    <>
+                                      {name.slice(0, matchIdx)}
+                                      <span className="bg-primary/20 text-primary font-bold">{name.slice(matchIdx, matchIdx + q.length)}</span>
+                                      {name.slice(matchIdx + q.length)}
+                                    </>
+                                  ) : name}
+                                </p>
+                                {info && (
+                                  <p className="text-[10px] text-muted-foreground">R${(info.salePrice || info.originalPrice)!.toFixed(2)}</p>
+                                )}
+                              </div>
+                            </button>
+                          );
+                        })
+                      ) : (
+                        <p className="text-xs text-muted-foreground text-center py-4">Nenhum produto encontrado</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
             {sections.length === 0 && (
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <ShoppingBag size={48} className="text-muted-foreground/30 mb-4" />
