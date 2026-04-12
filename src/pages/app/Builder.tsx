@@ -985,9 +985,29 @@ const Builder = () => {
               </button>
             ))}
           </div>
-          <div className="flex-1 flex justify-end">
+          <div className="flex-1 flex justify-end gap-2">
             <Button onClick={handleSave} size="sm" className="gap-2">
               <Save size={14} /> Salvar
+            </Button>
+            <Button
+              onClick={() => {
+                if (!store) {
+                  toast.error("Nenhuma loja encontrada. Crie uma loja primeiro.");
+                  return;
+                }
+                if (store.is_public) {
+                  window.open(`/loja/${store.slug}`, "_blank");
+                } else {
+                  setPreviewOpen(true);
+                  setPreviewPassword("");
+                  setPreviewError("");
+                }
+              }}
+              size="sm"
+              variant="outline"
+              className="gap-2"
+            >
+              <Eye size={14} /> Pré-visualizar
             </Button>
           </div>
         </div>
