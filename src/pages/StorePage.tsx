@@ -101,6 +101,14 @@ const getMaskStyle = (mask?: BannerTextConfig["mask"]) => {
   }
 };
 
+const getProductShopUrl = (product: CatalogProduct) => {
+  // Try to get URL from raw_payload, fallback to TikTok Shop product page
+  const payload = product.raw_payload as Record<string, unknown> | null;
+  const url = payload?.product_url as string | undefined;
+  if (url) return url;
+  return `https://www.tiktok.com/view/product/${product.product_id}`;
+};
+
 const getProductPriceInfo = (product: CatalogProduct) => {
   if (product.price != null) {
     return { salePrice: product.price, originalPrice: product.is_on_sale ? product.original_price : null, hasDiscount: !!product.is_on_sale };
@@ -236,7 +244,7 @@ const StoreDestaquePreview = ({ products, theme, onSelect }: { products: Catalog
                     <span className="text-lg" style={{ color: info.hasDiscount ? '#ef4444' : theme.priceColor, fontWeight: 700 }}>R${(info.salePrice || info.originalPrice)!.toFixed(2)}</span>
                   </div>
                 )}
-                <button onClick={() => onSelect(product)} className="w-full py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider hover:opacity-90 transition-all"
+                <button onClick={() => window.open(getProductShopUrl(product), '_blank')} className="w-full py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider hover:opacity-90 transition-all"
                   style={{ backgroundColor: theme.buttonBgColor, color: theme.buttonTextColor }}>Comprar</button>
               </div>
             </div>
@@ -604,7 +612,7 @@ const StorePage = () => {
                               </span>
                             </div>
                           )}
-                          <button onClick={() => setSelectedProduct(product)}
+                          <button onClick={() => window.open(getProductShopUrl(product), '_blank')}
                             className="mt-1.5 w-full py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-all"
                             style={{ backgroundColor: theme.buttonBgColor, color: theme.buttonTextColor }}>
                             Comprar

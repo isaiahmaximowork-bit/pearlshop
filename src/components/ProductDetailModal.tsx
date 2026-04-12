@@ -248,18 +248,32 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
               )}
 
               {/* Action Button */}
-              <button
-                onClick={() => onAffiliate?.()}
-                disabled={isAffiliated}
-                className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg ${
-                  isAffiliated
-                    ? "bg-muted text-muted-foreground cursor-default"
-                    : "bg-primary text-primary-foreground hover:opacity-90"
-                }`}
-              >
-                {isAffiliated ? <UserPlus size={16} /> : mode === "buy" ? <ShoppingBag size={16} /> : <UserPlus size={16} />}
-                {isAffiliated ? "Afiliado ✓" : mode === "buy" ? "Comprar" : "Afiliar-se"}
-              </button>
+              {mode === "buy" ? (
+                <button
+                  onClick={() => {
+                    const payload = product.raw_payload as Record<string, unknown> | null;
+                    const url = (payload?.product_url as string) || `https://www.tiktok.com/view/product/${product.product_id}`;
+                    window.open(url, '_blank');
+                  }}
+                  className="w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg bg-primary text-primary-foreground hover:opacity-90"
+                >
+                  <ShoppingBag size={16} />
+                  Comprar
+                </button>
+              ) : (
+                <button
+                  onClick={() => onAffiliate?.()}
+                  disabled={isAffiliated}
+                  className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg ${
+                    isAffiliated
+                      ? "bg-muted text-muted-foreground cursor-default"
+                      : "bg-primary text-primary-foreground hover:opacity-90"
+                  }`}
+                >
+                  <UserPlus size={16} />
+                  {isAffiliated ? "Afiliado ✓" : "Afiliar-se"}
+                </button>
+              )}
 
               {/* Shipping Info */}
               <ShippingInfo packageWeight={packageWeight} packageDimensions={packageDimensions} sellerRegion={shopInfo?.seller_base_region} />
