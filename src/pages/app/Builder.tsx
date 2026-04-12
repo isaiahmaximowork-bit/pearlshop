@@ -714,7 +714,7 @@ const Builder = () => {
                       }, [destaqueProducts.length]);
 
                       return (
-                        <div className="relative w-full rounded-2xl bg-muted/50 border border-border overflow-hidden" style={{ minHeight: deviceMode === "mobile" ? 360 : 420 }}>
+                        <div className="relative w-full rounded-2xl bg-muted/50 border border-border overflow-hidden" style={{ minHeight: deviceMode === "mobile" ? 360 : 280, maxHeight: deviceMode === "mobile" ? undefined : 340 }}>
                           {product?.image_url ? (
                             <AnimatePresence mode="wait">
                               <motion.div
@@ -725,7 +725,7 @@ const Builder = () => {
                                 transition={{ duration: 0.4 }}
                                 className="flex flex-col h-full"
                               >
-                                <div className="flex-1 w-full overflow-hidden" style={{ minHeight: deviceMode === "mobile" ? 240 : 300 }}>
+                                <div className="flex-1 w-full overflow-hidden" style={{ minHeight: deviceMode === "mobile" ? 240 : 180, maxHeight: deviceMode === "mobile" ? undefined : 220 }}>
                                   <img src={product.image_url} alt={product.product_name} className="w-full h-full object-cover" />
                                 </div>
                                 <div className="p-4 space-y-2">
