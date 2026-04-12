@@ -51,7 +51,7 @@ export function ProductCard({ title, price, status, imageUrl, isVerified, isAffi
 
         {isVerified && (
           <div className="flex items-center gap-1.5">
-            <BadgeCheck size={16} className="text-[#3897f0] shrink-0" />
+            <BadgeCheck size={16} className="shrink-0 fill-[#3897f0] text-white" />
             <span className="text-[11px] font-semibold text-[#3897f0]">Loja verificada</span>
           </div>
         )}
