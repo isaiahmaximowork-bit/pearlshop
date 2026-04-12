@@ -434,6 +434,8 @@ const Builder = () => {
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [deviceMode, setDeviceMode] = useState<DeviceMode>("desktop");
   const [leftTab, setLeftTab] = useState<LeftTab>("sections");
+  const [headerExpanded, setHeaderExpanded] = useState(true);
+  const [sectionsExpanded, setSectionsExpanded] = useState(true);
   const [theme, setTheme] = useState<StoreTheme>({ ...defaultTheme });
   const [catalogProducts, setCatalogProducts] = useState<CatalogProduct[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<CatalogProduct | null>(null);
