@@ -26,6 +26,8 @@ interface ProductDetailModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   mode?: "affiliate" | "buy";
+  onAffiliate?: () => void;
+  isAffiliated?: boolean;
 }
 
 const formatPrice = (value: number, currency = 'BRL') =>
