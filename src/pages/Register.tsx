@@ -97,7 +97,7 @@ const Register = () => {
 
     setIsLoading(false);
     toast.success('Conta criada com sucesso!');
-    navigate('/');
+    navigate('/login');
   };
 
   const canProceedStep1 = email.length > 0 && password.length >= 6;
