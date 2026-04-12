@@ -1,5 +1,5 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Package, UserPlus, X, ChevronLeft, ChevronRight, Store } from "lucide-react";
+import { Package, UserPlus, X, ChevronLeft, ChevronRight, Store, ShoppingBag } from "lucide-react";
 import { ShippingInfo } from "@/components/ShippingInfo";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
