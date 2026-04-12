@@ -606,7 +606,27 @@ const Builder = () => {
     setSections((prev) => prev.map((s) => s.id !== sectionId ? s : { ...s, banners: s.banners?.map((b) => b.id === bannerId ? { ...b, textConfig: { ...b.textConfig, ...updates } } : b) }));
   }, []);
 
-  const handleSave = () => { toast.success("Loja salva com sucesso!"); };
+  const handleSave = async () => {
+    if (!store || !user) {
+      toast.error("Nenhuma loja encontrada.");
+      return;
+    }
+    setSaving(true);
+    try {
+      const builderData = JSON.stringify({ sections, theme, headerConfig });
+      const { error } = await supabase
+        .from("stores")
+        .update({ preview_cache: builderData })
+        .eq("id", store.id)
+        .eq("user_id", user.id); // multi-tenant: only update own store
+      if (error) throw error;
+      toast.success("Loja salva com sucesso!");
+    } catch (err: any) {
+      toast.error("Erro ao salvar: " + (err.message || "tente novamente"));
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-background">
