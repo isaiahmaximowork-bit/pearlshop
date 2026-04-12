@@ -45,6 +45,8 @@ interface HeaderConfig {
   announcementMessages: AnnouncementMessage[];
   announcementBgColor: string;
   announcementTextColor: string;
+  headerBgColor: string;
+  logoColor: string;
 }
 
 const defaultHeaderConfig: HeaderConfig = {
@@ -57,6 +59,8 @@ const defaultHeaderConfig: HeaderConfig = {
   announcementMessages: [{ id: "1", text: "" }],
   announcementBgColor: "#7c3aed",
   announcementTextColor: "#ffffff",
+  headerBgColor: "",
+  logoColor: "",
 };
 
 interface StoreTheme {
@@ -734,8 +738,24 @@ const Builder = () => {
                               {pos === "left" ? "Esquerda" : "Centro"}
                             </button>
                           ))}
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs text-muted-foreground">Cor de Fundo da Header</Label>
+                        <div className="flex items-center gap-2">
+                          <input type="color" value={headerConfig.headerBgColor || "#1c1c1e"} onChange={(e) => setHeaderConfig((h) => ({ ...h, headerBgColor: e.target.value }))} className="w-7 h-7 rounded border border-border cursor-pointer p-0.5" />
+                          <span className="text-[10px] font-mono text-muted-foreground">{headerConfig.headerBgColor || "padrão"}</span>
                         </div>
                       </div>
+
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs text-muted-foreground">Cor da Logo</Label>
+                        <div className="flex items-center gap-2">
+                          <input type="color" value={headerConfig.logoColor || headerConfig.logoTextColor} onChange={(e) => setHeaderConfig((h) => ({ ...h, logoColor: e.target.value }))} className="w-7 h-7 rounded border border-border cursor-pointer p-0.5" />
+                          <span className="text-[10px] font-mono text-muted-foreground">{headerConfig.logoColor || "padrão"}</span>
+                        </div>
+                      </div>
+                    </div>
                     </div>
                   </div>
 
@@ -1048,14 +1068,14 @@ const Builder = () => {
             })()}
 
             {/* Header Bar */}
-            <div className="w-full rounded-xl bg-card border border-border px-4 py-3 flex items-center gap-3 relative">
+            <div className="w-full rounded-xl border border-border px-4 py-3 flex items-center gap-3 relative" style={{ backgroundColor: headerConfig.headerBgColor || undefined }}>
               {headerConfig.logoPosition === "left" ? (
                 <>
                   <div className="flex-shrink-0">
                     {headerConfig.logoMode === "image" && headerConfig.logoImageUrl ? (
                       <img src={headerConfig.logoImageUrl} alt="Logo" className="h-8 max-w-[120px] object-contain" />
                     ) : (
-                      <span className="text-base font-bold" style={{ color: headerConfig.logoTextColor }}>
+                      <span className="text-base font-bold" style={{ color: headerConfig.logoColor || headerConfig.logoTextColor }}>
                         {headerConfig.logoText || "Minha Loja"}
                       </span>
                     )}
@@ -1064,7 +1084,8 @@ const Builder = () => {
                   <div className="relative">
                     <button
                       onClick={() => setSearchOpen(!searchOpen)}
-                      className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                      className="w-8 h-8 rounded-lg border border-border flex items-center justify-center hover:text-foreground transition-colors"
+                      style={{ color: theme.iconColor }}
                     >
                       <Search size={16} />
                     </button>
@@ -1075,7 +1096,8 @@ const Builder = () => {
                   <div className="relative">
                     <button
                       onClick={() => setSearchOpen(!searchOpen)}
-                      className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                      className="w-8 h-8 rounded-lg border border-border flex items-center justify-center hover:text-foreground transition-colors"
+                      style={{ color: theme.iconColor }}
                     >
                       <Search size={16} />
                     </button>
@@ -1084,7 +1106,7 @@ const Builder = () => {
                     {headerConfig.logoMode === "image" && headerConfig.logoImageUrl ? (
                       <img src={headerConfig.logoImageUrl} alt="Logo" className="h-8 max-w-[120px] object-contain" />
                     ) : (
-                      <span className="text-base font-bold" style={{ color: headerConfig.logoTextColor }}>
+                      <span className="text-base font-bold" style={{ color: headerConfig.logoColor || headerConfig.logoTextColor }}>
                         {headerConfig.logoText || "Minha Loja"}
                       </span>
                     )}
