@@ -434,8 +434,8 @@ const Builder = () => {
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [deviceMode, setDeviceMode] = useState<DeviceMode>("desktop");
   const [leftTab, setLeftTab] = useState<LeftTab>("sections");
-  const [headerExpanded, setHeaderExpanded] = useState(true);
-  const [sectionsExpanded, setSectionsExpanded] = useState(true);
+  const [headerExpanded, setHeaderExpanded] = useState(false);
+  const [sectionsExpanded, setSectionsExpanded] = useState(false);
   const [theme, setTheme] = useState<StoreTheme>({ ...defaultTheme });
   const [catalogProducts, setCatalogProducts] = useState<CatalogProduct[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<CatalogProduct | null>(null);
@@ -446,25 +446,40 @@ const Builder = () => {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewPassword, setPreviewPassword] = useState("");
   const [previewError, setPreviewError] = useState("");
-  const [store, setStore] = useState<{ slug: string; is_public: boolean; access_code: string; store_name: string } | null>(null);
+  const [store, setStore] = useState<{ id: string; slug: string; is_public: boolean; access_code: string; store_name: string } | null>(null);
+  const [saving, setSaving] = useState(false);
   const { user } = useAuth();
 
-  // Fetch user's store
+  // Fetch user's store + load saved builder config
   useEffect(() => {
     if (!user) return;
     const fetchStore = async () => {
       const { data } = await supabase
         .from("stores")
-        .select("slug, is_public, access_code, store_name")
+        .select("id, slug, is_public, access_code, store_name, preview_cache")
         .eq("user_id", user.id)
         .limit(1)
         .single();
       if (data) {
-        setStore(data);
-        // Set default logo text from store name
-        if (!headerConfig.logoText && data.store_name) {
-          setHeaderConfig((h) => ({ ...h, logoText: data.store_name }));
+        setStore({ id: data.id, slug: data.slug, is_public: data.is_public, access_code: data.access_code, store_name: data.store_name });
+
+        // Load saved config from preview_cache
+        if (data.preview_cache) {
+          try {
+            const saved = JSON.parse(data.preview_cache);
+            if (saved.sections) setSections(saved.sections);
+            if (saved.theme) setTheme(saved.theme);
+            if (saved.headerConfig) setHeaderConfig(saved.headerConfig);
+          } catch {
+            // ignore invalid JSON
+          }
         }
+
+        // Fallback: set logo text from store name if not saved
+        setHeaderConfig((h) => {
+          if (!h.logoText) return { ...h, logoText: data.store_name || "" };
+          return h;
+        });
       }
     };
     fetchStore();
@@ -591,7 +606,27 @@ const Builder = () => {
     setSections((prev) => prev.map((s) => s.id !== sectionId ? s : { ...s, banners: s.banners?.map((b) => b.id === bannerId ? { ...b, textConfig: { ...b.textConfig, ...updates } } : b) }));
   }, []);
 
-  const handleSave = () => { toast.success("Loja salva com sucesso!"); };
+  const handleSave = async () => {
+    if (!store || !user) {
+      toast.error("Nenhuma loja encontrada.");
+      return;
+    }
+    setSaving(true);
+    try {
+      const builderData = JSON.stringify({ sections, theme, headerConfig });
+      const { error } = await supabase
+        .from("stores")
+        .update({ preview_cache: builderData })
+        .eq("id", store.id)
+        .eq("user_id", user.id); // multi-tenant: only update own store
+      if (error) throw error;
+      toast.success("Loja salva com sucesso!");
+    } catch (err: any) {
+      toast.error("Erro ao salvar: " + (err.message || "tente novamente"));
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-background">
@@ -956,8 +991,8 @@ const Builder = () => {
             ))}
           </div>
           <div className="flex-1 flex justify-end gap-2">
-            <Button onClick={handleSave} size="sm" className="gap-2">
-              <Save size={14} /> Salvar
+            <Button onClick={handleSave} size="sm" className="gap-2" disabled={saving}>
+              <Save size={14} /> {saving ? "Salvando..." : "Salvar"}
             </Button>
             <Button
               onClick={() => {
