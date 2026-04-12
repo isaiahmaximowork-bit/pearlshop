@@ -738,8 +738,24 @@ const Builder = () => {
                               {pos === "left" ? "Esquerda" : "Centro"}
                             </button>
                           ))}
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs text-muted-foreground">Cor de Fundo da Header</Label>
+                        <div className="flex items-center gap-2">
+                          <input type="color" value={headerConfig.headerBgColor || "#1c1c1e"} onChange={(e) => setHeaderConfig((h) => ({ ...h, headerBgColor: e.target.value }))} className="w-7 h-7 rounded border border-border cursor-pointer p-0.5" />
+                          <span className="text-[10px] font-mono text-muted-foreground">{headerConfig.headerBgColor || "padrão"}</span>
                         </div>
                       </div>
+
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs text-muted-foreground">Cor da Logo</Label>
+                        <div className="flex items-center gap-2">
+                          <input type="color" value={headerConfig.logoColor || headerConfig.logoTextColor} onChange={(e) => setHeaderConfig((h) => ({ ...h, logoColor: e.target.value }))} className="w-7 h-7 rounded border border-border cursor-pointer p-0.5" />
+                          <span className="text-[10px] font-mono text-muted-foreground">{headerConfig.logoColor || "padrão"}</span>
+                        </div>
+                      </div>
+                    </div>
                     </div>
                   </div>
 
