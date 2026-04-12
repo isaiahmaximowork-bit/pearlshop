@@ -462,13 +462,13 @@ const StorePage = () => {
                 )}
               </div>
               <div className="flex-1" />
-              <button onClick={() => setSearchOpen(!searchOpen)} className="w-8 h-8 rounded-lg border border-border flex items-center justify-center transition-colors" style={{ color: theme.iconColor }}>
+              <button onClick={() => setSearchOpen(!searchOpen)} className="w-8 h-8 rounded-lg border border-border flex items-center justify-center transition-colors" style={{ color: theme.subtitleColor }}>
                 <Search size={16} />
               </button>
             </>
           ) : (
             <>
-              <button onClick={() => setSearchOpen(!searchOpen)} className="w-8 h-8 rounded-lg border border-border flex items-center justify-center transition-colors" style={{ color: theme.iconColor }}>
+              <button onClick={() => setSearchOpen(!searchOpen)} className="w-8 h-8 rounded-lg border border-border flex items-center justify-center transition-colors" style={{ color: theme.subtitleColor }}>
                 <Search size={16} />
               </button>
               <div className="flex-1 flex justify-center">
