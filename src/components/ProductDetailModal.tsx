@@ -1,7 +1,7 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Package, UserPlus, X, ChevronLeft, ChevronRight, Store, ShoppingBag } from "lucide-react";
+import { Package, UserPlus, X, ChevronLeft, ChevronRight, Store, ShoppingBag, Ruler } from "lucide-react";
 import { ShippingInfo } from "@/components/ShippingInfo";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
@@ -19,6 +19,12 @@ interface CatalogProduct {
   original_price: number | null;
   currency: string | null;
   is_on_sale: boolean | null;
+  description?: string | null;
+  images?: string[] | null;
+  size_chart_url?: string | null;
+  variants?: string | null;
+  affiliate_link?: string | null;
+  promo_info?: string | null;
 }
 
 interface ProductDetailModalProps {
@@ -36,11 +42,13 @@ const formatPrice = (value: number, currency = 'BRL') =>
 export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affiliate", onAffiliate, isAffiliated }: ProductDetailModalProps) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [slideDirection, setSlideDirection] = useState(0);
+  const [showSizeChart, setShowSizeChart] = useState(false);
+  const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const touchStartRef = useRef<number | null>(null);
 
-  // Reset index when product changes
   useEffect(() => { setSelectedImageIndex(0); }, [product?.id]);
 
-  // Fetch shop info from tiktok_shop_tokens
+  // Fetch shop info
   const { data: shopInfo } = useQuery({
     queryKey: ["tiktok-shop-info"],
     queryFn: async () => {
@@ -58,28 +66,37 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
 
   const payload = product.raw_payload as Record<string, unknown> | null;
 
-  // Images — take only the FIRST url from each main_image entry to avoid CDN mirror duplicates
-  const mainImages = (payload?.main_images as Array<{ urls?: string[]; url?: string }>) || [];
-  const imageUrls: string[] = [];
-  const seenBaseUrls = new Set<string>();
-  for (const img of mainImages) {
-    const url = img.urls?.[0] || img.url;
-    if (!url) continue;
-    // Extract base URI to deduplicate
-    const base = url.split("~")[0];
-    if (!seenBaseUrls.has(base)) {
-      seenBaseUrls.add(base);
-      imageUrls.push(url);
+  // Images — prefer new `images` column, fallback to raw_payload, then image_url
+  let imageUrls: string[] = [];
+  if (product.images && product.images.length > 0) {
+    imageUrls = product.images;
+  } else {
+    const mainImages = (payload?.main_images as Array<{ urls?: string[]; url?: string }>) || [];
+    const seenBaseUrls = new Set<string>();
+    for (const img of mainImages) {
+      const url = img.urls?.[0] || img.url;
+      if (!url) continue;
+      const base = url.split("~")[0];
+      if (!seenBaseUrls.has(base)) {
+        seenBaseUrls.add(base);
+        imageUrls.push(url);
+      }
     }
   }
   if (imageUrls.length === 0 && product.image_url) {
     imageUrls.push(product.image_url);
   }
 
-  // Description
-  const description = (payload?.description as string) || null;
+  // Description — prefer new column, fallback to raw_payload
+  const description = product.description || (payload?.description as string) || null;
 
-  // SKUs
+  // Size chart
+  const sizeChartUrl = product.size_chart_url || null;
+
+  // Variants text
+  const variantsText = product.variants || null;
+
+  // SKUs from raw_payload
   const skus = (payload?.skus as Array<{
     id?: string;
     seller_sku?: string;
@@ -88,7 +105,6 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
     sales_attributes?: Array<{ name?: string; value_name?: string }>;
   }>) || [];
 
-  // Category
   const rawCategories = payload?.category_chains;
   let categoryNames: string[] = [];
   if (Array.isArray(rawCategories) && rawCategories.length > 0) {
@@ -100,12 +116,10 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
     }
   }
 
-  const salesRegions = (payload?.sales_regions as string[]) || [];
   const packageDimensions = payload?.package_dimensions as { height?: string; length?: string; width?: string; unit?: string } | null;
   const packageWeight = payload?.package_weight as { value?: string; unit?: string } | null;
   const brand = (payload?.brand as { name?: string })?.name || null;
 
-  // Attributes — only if multiple SKUs
   const hasMultipleVariants = skus.length > 1;
   const attributeGroups = new Map<string, Set<string>>();
   if (hasMultipleVariants) {
@@ -119,16 +133,10 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
     });
   }
 
-  // Use persisted price columns with raw_payload fallback
   const priceInfo = (() => {
     if (product.price != null) {
-      return {
-        salePrice: product.price,
-        originalPrice: product.is_on_sale ? product.original_price : null,
-        hasDiscount: !!product.is_on_sale,
-      };
+      return { salePrice: product.price, originalPrice: product.is_on_sale ? product.original_price : null, hasDiscount: !!product.is_on_sale };
     }
-    // Fallback
     const skuPrice = skus[0]?.price as Record<string, unknown> | undefined;
     const sale = Number(skuPrice?.sale_price ?? skuPrice?.tax_exclusive_price) || null;
     if (!sale) return null;
@@ -145,16 +153,41 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
     setSelectedImageIndex(index);
   };
   const prevImage = () => { setSlideDirection(-1); setSelectedImageIndex(i => (i > 0 ? i - 1 : imageUrls.length - 1)); };
-  const nextImage = () => { setSlideDirection(1); setSelectedImageIndex(i => (i < imageUrls.length - 1 ? i + 1 : 0)); };
+  const nextImage = useCallback(() => { setSlideDirection(1); setSelectedImageIndex(i => (i < imageUrls.length - 1 ? i + 1 : 0)); }, [imageUrls.length]);
 
-  // Detail rows
+  // Auto-slide every 5 seconds
+  useEffect(() => {
+    if (!open || imageUrls.length <= 1) return;
+    autoPlayRef.current = setInterval(nextImage, 5000);
+    return () => { if (autoPlayRef.current) clearInterval(autoPlayRef.current); };
+  }, [open, imageUrls.length, nextImage]);
+
+  // Reset autoplay on manual interaction
+  const resetAutoPlay = () => {
+    if (autoPlayRef.current) clearInterval(autoPlayRef.current);
+    autoPlayRef.current = setInterval(nextImage, 5000);
+  };
+
+  const handlePrev = () => { prevImage(); resetAutoPlay(); };
+  const handleNext = () => { nextImage(); resetAutoPlay(); };
+  const handleThumbClick = (i: number) => { goToImage(i); resetAutoPlay(); };
+
+  // Touch swipe handlers
+  const handleTouchStart = (e: React.TouchEvent) => { touchStartRef.current = e.touches[0].clientX; };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartRef.current === null) return;
+    const diff = touchStartRef.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) handleNext(); else handlePrev();
+    }
+    touchStartRef.current = null;
+  };
+
   const detailRows: { label: string; value: string }[] = [];
   if (categoryNames.length > 0) detailRows.push({ label: "Categoria", value: categoryNames.join(" › ") });
   if (brand) detailRows.push({ label: "Marca", value: brand });
-  if (salesRegions.length > 0) detailRows.push({ label: "Regiões de Venda", value: salesRegions.join(", ") });
-  if (packageWeight) detailRows.push({ label: "Peso", value: `${packageWeight.value} ${packageWeight.unit || 'kg'}` });
-  if (packageDimensions) detailRows.push({ label: "Dimensões", value: `${packageDimensions.length}×${packageDimensions.width}×${packageDimensions.height} ${packageDimensions.unit || 'cm'}` });
-  detailRows.push({ label: "Estoque", value: `${getTotalStock()} unidades` });
+  if (variantsText) detailRows.push({ label: "Variações", value: variantsText });
+  if (product.promo_info) detailRows.push({ label: "Promoção", value: product.promo_info });
   detailRows.push({ label: "Plataforma", value: "TikTok Shop" });
 
   const slideVariants = {
@@ -175,11 +208,14 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
         </div>
 
         <div className="max-w-6xl mx-auto w-full px-4 sm:px-8 pb-12">
-          {/* Product Hero */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 py-8">
-            {/* Left: Image Gallery with slide */}
-            <div className="space-y-4">
-              <div className="relative aspect-square rounded-2xl bg-muted overflow-hidden border border-border">
+            {/* Left: Image Gallery */}
+            <div className="space-y-3">
+              <div
+                className="relative aspect-square rounded-2xl bg-muted overflow-hidden border border-border"
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+              >
                 <AnimatePresence initial={false} custom={slideDirection} mode="popLayout">
                   <motion.div
                     key={selectedImageIndex}
@@ -200,25 +236,39 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
                     )}
                   </motion.div>
                 </AnimatePresence>
+
                 {imageUrls.length > 1 && (
                   <>
-                    <button onClick={prevImage} className="absolute left-3 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background/80 backdrop-blur-sm border border-border text-foreground hover:bg-background transition-all shadow-lg">
+                    <button onClick={handlePrev} className="absolute left-3 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background/80 backdrop-blur-sm border border-border text-foreground hover:bg-background transition-all shadow-lg hidden sm:flex">
                       <ChevronLeft size={20} />
                     </button>
-                    <button onClick={nextImage} className="absolute right-3 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background/80 backdrop-blur-sm border border-border text-foreground hover:bg-background transition-all shadow-lg">
+                    <button onClick={handleNext} className="absolute right-3 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background/80 backdrop-blur-sm border border-border text-foreground hover:bg-background transition-all shadow-lg hidden sm:flex">
                       <ChevronRight size={20} />
                     </button>
+                    {/* Mobile dots */}
+                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex gap-1.5 sm:hidden">
+                      {imageUrls.map((_, i) => (
+                        <div key={i} className={`w-2 h-2 rounded-full transition-all ${i === selectedImageIndex ? "bg-primary scale-125" : "bg-background/60"}`} />
+                      ))}
+                    </div>
                   </>
                 )}
+
+                {/* Image counter */}
+                <div className="absolute top-3 right-3 z-10 px-3 py-1 rounded-full bg-background/70 backdrop-blur-sm text-xs font-bold text-foreground">
+                  {selectedImageIndex + 1} / {imageUrls.length}
+                </div>
               </div>
+
+              {/* Desktop thumbnails */}
               {imageUrls.length > 1 && (
-                <div className="flex gap-2 overflow-x-auto pb-1">
+                <div className="hidden sm:flex gap-2 overflow-x-auto pb-1">
                   {imageUrls.map((url, i) => (
                     <button
                       key={i}
-                      onClick={() => goToImage(i)}
-                      className={`shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${
-                        i === selectedImageIndex ? "border-primary shadow-md" : "border-border hover:border-muted-foreground/50"
+                      onClick={() => handleThumbClick(i)}
+                      className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${
+                        i === selectedImageIndex ? "border-primary shadow-md ring-2 ring-primary/20" : "border-border hover:border-muted-foreground/50 opacity-70 hover:opacity-100"
                       }`}
                     >
                       <img src={url} alt="" className="w-full h-full object-cover" />
@@ -247,12 +297,17 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
                 </div>
               )}
 
+              {product.promo_info && (
+                <div className="px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 text-sm font-semibold text-primary">
+                  🔥 {product.promo_info}
+                </div>
+              )}
+
               {/* Action Button */}
               {mode === "buy" ? (
                 <button
                   onClick={() => {
-                    const payload = product.raw_payload as Record<string, unknown> | null;
-                    const url = (payload?.product_url as string) || `https://www.tiktok.com/view/product/${product.product_id}`;
+                    const url = product.affiliate_link || (payload?.product_url as string) || `https://www.tiktok.com/view/product/${product.product_id}`;
                     window.open(url, '_blank');
                   }}
                   className="w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg bg-primary text-primary-foreground hover:opacity-90"
@@ -265,9 +320,7 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
                   onClick={() => onAffiliate?.()}
                   disabled={isAffiliated}
                   className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg ${
-                    isAffiliated
-                      ? "bg-muted text-muted-foreground cursor-default"
-                      : "bg-primary text-primary-foreground hover:opacity-90"
+                    isAffiliated ? "bg-muted text-muted-foreground cursor-default" : "bg-primary text-primary-foreground hover:opacity-90"
                   }`}
                 >
                   <UserPlus size={16} />
@@ -275,10 +328,17 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
                 </button>
               )}
 
-              {/* Shipping Info */}
               <ShippingInfo packageWeight={packageWeight} packageDimensions={packageDimensions} sellerRegion={shopInfo?.seller_base_region} />
 
-              {/* Variants & Stock — only show if multiple variants */}
+              {/* Variants from new column */}
+              {variantsText && !hasMultipleVariants && (
+                <div>
+                  <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2">Variações</p>
+                  <p className="text-sm text-foreground">{variantsText}</p>
+                </div>
+              )}
+
+              {/* Variants from SKUs */}
               {hasMultipleVariants && attributeGroups.size > 0 && (
                 <div className="space-y-4 pt-2">
                   {Array.from(attributeGroups.entries()).map(([name, values]) => (
@@ -286,9 +346,7 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
                       <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2">{name}</p>
                       <div className="flex gap-2 flex-wrap">
                         {Array.from(values).map(v => (
-                          <span key={v} className="px-4 py-2 rounded-xl border border-border bg-card text-sm font-medium text-foreground">
-                            {v}
-                          </span>
+                          <span key={v} className="px-4 py-2 rounded-xl border border-border bg-card text-sm font-medium text-foreground">{v}</span>
                         ))}
                       </div>
                     </div>
@@ -296,41 +354,21 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
                 </div>
               )}
 
-              {/* Stock info */}
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <span>Estoque total: <strong className="text-foreground">{getTotalStock()}</strong></span>
-                {hasMultipleVariants && <span>Variantes: <strong className="text-foreground">{skus.length}</strong></span>}
-              </div>
+              {/* Size chart button */}
+              {sizeChartUrl && (
+                <button
+                  onClick={() => setShowSizeChart(!showSizeChart)}
+                  className="flex items-center gap-2 px-4 py-3 rounded-xl border border-border bg-card text-sm font-bold text-foreground hover:bg-accent transition-colors w-full justify-center"
+                >
+                  <Ruler size={16} />
+                  {showSizeChart ? "Ocultar Tabela de Medidas" : "Ver Tabela de Medidas"}
+                </button>
+              )}
 
-              {/* SKU table if multiple */}
-              {hasMultipleVariants && (
-                <div className="border border-border rounded-xl overflow-hidden">
-                  <table className="w-full text-sm">
-                    <thead className="bg-muted/50">
-                      <tr>
-                        <th className="text-left p-3 text-xs font-bold text-muted-foreground">SKU</th>
-                        <th className="text-left p-3 text-xs font-bold text-muted-foreground">Atributos</th>
-                        <th className="text-right p-3 text-xs font-bold text-muted-foreground">Preço</th>
-                        <th className="text-right p-3 text-xs font-bold text-muted-foreground">Estoque</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {skus.map((sku, i) => (
-                        <tr key={i} className="border-t border-border">
-                          <td className="p-3 text-muted-foreground font-mono text-xs">{sku.seller_sku || "—"}</td>
-                          <td className="p-3">{sku.sales_attributes?.map(a => a.value_name).filter(Boolean).join(", ") || "—"}</td>
-                          <td className="p-3 text-right font-semibold">
-                            {(() => {
-                              const p = parseFloat(sku.price?.sale_price || '') || parseFloat(sku.price?.tax_exclusive_price || '') || null;
-                              return p !== null ? formatPrice(p, productCurrency) : "—";
-                            })()}
-                          </td>
-                          <td className="p-3 text-right">{sku.inventory?.reduce((s, inv) => s + (inv.quantity || 0), 0) || 0}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+              {showSizeChart && sizeChartUrl && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="rounded-2xl overflow-hidden border border-border">
+                  <img src={sizeChartUrl} alt="Tabela de medidas" className="w-full" loading="lazy" />
+                </motion.div>
               )}
 
               <p className="text-xs text-muted-foreground">
@@ -339,32 +377,21 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
             </div>
           </div>
 
-          {/* Shop Section with real data */}
-          <div className="border border-border rounded-2xl p-6 bg-card mb-8">
-            <div className="flex items-center gap-4 flex-wrap">
-              <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center shrink-0">
-                <Store size={24} className="text-muted-foreground" />
+          {/* Descrição do Produto */}
+          {description && (
+            <div className="border border-border rounded-2xl bg-card overflow-hidden mb-8">
+              <div className="px-6 py-4 border-b border-border bg-muted/30">
+                <h3 className="font-black text-foreground uppercase tracking-tight">Descrição do Produto</h3>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-foreground">{shopInfo?.seller_name || "TikTok Shop"}</p>
-                <p className="text-xs text-muted-foreground">
-                  ID: {shopInfo?.open_id || "—"} · Região: {shopInfo?.seller_base_region || "—"}
-                </p>
-              </div>
-              <div className="flex gap-6 text-center">
-                <div>
-                  <p className="text-lg font-black text-foreground">{skus.length}</p>
-                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Variantes</p>
-                </div>
-                <div>
-                  <p className="text-lg font-black text-foreground">{getTotalStock()}</p>
-                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Estoque</p>
+              <div className="px-6 py-6">
+                <div className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap max-w-none">
+                  {description}
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Detalhes do Produto */}
+          {/* Detalhes */}
           {detailRows.length > 0 && (
             <div className="border border-border rounded-2xl bg-card mb-8 overflow-hidden">
               <div className="px-6 py-4 border-b border-border bg-muted/30">
@@ -381,17 +408,20 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
             </div>
           )}
 
-          {/* Descrição do Produto */}
-          {description && (
-            <div className="border border-border rounded-2xl bg-card overflow-hidden">
-              <div className="px-6 py-4 border-b border-border bg-muted/30">
-                <h3 className="font-black text-foreground uppercase tracking-tight">Descrição do Produto</h3>
+          {/* Shop Section */}
+          <div className="border border-border rounded-2xl p-6 bg-card mb-8">
+            <div className="flex items-center gap-4 flex-wrap">
+              <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center shrink-0">
+                <Store size={24} className="text-muted-foreground" />
               </div>
-              <div className="px-6 py-6">
-                <div className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: description }} />
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-foreground">{shopInfo?.seller_name || "TikTok Shop"}</p>
+                <p className="text-xs text-muted-foreground">
+                  ID: {shopInfo?.open_id || "—"} · Região: {shopInfo?.seller_base_region || "—"}
+                </p>
               </div>
             </div>
-          )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>
