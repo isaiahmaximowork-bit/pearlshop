@@ -154,9 +154,6 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
   })();
   const productCurrency = product.currency || 'BRL';
 
-  const getTotalStock = () => skus.reduce((total, sku) => {
-    return total + (sku.inventory?.reduce((sum, inv) => sum + (inv.quantity || 0), 0) || 0);
-  }, 0);
 
   const goToImage = (index: number) => {
     setSlideDirection(index > selectedImageIndex ? 1 : -1);
