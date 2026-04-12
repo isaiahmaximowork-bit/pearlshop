@@ -121,13 +121,14 @@ const deviceWidths: Record<DeviceMode, string> = {
 
 // Helper: get text position classes
 const getPositionClasses = (position?: TextPosition) => {
+  // flex-col: justify = vertical (main axis), items = horizontal (cross axis)
   switch (position) {
     case "center": return "items-center justify-center text-center";
-    case "center-left": return "items-center justify-start text-left pl-8";
-    case "center-right": return "items-center justify-end text-right pr-8";
+    case "center-left": return "items-start justify-center text-left pl-8";
+    case "center-right": return "items-end justify-center text-right pr-8";
     case "top-left": return "items-start justify-start text-left pt-6 pl-8";
-    case "top-right": return "items-start justify-end text-right pt-6 pr-8";
-    case "bottom-left": return "items-end justify-start text-left pb-6 pl-8";
+    case "top-right": return "items-end justify-start text-right pt-6 pr-8";
+    case "bottom-left": return "items-start justify-end text-left pb-6 pl-8";
     case "bottom-right": return "items-end justify-end text-right pb-6 pr-8";
     default: return "items-center justify-center text-center";
   }
@@ -1000,13 +1001,8 @@ const Builder = () => {
                   toast.error("Nenhuma loja encontrada. Crie uma loja primeiro.");
                   return;
                 }
-                if (store.is_public) {
-                  window.open(`/loja/${store.slug}`, "_blank");
-                } else {
-                  setPreviewOpen(true);
-                  setPreviewPassword("");
-                  setPreviewError("");
-                }
+                // User is logged in (builder is protected route), go directly
+                window.open(`/loja/${store.slug}`, "_blank");
               }}
               size="sm"
               variant="outline"
