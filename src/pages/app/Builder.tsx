@@ -991,8 +991,8 @@ const Builder = () => {
             ))}
           </div>
           <div className="flex-1 flex justify-end gap-2">
-            <Button onClick={handleSave} size="sm" className="gap-2">
-              <Save size={14} /> Salvar
+            <Button onClick={handleSave} size="sm" className="gap-2" disabled={saving}>
+              <Save size={14} /> {saving ? "Salvando..." : "Salvar"}
             </Button>
             <Button
               onClick={() => {
