@@ -290,8 +290,8 @@ const StorePage = () => {
   const [sections, setSections] = useState<BuilderSection[]>([]);
   const [theme, setTheme] = useState<StoreTheme>({ ...defaultTheme });
   const [headerConfig, setHeaderConfig] = useState<HeaderConfig>({ ...defaultHeaderConfig });
-  const [catalogProducts, setCatalogProducts] = useState<CatalogProduct[]>([]);
-  const [selectedProduct, setSelectedProduct] = useState<CatalogProduct | null>(null);
+  const [storeProducts, setStoreProducts] = useState<StoreProduct[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<StoreProduct | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
