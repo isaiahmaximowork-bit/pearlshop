@@ -219,7 +219,7 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
               >
                 <AnimatePresence initial={false} custom={slideDirection} mode="popLayout">
                   <motion.div
-                    key={selectedImageIndex}
+                    key={safeIndex}
                     custom={slideDirection}
                     variants={slideVariants}
                     initial="enter"
@@ -228,8 +228,8 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
                     transition={{ duration: 0.3, ease: "easeInOut" }}
                     className="absolute inset-0"
                   >
-                    {imageUrls[selectedImageIndex] ? (
-                      <img src={imageUrls[selectedImageIndex]} alt={product.product_name} className="w-full h-full object-cover" />
+                    {imageUrls[safeIndex] ? (
+                      <img src={imageUrls[safeIndex]} alt={product.product_name} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
                         <Package className="h-16 w-16 text-muted-foreground/30" />
@@ -249,7 +249,7 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
                     {/* Mobile dots */}
                     <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex gap-1.5 sm:hidden">
                       {imageUrls.map((_, i) => (
-                        <div key={i} className={`w-2 h-2 rounded-full transition-all ${i === selectedImageIndex ? "bg-primary scale-125" : "bg-background/60"}`} />
+                        <div key={i} className={`w-2 h-2 rounded-full transition-all ${i === safeIndex ? "bg-primary scale-125" : "bg-background/60"}`} />
                       ))}
                     </div>
                   </>
@@ -257,7 +257,7 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
 
                 {/* Image counter */}
                 <div className="absolute top-3 right-3 z-10 px-3 py-1 rounded-full bg-background/70 backdrop-blur-sm text-xs font-bold text-foreground">
-                  {selectedImageIndex + 1} / {imageUrls.length}
+                  {safeIndex + 1} / {imageUrls.length}
                 </div>
               </div>
 
@@ -269,7 +269,7 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
                       key={i}
                       onClick={() => handleThumbClick(i)}
                       className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${
-                        i === selectedImageIndex ? "border-primary shadow-md ring-2 ring-primary/20" : "border-border hover:border-muted-foreground/50 opacity-70 hover:opacity-100"
+                        i === safeIndex ? "border-primary shadow-md ring-2 ring-primary/20" : "border-border hover:border-muted-foreground/50 opacity-70 hover:opacity-100"
                       }`}
                     >
                       <img src={url} alt="" className="w-full h-full object-cover" />
