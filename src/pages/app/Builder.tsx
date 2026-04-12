@@ -459,7 +459,13 @@ const Builder = () => {
         .eq("user_id", user.id)
         .limit(1)
         .single();
-      if (data) setStore(data);
+      if (data) {
+        setStore(data);
+        // Set default logo text from store name
+        if (!headerConfig.logoText && data.store_name) {
+          setHeaderConfig((h) => ({ ...h, logoText: data.store_name }));
+        }
+      }
     };
     fetchStore();
   }, [user]);
