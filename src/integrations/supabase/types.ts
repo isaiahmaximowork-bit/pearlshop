@@ -16,55 +16,73 @@ export type Database = {
     Tables: {
       catalog_products: {
         Row: {
+          affiliate_link: string | null
           created_at: string
           currency: string | null
+          description: string | null
           id: string
           image_url: string | null
+          images: string[] | null
           is_on_sale: boolean | null
           is_verified: boolean
           original_price: number | null
           price: number | null
           product_id: string
           product_name: string
+          promo_info: string | null
           raw_payload: Json | null
           shop_cipher: string | null
+          size_chart_url: string | null
           source_platform: string
           status: string
           updated_at: string
+          variants: string | null
         }
         Insert: {
+          affiliate_link?: string | null
           created_at?: string
           currency?: string | null
+          description?: string | null
           id?: string
           image_url?: string | null
+          images?: string[] | null
           is_on_sale?: boolean | null
           is_verified?: boolean
           original_price?: number | null
           price?: number | null
           product_id: string
           product_name: string
+          promo_info?: string | null
           raw_payload?: Json | null
           shop_cipher?: string | null
+          size_chart_url?: string | null
           source_platform?: string
           status?: string
           updated_at?: string
+          variants?: string | null
         }
         Update: {
+          affiliate_link?: string | null
           created_at?: string
           currency?: string | null
+          description?: string | null
           id?: string
           image_url?: string | null
+          images?: string[] | null
           is_on_sale?: boolean | null
           is_verified?: boolean
           original_price?: number | null
           price?: number | null
           product_id?: string
           product_name?: string
+          promo_info?: string | null
           raw_payload?: Json | null
           shop_cipher?: string | null
+          size_chart_url?: string | null
           source_platform?: string
           status?: string
           updated_at?: string
+          variants?: string | null
         }
         Relationships: []
       }
