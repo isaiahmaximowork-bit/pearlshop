@@ -446,25 +446,40 @@ const Builder = () => {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewPassword, setPreviewPassword] = useState("");
   const [previewError, setPreviewError] = useState("");
-  const [store, setStore] = useState<{ slug: string; is_public: boolean; access_code: string; store_name: string } | null>(null);
+  const [store, setStore] = useState<{ id: string; slug: string; is_public: boolean; access_code: string; store_name: string } | null>(null);
+  const [saving, setSaving] = useState(false);
   const { user } = useAuth();
 
-  // Fetch user's store
+  // Fetch user's store + load saved builder config
   useEffect(() => {
     if (!user) return;
     const fetchStore = async () => {
       const { data } = await supabase
         .from("stores")
-        .select("slug, is_public, access_code, store_name")
+        .select("id, slug, is_public, access_code, store_name, preview_cache")
         .eq("user_id", user.id)
         .limit(1)
         .single();
       if (data) {
-        setStore(data);
-        // Set default logo text from store name
-        if (!headerConfig.logoText && data.store_name) {
-          setHeaderConfig((h) => ({ ...h, logoText: data.store_name }));
+        setStore({ id: data.id, slug: data.slug, is_public: data.is_public, access_code: data.access_code, store_name: data.store_name });
+
+        // Load saved config from preview_cache
+        if (data.preview_cache) {
+          try {
+            const saved = JSON.parse(data.preview_cache);
+            if (saved.sections) setSections(saved.sections);
+            if (saved.theme) setTheme(saved.theme);
+            if (saved.headerConfig) setHeaderConfig(saved.headerConfig);
+          } catch {
+            // ignore invalid JSON
+          }
         }
+
+        // Fallback: set logo text from store name if not saved
+        setHeaderConfig((h) => {
+          if (!h.logoText) return { ...h, logoText: data.store_name || "" };
+          return h;
+        });
       }
     };
     fetchStore();
