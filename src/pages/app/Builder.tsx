@@ -986,26 +986,35 @@ const Builder = () => {
           <div className="space-y-4 transition-all duration-300" style={{ width: deviceWidths[deviceMode], maxWidth: "100%" }}>
             {/* ─── Header Preview ─── */}
             {/* Announcement Bar */}
-            {headerConfig.announcementEnabled && headerConfig.announcementMessages.some((m) => m.text.trim()) && (
-              <div
-                className="w-full py-2 text-center overflow-hidden"
-                style={{ backgroundColor: headerConfig.announcementBgColor }}
-              >
-                <AnimatePresence mode="wait">
-                  <motion.p
-                    key={announcementIndex}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.3 }}
-                    className="text-xs font-medium"
-                    style={{ color: headerConfig.announcementTextColor }}
+            {(() => {
+              const msgs = headerConfig.announcementMessages.filter((m) => m.text.trim());
+              if (!headerConfig.announcementEnabled || msgs.length === 0) return null;
+              // Duplicate messages for seamless loop
+              const loopMsgs = [...msgs, ...msgs];
+              return (
+                <div
+                  className="w-full py-2 overflow-hidden"
+                  style={{ backgroundColor: headerConfig.announcementBgColor }}
+                >
+                  <div
+                    className="flex whitespace-nowrap"
+                    style={{
+                      animation: `marquee ${msgs.length * 6}s linear infinite`,
+                    }}
                   >
-                    {headerConfig.announcementMessages.filter((m) => m.text.trim())[announcementIndex % headerConfig.announcementMessages.filter((m) => m.text.trim()).length]?.text}
-                  </motion.p>
-                </AnimatePresence>
-              </div>
-            )}
+                    {loopMsgs.map((msg, i) => (
+                      <span
+                        key={i}
+                        className="inline-block px-8 text-xs font-medium"
+                        style={{ color: headerConfig.announcementTextColor }}
+                      >
+                        {msg.text}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Header Bar */}
             <div className="w-full rounded-xl bg-card border border-border px-4 py-3 flex items-center gap-3 relative">
