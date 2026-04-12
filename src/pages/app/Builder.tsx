@@ -13,7 +13,7 @@ import {
   Search, Upload, Type, PanelTop, Eye, ExternalLink, ChevronDown
 } from "lucide-react";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/logo.png";
 import { supabase } from "@/integrations/supabase/client";
