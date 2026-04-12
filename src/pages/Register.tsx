@@ -80,7 +80,7 @@ const Register = () => {
       email,
       password,
       options: {
-        emailRedirectTo: window.location.origin,
+        emailRedirectTo: 'https://pearlshop.lovable.app',
         data: {
           name,
           avatar_id: selectedAvatarId || 'strawberry',
