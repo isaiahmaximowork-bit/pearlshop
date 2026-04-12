@@ -33,7 +33,7 @@ interface ProductDetailModalProps {
 const formatPrice = (value: number, currency = 'BRL') =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency }).format(value);
 
-export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affiliate" }: ProductDetailModalProps) => {
+export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affiliate", onAffiliate, isAffiliated }: ProductDetailModalProps) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [slideDirection, setSlideDirection] = useState(0);
 
