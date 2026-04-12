@@ -211,14 +211,14 @@ const StoreDestaquePreview = ({ products, theme, onSelect }: { products: Catalog
   if (products.length === 0) return null;
 
   return (
-    <div className="relative w-full overflow-hidden" style={{ minHeight: 300 }}>
-      <div className="flex h-full transition-transform duration-500 ease-in-out"
-        style={{ width: `${products.length * 100}%`, transform: `translateX(-${activeIndex * (100 / products.length)}%)`, minHeight: 300 }}>
+    <div className="relative w-full max-w-md mx-auto overflow-hidden rounded-2xl border border-border bg-card">
+      <div className="flex transition-transform duration-500 ease-in-out"
+        style={{ width: `${products.length * 100}%`, transform: `translateX(-${activeIndex * (100 / products.length)}%)` }}>
         {products.map((product) => {
           const info = getProductPriceInfo(product);
           return (
             <div key={product.id} className="flex flex-col flex-shrink-0" style={{ width: `${100 / products.length}%` }}>
-              <div className="flex-1 w-full overflow-hidden" style={{ minHeight: 200 }}>
+              <div className="w-full aspect-square overflow-hidden">
                 {product.image_url ? (
                   <img src={product.image_url} alt={product.product_name} className="w-full h-full object-cover" />
                 ) : (
@@ -241,7 +241,7 @@ const StoreDestaquePreview = ({ products, theme, onSelect }: { products: Catalog
         })}
       </div>
       {products.length > 1 && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
           {products.map((_, i) => (
             <button key={i} onClick={() => setActiveIndex(i)} className="w-2 h-2 rounded-full transition-all"
               style={{ backgroundColor: i === activeIndex ? theme.iconColor : `${theme.iconColor}66`, transform: i === activeIndex ? "scale(1.25)" : "scale(1)" }} />
