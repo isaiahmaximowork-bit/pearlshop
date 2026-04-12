@@ -21,6 +21,7 @@ export type Database = {
           id: string
           image_url: string | null
           is_on_sale: boolean | null
+          is_verified: boolean
           original_price: number | null
           price: number | null
           product_id: string
@@ -37,6 +38,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_on_sale?: boolean | null
+          is_verified?: boolean
           original_price?: number | null
           price?: number | null
           product_id: string
@@ -53,6 +55,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_on_sale?: boolean | null
+          is_verified?: boolean
           original_price?: number | null
           price?: number | null
           product_id?: string
@@ -175,6 +178,38 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      user_products: {
+        Row: {
+          affiliate_url: string | null
+          catalog_product_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          affiliate_url?: string | null
+          catalog_product_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          affiliate_url?: string | null
+          catalog_product_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_products_catalog_product_id_fkey"
+            columns: ["catalog_product_id"]
+            isOneToOne: false
+            referencedRelation: "catalog_products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
