@@ -236,6 +236,8 @@ const Produtos = () => {
         product={selectedProduct}
         open={!!selectedProduct}
         onOpenChange={(open) => { if (!open) setSelectedProduct(null); }}
+        isAffiliated={selectedProduct ? affiliatedIds.includes(selectedProduct.id) : false}
+        onAffiliate={() => { if (selectedProduct) affiliateMutation.mutate(selectedProduct); }}
       />
     </div>
   );
