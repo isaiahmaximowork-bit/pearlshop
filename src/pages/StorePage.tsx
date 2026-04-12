@@ -620,7 +620,7 @@ const StorePage = () => {
         ))}
       </main>
 
-      <ProductDetailModal product={selectedProduct} open={!!selectedProduct} onOpenChange={(open) => { if (!open) setSelectedProduct(null); }} />
+      <ProductDetailModal product={selectedProduct} open={!!selectedProduct} onOpenChange={(open) => { if (!open) setSelectedProduct(null); }} mode="buy" />
     </div>
   );
 };
