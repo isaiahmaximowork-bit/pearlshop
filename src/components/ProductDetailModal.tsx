@@ -1,5 +1,5 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Package, UserPlus, X, ChevronLeft, ChevronRight, Store, ShoppingBag, Ruler } from "lucide-react";
+import { Package, UserPlus, X, ChevronLeft, ChevronRight, Store, ShoppingBag } from "lucide-react";
 import { ShippingInfo } from "@/components/ShippingInfo";
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +19,7 @@ interface CatalogProduct {
   original_price: number | null;
   currency: string | null;
   is_on_sale: boolean | null;
+  is_verified: boolean;
   description?: string | null;
   images?: string[] | null;
   size_chart_url?: string | null;
@@ -34,21 +35,21 @@ interface ProductDetailModalProps {
   mode?: "affiliate" | "buy";
   onAffiliate?: () => void;
   isAffiliated?: boolean;
+  buyUrl?: string;
 }
 
 const formatPrice = (value: number, currency = 'BRL') =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency }).format(value);
 
-export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affiliate", onAffiliate, isAffiliated }: ProductDetailModalProps) => {
+export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affiliate", onAffiliate, isAffiliated, buyUrl }: ProductDetailModalProps) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [slideDirection, setSlideDirection] = useState(0);
-  const [showSizeChart, setShowSizeChart] = useState(false);
   const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const touchStartRef = useRef<number | null>(null);
 
   useEffect(() => { setSelectedImageIndex(0); }, [product?.id]);
 
-  // Fetch shop info
+  // Fetch shop info (only for verified/official products)
   const { data: shopInfo } = useQuery({
     queryKey: ["tiktok-shop-info"],
     queryFn: async () => {
@@ -59,11 +60,10 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
         .maybeSingle();
       return data;
     },
-    enabled: open,
+    enabled: open && !!product?.is_verified,
   });
 
-
-  // Auto-slide timer - must be before early return
+  // Auto-slide timer
   useEffect(() => {
     if (!open) return;
     const timer = setInterval(() => {
@@ -76,9 +76,10 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
 
   if (!product) return null;
 
+  const isOfficial = product.is_verified;
   const payload = product.raw_payload as Record<string, unknown> | null;
 
-  // Images — prefer new `images` column, fallback to raw_payload, then image_url
+  // Images
   let imageUrls: string[] = [];
   if (product.images && product.images.length > 0) {
     imageUrls = product.images;
@@ -99,10 +100,8 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
     imageUrls.push(product.image_url);
   }
 
-  // Normalize selectedImageIndex with mod
-  const safeIndex = imageUrls.length > 0 ? selectedImageIndex % imageUrls.length : 0;
+  const safeIndex = imageUrls.length > 0 ? ((selectedImageIndex % imageUrls.length) + imageUrls.length) % imageUrls.length : 0;
 
-  // Description — prefer new column, fallback to raw_payload
   const description = product.description || (payload?.description as string) || null;
   const sizeChartUrl = product.size_chart_url || null;
   const variantsText = product.variants || null;
@@ -112,7 +111,7 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
     seller_sku?: string;
     price?: { sale_price?: string; tax_exclusive_price?: string; currency?: string };
     inventory?: Array<{ quantity?: number }>;
-    sales_attributes?: Array<{ name?: string; value_name?: string }>;
+    sales_attributes?: Array<{ name?: string; value_name?: string; sku_img?: { urls?: string[] } }>;
   }>) || [];
 
   const rawCategories = payload?.category_chains;
@@ -131,17 +130,50 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
   const brand = (payload?.brand as { name?: string })?.name || null;
 
   const hasMultipleVariants = skus.length > 1;
-  const attributeGroups = new Map<string, Set<string>>();
+
+  // Parse variants into groups with images
+  type VariantOption = { name: string; image?: string; skuIndex?: number };
+  const variantGroups = new Map<string, VariantOption[]>();
+  const sizeGroupNames = new Set(["size", "tamanho", "Size", "Tamanho"]);
+
   if (hasMultipleVariants) {
-    skus.forEach(sku => {
+    skus.forEach((sku, skuIdx) => {
       sku.sales_attributes?.forEach(attr => {
         if (attr.name && attr.value_name) {
-          if (!attributeGroups.has(attr.name)) attributeGroups.set(attr.name, new Set());
-          attributeGroups.get(attr.name)!.add(attr.value_name);
+          if (!variantGroups.has(attr.name)) variantGroups.set(attr.name, []);
+          const existing = variantGroups.get(attr.name)!;
+          if (!existing.find(v => v.name === attr.value_name)) {
+            existing.push({
+              name: attr.value_name!,
+              image: attr.sku_img?.urls?.[0],
+              skuIndex: skuIdx,
+            });
+          }
         }
       });
     });
   }
+
+  // Parse text-based variants (for non-API products)
+  const parsedTextVariants: { group: string; options: VariantOption[] }[] = [];
+  if (variantsText && !hasMultipleVariants) {
+    // Try to parse structured variant text like "Cor: Preto, Marrom, Verde | Tamanho: P, M, G"
+    const parts = variantsText.split(/[|;]/);
+    for (const part of parts) {
+      const [groupName, ...values] = part.split(":");
+      if (groupName && values.length > 0) {
+        const options = values.join(":").split(",").map(v => ({ name: v.trim() })).filter(v => v.name);
+        if (options.length > 0) {
+          parsedTextVariants.push({ group: groupName.trim(), options });
+        }
+      }
+    }
+  }
+
+  // Determine if there are both color/type AND size variants — if so, size is disabled
+  const hasColorOrType = Array.from(variantGroups.keys()).some(k => !sizeGroupNames.has(k));
+  const hasSizeGroup = Array.from(variantGroups.keys()).some(k => sizeGroupNames.has(k));
+  const sizeDisabled = hasColorOrType && hasSizeGroup;
 
   const priceInfo = (() => {
     if (product.price != null) {
@@ -173,7 +205,6 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
   const handleNext = () => { nextImage(); resetAutoPlay(); };
   const handleThumbClick = (i: number) => { goToImage(i); resetAutoPlay(); };
 
-  // Touch swipe handlers
   const handleTouchStart = (e: React.TouchEvent) => { touchStartRef.current = e.touches[0].clientX; };
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (touchStartRef.current === null) return;
@@ -184,10 +215,19 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
     touchStartRef.current = null;
   };
 
+  // Handle variant click — scroll to image
+  const handleVariantClick = (option: VariantOption) => {
+    if (option.image) {
+      const imgIdx = imageUrls.findIndex(u => u === option.image);
+      if (imgIdx >= 0) {
+        handleThumbClick(imgIdx);
+      }
+    }
+  };
+
   const detailRows: { label: string; value: string }[] = [];
   if (categoryNames.length > 0) detailRows.push({ label: "Categoria", value: categoryNames.join(" › ") });
   if (brand) detailRows.push({ label: "Marca", value: brand });
-  if (variantsText) detailRows.push({ label: "Variações", value: variantsText });
   if (product.promo_info) detailRows.push({ label: "Promoção", value: product.promo_info });
   detailRows.push({ label: "Plataforma", value: "TikTok Shop" });
 
@@ -197,10 +237,31 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
     exit: (dir: number) => ({ x: dir > 0 ? -300 : 300, opacity: 0 }),
   };
 
+  const renderVariantGroup = (groupName: string, options: VariantOption[], disabled = false) => (
+    <div key={groupName} className={disabled ? "opacity-40 pointer-events-none" : ""}>
+      <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2">
+        {groupName} {disabled && <span className="text-[10px] normal-case font-medium">(selecione a cor primeiro)</span>}
+      </p>
+      <div className="flex gap-2 flex-wrap">
+        {options.map((opt, i) => (
+          <button
+            key={i}
+            onClick={() => handleVariantClick(opt)}
+            className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border bg-card hover:border-primary/50 hover:bg-accent transition-all"
+          >
+            {opt.image && (
+              <img src={opt.image} alt={opt.name} className="w-8 h-8 rounded-lg object-cover border border-border" />
+            )}
+            <span className="text-sm font-medium text-foreground">{opt.name}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-full w-full h-[100dvh] max-h-[100dvh] p-0 border-none rounded-none sm:rounded-none overflow-y-auto bg-background [&>button]:hidden">
-        {/* Top bar */}
         <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border px-6 py-3 flex items-center justify-between">
           <h2 className="text-sm font-bold text-foreground truncate max-w-[80%]">{product.product_name}</h2>
           <button onClick={() => onOpenChange(false)} className="p-2 rounded-xl hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
@@ -246,7 +307,6 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
                     <button onClick={handleNext} className="absolute right-3 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background/80 backdrop-blur-sm border border-border text-foreground hover:bg-background transition-all shadow-lg hidden sm:flex">
                       <ChevronRight size={20} />
                     </button>
-                    {/* Mobile dots */}
                     <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex gap-1.5 sm:hidden">
                       {imageUrls.map((_, i) => (
                         <div key={i} className={`w-2 h-2 rounded-full transition-all ${i === safeIndex ? "bg-primary scale-125" : "bg-background/60"}`} />
@@ -255,7 +315,6 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
                   </>
                 )}
 
-                {/* Image counter */}
                 <div className="absolute top-3 right-3 z-10 px-3 py-1 rounded-full bg-background/70 backdrop-blur-sm text-xs font-bold text-foreground">
                   {safeIndex + 1} / {imageUrls.length}
                 </div>
@@ -308,7 +367,7 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
               {mode === "buy" ? (
                 <button
                   onClick={() => {
-                    const url = product.affiliate_link || (payload?.product_url as string) || `https://www.tiktok.com/view/product/${product.product_id}`;
+                    const url = buyUrl || product.affiliate_link || (payload?.product_url as string) || `https://www.tiktok.com/view/product/${product.product_id}`;
                     window.open(url, '_blank');
                   }}
                   className="w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg bg-primary text-primary-foreground hover:opacity-90"
@@ -329,47 +388,44 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
                 </button>
               )}
 
-              <ShippingInfo packageWeight={packageWeight} packageDimensions={packageDimensions} sellerRegion={shopInfo?.seller_base_region} />
+              {/* Shipping — only for official/verified products */}
+              {isOfficial && (
+                <ShippingInfo packageWeight={packageWeight} packageDimensions={packageDimensions} sellerRegion={shopInfo?.seller_base_region} />
+              )}
 
-              {/* Variants from new column */}
-              {variantsText && !hasMultipleVariants && (
+              {/* Size Chart — inline, first in description area */}
+              {sizeChartUrl && (
+                <div>
+                  <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2">Tabela de Medidas</p>
+                  <div className="rounded-2xl overflow-hidden border border-border">
+                    <img src={sizeChartUrl} alt="Tabela de medidas" className="w-full" loading="lazy" />
+                  </div>
+                </div>
+              )}
+
+              {/* Variants from SKUs — professional layout */}
+              {hasMultipleVariants && variantGroups.size > 0 && (
+                <div className="space-y-4 pt-2">
+                  {Array.from(variantGroups.entries()).map(([name, options]) => {
+                    const isSizeGroup = sizeGroupNames.has(name);
+                    return renderVariantGroup(name, options, isSizeGroup && sizeDisabled);
+                  })}
+                </div>
+              )}
+
+              {/* Variants from text */}
+              {parsedTextVariants.length > 0 && (
+                <div className="space-y-4 pt-2">
+                  {parsedTextVariants.map(({ group, options }) => renderVariantGroup(group, options))}
+                </div>
+              )}
+
+              {/* Plain text variants fallback */}
+              {variantsText && !hasMultipleVariants && parsedTextVariants.length === 0 && (
                 <div>
                   <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2">Variações</p>
                   <p className="text-sm text-foreground">{variantsText}</p>
                 </div>
-              )}
-
-              {/* Variants from SKUs */}
-              {hasMultipleVariants && attributeGroups.size > 0 && (
-                <div className="space-y-4 pt-2">
-                  {Array.from(attributeGroups.entries()).map(([name, values]) => (
-                    <div key={name}>
-                      <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2">{name}</p>
-                      <div className="flex gap-2 flex-wrap">
-                        {Array.from(values).map(v => (
-                          <span key={v} className="px-4 py-2 rounded-xl border border-border bg-card text-sm font-medium text-foreground">{v}</span>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Size chart button */}
-              {sizeChartUrl && (
-                <button
-                  onClick={() => setShowSizeChart(!showSizeChart)}
-                  className="flex items-center gap-2 px-4 py-3 rounded-xl border border-border bg-card text-sm font-bold text-foreground hover:bg-accent transition-colors w-full justify-center"
-                >
-                  <Ruler size={16} />
-                  {showSizeChart ? "Ocultar Tabela de Medidas" : "Ver Tabela de Medidas"}
-                </button>
-              )}
-
-              {showSizeChart && sizeChartUrl && (
-                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="rounded-2xl overflow-hidden border border-border">
-                  <img src={sizeChartUrl} alt="Tabela de medidas" className="w-full" loading="lazy" />
-                </motion.div>
               )}
 
               <p className="text-xs text-muted-foreground">
@@ -409,20 +465,22 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
             </div>
           )}
 
-          {/* Shop Section */}
-          <div className="border border-border rounded-2xl p-6 bg-card mb-8">
-            <div className="flex items-center gap-4 flex-wrap">
-              <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center shrink-0">
-                <Store size={24} className="text-muted-foreground" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-foreground">{shopInfo?.seller_name || "TikTok Shop"}</p>
-                <p className="text-xs text-muted-foreground">
-                  ID: {shopInfo?.open_id || "—"} · Região: {shopInfo?.seller_base_region || "—"}
-                </p>
+          {/* Shop Section — only for official */}
+          {isOfficial && (
+            <div className="border border-border rounded-2xl p-6 bg-card mb-8">
+              <div className="flex items-center gap-4 flex-wrap">
+                <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center shrink-0">
+                  <Store size={24} className="text-muted-foreground" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-foreground">{shopInfo?.seller_name || "TikTok Shop"}</p>
+                  <p className="text-xs text-muted-foreground">
+                    ID: {shopInfo?.open_id || "—"} · Região: {shopInfo?.seller_base_region || "—"}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

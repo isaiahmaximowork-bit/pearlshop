@@ -106,6 +106,13 @@ interface CatalogProduct {
   original_price: number | null;
   currency: string | null;
   is_on_sale: boolean | null;
+  is_verified: boolean;
+  description?: string | null;
+  images?: string[] | null;
+  size_chart_url?: string | null;
+  variants?: string | null;
+  affiliate_link?: string | null;
+  promo_info?: string | null;
 }
 
 const sectionIcons: Record<SectionType, React.ReactNode> = {

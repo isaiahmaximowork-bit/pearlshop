@@ -56,12 +56,17 @@ interface CatalogProduct {
   price: number | null;
   original_price: number | null;
   is_on_sale: boolean | null;
+  is_verified: boolean;
   description?: string | null;
   images?: string[] | null;
   size_chart_url?: string | null;
   variants?: string | null;
   affiliate_link?: string | null;
   promo_info?: string | null;
+}
+
+interface StoreProduct extends CatalogProduct {
+  user_affiliate_url: string;
 }
 
 const defaultTheme: StoreTheme = {
@@ -285,8 +290,8 @@ const StorePage = () => {
   const [sections, setSections] = useState<BuilderSection[]>([]);
   const [theme, setTheme] = useState<StoreTheme>({ ...defaultTheme });
   const [headerConfig, setHeaderConfig] = useState<HeaderConfig>({ ...defaultHeaderConfig });
-  const [catalogProducts, setCatalogProducts] = useState<CatalogProduct[]>([]);
-  const [selectedProduct, setSelectedProduct] = useState<CatalogProduct | null>(null);
+  const [storeProducts, setStoreProducts] = useState<StoreProduct[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<StoreProduct | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -341,12 +346,22 @@ const StorePage = () => {
         setHeaderConfig((h) => ({ ...h, logoText: data.store_name || "" }));
       }
 
-      // Fetch products
-      const { data: products } = await supabase
-        .from("catalog_products")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (products) setCatalogProducts(products as unknown as CatalogProduct[]);
+      // Fetch only affiliated products with a link set (for this store owner)
+      const { data: userProds } = await supabase
+        .from("user_products")
+        .select("affiliate_url, catalog_products(*)")
+        .eq("user_id", data.user_id)
+        .not("affiliate_url", "is", null);
+      
+      if (userProds) {
+        const mapped: StoreProduct[] = userProds
+          .filter((up: any) => up.catalog_products && up.affiliate_url)
+          .map((up: any) => ({
+            ...up.catalog_products,
+            user_affiliate_url: up.affiliate_url,
+          }));
+        setStoreProducts(mapped);
+      }
 
       setLoading(false);
     };
@@ -366,8 +381,8 @@ const StorePage = () => {
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
     const q = searchQuery.toLowerCase();
-    return catalogProducts.filter((p) => p.product_name.toLowerCase().includes(q)).slice(0, 10);
-  }, [searchQuery, catalogProducts]);
+    return storeProducts.filter((p) => p.product_name.toLowerCase().includes(q)).slice(0, 10);
+  }, [searchQuery, storeProducts]);
 
   if (loading) {
     return (
@@ -447,13 +462,13 @@ const StorePage = () => {
                 )}
               </div>
               <div className="flex-1" />
-              <button onClick={() => setSearchOpen(!searchOpen)} className="w-8 h-8 rounded-lg border border-border flex items-center justify-center transition-colors" style={{ color: theme.iconColor }}>
+              <button onClick={() => setSearchOpen(!searchOpen)} className="w-8 h-8 rounded-lg border border-border flex items-center justify-center transition-colors" style={{ color: theme.subtitleColor }}>
                 <Search size={16} />
               </button>
             </>
           ) : (
             <>
-              <button onClick={() => setSearchOpen(!searchOpen)} className="w-8 h-8 rounded-lg border border-border flex items-center justify-center transition-colors" style={{ color: theme.iconColor }}>
+              <button onClick={() => setSearchOpen(!searchOpen)} className="w-8 h-8 rounded-lg border border-border flex items-center justify-center transition-colors" style={{ color: theme.subtitleColor }}>
                 <Search size={16} />
               </button>
               <div className="flex-1 flex justify-center">
@@ -471,7 +486,7 @@ const StorePage = () => {
           {searchOpen && (
             <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border shadow-lg z-50 p-3 space-y-2">
               <div className="flex items-center gap-2 border border-border rounded-lg px-3 py-2">
-                <Search size={14} style={{ color: theme.iconColor }} />
+                <Search size={14} style={{ color: theme.subtitleColor }} />
                 <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Buscar produtos..."
                   className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground text-foreground" autoFocus />
                 {searchQuery && <button onClick={() => setSearchQuery("")} className="text-muted-foreground hover:text-foreground"><X size={12} /></button>}
@@ -521,7 +536,7 @@ const StorePage = () => {
             {/* Row 2: Search bar */}
             <div className="pb-4 max-w-xl mx-auto relative">
               <div className="flex items-center gap-2 border border-border rounded-xl px-4 py-2.5 bg-muted/30">
-                <Search size={16} style={{ color: theme.iconColor }} />
+                <Search size={16} style={{ color: theme.subtitleColor }} />
                 <input
                   type="text"
                   value={searchQuery}
@@ -590,15 +605,15 @@ const StorePage = () => {
               )}
 
               {section.type === "destaque" && (
-                <StoreDestaquePreview products={catalogProducts.slice(0, 5)} theme={theme} onSelect={setSelectedProduct} />
+                <StoreDestaquePreview products={storeProducts.slice(0, 5)} theme={theme} onSelect={(p) => setSelectedProduct(p as StoreProduct)} />
               )}
 
               {section.type === "produtos" && (
                 <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
-                  {catalogProducts.map((product) => {
+                  {storeProducts.map((product) => {
                     const info = getProductPriceInfo(product);
                     return (
-                      <div key={product.id} className="rounded-xl bg-card border border-border flex flex-col overflow-hidden">
+                      <div key={product.id} className="rounded-xl bg-card border border-border flex flex-col overflow-hidden cursor-pointer" onClick={() => setSelectedProduct(product)}>
                         <div className="aspect-square w-full overflow-hidden">
                           {product.image_url ? (
                             <img src={product.image_url} alt={product.product_name} className="w-full h-full object-cover" />
@@ -618,7 +633,7 @@ const StorePage = () => {
                               </span>
                             </div>
                           )}
-                          <button onClick={() => window.open(getProductShopUrl(product), '_blank')}
+                          <button onClick={(e) => { e.stopPropagation(); setSelectedProduct(product); }}
                             className="mt-1.5 w-full py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-all"
                             style={{ backgroundColor: theme.buttonBgColor, color: theme.buttonTextColor }}>
                             Comprar
@@ -634,7 +649,7 @@ const StorePage = () => {
         ))}
       </main>
 
-      <ProductDetailModal product={selectedProduct} open={!!selectedProduct} onOpenChange={(open) => { if (!open) setSelectedProduct(null); }} mode="buy" />
+      <ProductDetailModal product={selectedProduct} open={!!selectedProduct} onOpenChange={(open) => { if (!open) setSelectedProduct(null); }} mode="buy" buyUrl={selectedProduct?.user_affiliate_url} />
     </div>
   );
 };
