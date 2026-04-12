@@ -971,6 +971,141 @@ const Builder = () => {
 
         <div className="flex-1 overflow-y-auto p-6 md:p-10 bg-muted/30 flex justify-center">
           <div className="space-y-4 transition-all duration-300" style={{ width: deviceWidths[deviceMode], maxWidth: "100%" }}>
+            {/* ─── Header Preview ─── */}
+            {/* Announcement Bar */}
+            {headerConfig.announcementEnabled && headerConfig.announcementMessages.some((m) => m.text.trim()) && (
+              <div
+                className="w-full py-2 text-center overflow-hidden"
+                style={{ backgroundColor: headerConfig.announcementBgColor }}
+              >
+                <AnimatePresence mode="wait">
+                  <motion.p
+                    key={announcementIndex}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                    className="text-xs font-medium"
+                    style={{ color: headerConfig.announcementTextColor }}
+                  >
+                    {headerConfig.announcementMessages.filter((m) => m.text.trim())[announcementIndex % headerConfig.announcementMessages.filter((m) => m.text.trim()).length]?.text}
+                  </motion.p>
+                </AnimatePresence>
+              </div>
+            )}
+
+            {/* Header Bar */}
+            <div className="w-full rounded-xl bg-card border border-border px-4 py-3 flex items-center gap-3 relative">
+              {headerConfig.logoPosition === "left" ? (
+                <>
+                  <div className="flex-shrink-0">
+                    {headerConfig.logoMode === "image" && headerConfig.logoImageUrl ? (
+                      <img src={headerConfig.logoImageUrl} alt="Logo" className="h-8 max-w-[120px] object-contain" />
+                    ) : (
+                      <span className="text-base font-bold" style={{ color: headerConfig.logoTextColor }}>
+                        {headerConfig.logoText || "Minha Loja"}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex-1" />
+                  <div className="relative">
+                    <button
+                      onClick={() => setSearchOpen(!searchOpen)}
+                      className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <Search size={16} />
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="relative">
+                    <button
+                      onClick={() => setSearchOpen(!searchOpen)}
+                      className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <Search size={16} />
+                    </button>
+                  </div>
+                  <div className="flex-1 flex justify-center">
+                    {headerConfig.logoMode === "image" && headerConfig.logoImageUrl ? (
+                      <img src={headerConfig.logoImageUrl} alt="Logo" className="h-8 max-w-[120px] object-contain" />
+                    ) : (
+                      <span className="text-base font-bold" style={{ color: headerConfig.logoTextColor }}>
+                        {headerConfig.logoText || "Minha Loja"}
+                      </span>
+                    )}
+                  </div>
+                  <div className="w-8" />
+                </>
+              )}
+
+              {/* Search dropdown */}
+              {searchOpen && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-lg z-50 p-3 space-y-2">
+                  <div className="flex items-center gap-2 border border-border rounded-lg px-3 py-2">
+                    <Search size={14} className="text-muted-foreground" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Buscar produtos..."
+                      className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground text-foreground"
+                      autoFocus
+                    />
+                    {searchQuery && (
+                      <button onClick={() => setSearchQuery("")} className="text-muted-foreground hover:text-foreground">
+                        <X size={12} />
+                      </button>
+                    )}
+                  </div>
+                  {searchQuery.trim() && (
+                    <div className="max-h-64 overflow-y-auto space-y-1">
+                      {searchResults.length > 0 ? (
+                        searchResults.map((product) => {
+                          const info = getProductPriceInfo(product);
+                          const q = searchQuery.toLowerCase();
+                          const name = product.product_name;
+                          const matchIdx = name.toLowerCase().indexOf(q);
+                          return (
+                            <button
+                              key={product.id}
+                              onClick={() => { setSelectedProduct(product); setSearchOpen(false); setSearchQuery(""); }}
+                              className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-muted/60 transition-colors text-left"
+                            >
+                              <div className="w-10 h-10 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                                {product.image_url ? (
+                                  <img src={product.image_url} alt="" className="w-full h-full object-cover" />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center">
+                                    <ShoppingBag size={14} className="text-muted-foreground/40" />
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-medium text-foreground truncate">
+                                  {matchIdx >= 0 ? (
+                                    <>
+                                      {name.slice(0, matchIdx)}
+                                      <span className="bg-primary/20 text-primary font-bold">{name.slice(matchIdx, matchIdx + q.length)}</span>
+                                      {name.slice(matchIdx + q.length)}
+                                    </>
+                                  ) : name}
+                                </p>
+                                {info && (
+                                  <p className="text-[10px] text-muted-foreground">R${(info.salePrice || info.originalPrice)!.toFixed(2)}</p>
+                                )}
+                              </div>
+                            </button>
+                          );
+                        })
+                      ) : (
+                        <p className="text-xs text-muted-foreground text-center py-4">Nenhum produto encontrado</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
             {sections.length === 0 && (
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <ShoppingBag size={48} className="text-muted-foreground/30 mb-4" />
