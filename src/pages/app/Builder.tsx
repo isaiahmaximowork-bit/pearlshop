@@ -111,7 +111,7 @@ const sectionIcons: Record<SectionType, React.ReactNode> = {
 };
 
 type DeviceMode = "desktop" | "tablet" | "mobile";
-type LeftTab = "header" | "sections" | "settings";
+type LeftTab = "sections" | "settings";
 
 const deviceWidths: Record<DeviceMode, string> = {
   desktop: "100%",
