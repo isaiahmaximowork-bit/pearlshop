@@ -56,6 +56,12 @@ interface CatalogProduct {
   price: number | null;
   original_price: number | null;
   is_on_sale: boolean | null;
+  description?: string | null;
+  images?: string[] | null;
+  size_chart_url?: string | null;
+  variants?: string | null;
+  affiliate_link?: string | null;
+  promo_info?: string | null;
 }
 
 const defaultTheme: StoreTheme = {
