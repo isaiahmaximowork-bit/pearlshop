@@ -63,6 +63,17 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
   });
 
 
+  // Auto-slide timer - must be before early return
+  useEffect(() => {
+    if (!open) return;
+    const timer = setInterval(() => {
+      setSlideDirection(1);
+      setSelectedImageIndex(i => i + 1);
+    }, 5000);
+    autoPlayRef.current = timer;
+    return () => clearInterval(timer);
+  }, [open, product?.id]);
+
   if (!product) return null;
 
   const payload = product.raw_payload as Record<string, unknown> | null;
@@ -88,16 +99,14 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
     imageUrls.push(product.image_url);
   }
 
+  // Normalize selectedImageIndex with mod
+  const safeIndex = imageUrls.length > 0 ? selectedImageIndex % imageUrls.length : 0;
+
   // Description — prefer new column, fallback to raw_payload
   const description = product.description || (payload?.description as string) || null;
-
-  // Size chart
   const sizeChartUrl = product.size_chart_url || null;
-
-  // Variants text
   const variantsText = product.variants || null;
 
-  // SKUs from raw_payload
   const skus = (payload?.skus as Array<{
     id?: string;
     seller_sku?: string;
@@ -145,25 +154,19 @@ export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affili
   })();
   const productCurrency = product.currency || 'BRL';
 
-
   const goToImage = (index: number) => {
-    setSlideDirection(index > selectedImageIndex ? 1 : -1);
+    setSlideDirection(index > safeIndex ? 1 : -1);
     setSelectedImageIndex(index);
   };
   const prevImage = () => { setSlideDirection(-1); setSelectedImageIndex(i => (i > 0 ? i - 1 : imageUrls.length - 1)); };
-  const nextImage = useCallback(() => { setSlideDirection(1); setSelectedImageIndex(i => (i < imageUrls.length - 1 ? i + 1 : 0)); }, [imageUrls.length]);
+  const nextImage = () => { setSlideDirection(1); setSelectedImageIndex(i => (i < imageUrls.length - 1 ? i + 1 : 0)); };
 
-  // Auto-slide every 5 seconds
-  useEffect(() => {
-    if (!open || imageUrls.length <= 1) return;
-    autoPlayRef.current = setInterval(nextImage, 5000);
-    return () => { if (autoPlayRef.current) clearInterval(autoPlayRef.current); };
-  }, [open, imageUrls.length, nextImage]);
-
-  // Reset autoplay on manual interaction
   const resetAutoPlay = () => {
     if (autoPlayRef.current) clearInterval(autoPlayRef.current);
-    autoPlayRef.current = setInterval(nextImage, 5000);
+    autoPlayRef.current = setInterval(() => {
+      setSlideDirection(1);
+      setSelectedImageIndex(i => i + 1);
+    }, 5000);
   };
 
   const handlePrev = () => { prevImage(); resetAutoPlay(); };
