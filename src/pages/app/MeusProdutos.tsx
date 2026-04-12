@@ -1,14 +1,17 @@
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Package, Trash2, ExternalLink, ShieldCheck, ShieldAlert } from "lucide-react";
+import { Package, Trash2, ExternalLink, Link2, Check, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 
 const MeusProdutos = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const [editingLinkId, setEditingLinkId] = useState<string | null>(null);
+  const [linkValue, setLinkValue] = useState("");
 
   const { data: myProducts = [], isLoading } = useQuery({
     queryKey: ["user-products", user?.id],
@@ -33,9 +36,23 @@ const MeusProdutos = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-products"] });
       queryClient.invalidateQueries({ queryKey: ["user-products-ids"] });
-      toast.success("Produto removido da sua lista.");
+      toast.success("Produto removido da sua lista e da loja.");
     },
     onError: () => toast.error("Erro ao remover produto."),
+  });
+
+  const updateLinkMutation = useMutation({
+    mutationFn: async ({ id, url }: { id: string; url: string }) => {
+      const { error } = await supabase.from("user_products").update({ affiliate_url: url }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-products"] });
+      toast.success("Link de vendas salvo com sucesso!");
+      setEditingLinkId(null);
+      setLinkValue("");
+    },
+    onError: () => toast.error("Erro ao salvar link."),
   });
 
   const getPrice = (product: any) => {
@@ -45,6 +62,19 @@ const MeusProdutos = () => {
     return "—";
   };
 
+  const startEditLink = (item: any) => {
+    setEditingLinkId(item.id);
+    setLinkValue(item.affiliate_url || "");
+  };
+
+  const saveLink = (id: string) => {
+    if (!linkValue.trim()) {
+      toast.error("Insira um link válido.");
+      return;
+    }
+    updateLinkMutation.mutate({ id, url: linkValue.trim() });
+  };
+
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto w-full space-y-6 md:space-y-10">
       <div className="space-y-1">
@@ -52,7 +82,7 @@ const MeusProdutos = () => {
           Meus Produtos
         </h1>
         <p className="text-muted-foreground font-medium tracking-tight">
-          Produtos que você se afiliou. Conclua a afiliação no TikTok Shop para começar a vender.
+          Produtos que você se afiliou. Adicione seu link de vendas para exibir na loja.
         </p>
       </div>
 
@@ -83,6 +113,7 @@ const MeusProdutos = () => {
             {myProducts.map((item: any) => {
               const product = item.catalog_products;
               if (!product) return null;
+              const hasLink = !!item.affiliate_url;
               return (
                 <motion.div
                   key={item.id}
@@ -98,13 +129,14 @@ const MeusProdutos = () => {
                         <Package className="h-10 w-10 text-muted-foreground/40" />
                       </div>
                     )}
+                    {/* Status badge: link or missing */}
                     <div className={`absolute top-2 left-2 flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm ${
-                      product.is_verified
+                      hasLink
                         ? "bg-green-500/20 text-green-400 border border-green-500/30"
                         : "bg-yellow-500/20 text-yellow-500 border border-yellow-500/30"
                     }`}>
-                      {product.is_verified ? <ShieldCheck size={12} /> : <ShieldAlert size={12} />}
-                      {product.is_verified ? "Verificado" : "Não verificado"}
+                      {hasLink ? <Check size={12} /> : <AlertCircle size={12} />}
+                      {hasLink ? "Na loja" : "Sem link"}
                     </div>
                   </div>
                   <div className="space-y-3 flex-1 flex flex-col">
@@ -114,6 +146,48 @@ const MeusProdutos = () => {
                     <div className="flex items-center justify-between">
                       <span className="text-lg font-black text-foreground">{getPrice(product)}</span>
                     </div>
+
+                    {/* Affiliate link section */}
+                    {editingLinkId === item.id ? (
+                      <div className="space-y-2">
+                        <input
+                          type="url"
+                          value={linkValue}
+                          onChange={(e) => setLinkValue(e.target.value)}
+                          placeholder="https://seu-link-de-afiliado.com"
+                          className="w-full bg-muted border border-border rounded-xl py-2 px-3 text-xs outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                          autoFocus
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => saveLink(item.id)}
+                            disabled={updateLinkMutation.isPending}
+                            className="flex-1 py-2 bg-primary text-primary-foreground rounded-xl font-bold text-[10px] uppercase tracking-widest hover:opacity-90 transition-all"
+                          >
+                            Salvar
+                          </button>
+                          <button
+                            onClick={() => { setEditingLinkId(null); setLinkValue(""); }}
+                            className="py-2 px-3 rounded-xl border border-border bg-card text-muted-foreground text-[10px] font-bold uppercase hover:bg-muted transition-colors"
+                          >
+                            Cancelar
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => startEditLink(item)}
+                        className={`py-2 px-3 rounded-xl border text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
+                          hasLink
+                            ? "border-green-500/30 bg-green-500/10 text-green-400 hover:bg-green-500/20"
+                            : "border-yellow-500/30 bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20"
+                        }`}
+                      >
+                        <Link2 size={12} />
+                        {hasLink ? "Editar link de vendas" : "Adicionar link de vendas"}
+                      </button>
+                    )}
+
                     <div className="mt-auto flex gap-2">
                       <a
                         href={item.affiliate_url || `https://shop.tiktok.com/view/product/${product.product_id}`}
@@ -127,6 +201,7 @@ const MeusProdutos = () => {
                       <button
                         onClick={() => removeMutation.mutate(item.id)}
                         className="p-3 rounded-xl border border-border bg-card text-muted-foreground hover:text-destructive hover:border-destructive/50 transition-colors"
+                        title="Remover produto"
                       >
                         <Trash2 size={14} />
                       </button>
