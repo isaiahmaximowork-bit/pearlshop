@@ -1,7 +1,7 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Package, UserPlus, X, ChevronLeft, ChevronRight, Store, ShoppingBag, Ruler } from "lucide-react";
 import { ShippingInfo } from "@/components/ShippingInfo";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
