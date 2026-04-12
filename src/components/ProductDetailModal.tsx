@@ -25,12 +25,13 @@ interface ProductDetailModalProps {
   product: CatalogProduct | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  mode?: "affiliate" | "buy";
 }
 
 const formatPrice = (value: number, currency = 'BRL') =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency }).format(value);
 
-export const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetailModalProps) => {
+export const ProductDetailModal = ({ product, open, onOpenChange, mode = "affiliate" }: ProductDetailModalProps) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [slideDirection, setSlideDirection] = useState(0);
 
@@ -244,10 +245,10 @@ export const ProductDetailModal = ({ product, open, onOpenChange }: ProductDetai
                 </div>
               )}
 
-              {/* Afiliar-se */}
+              {/* Action Button */}
               <button className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-[0.98] shadow-lg">
-                <UserPlus size={16} />
-                Afiliar-se
+                {mode === "buy" ? <ShoppingBag size={16} /> : <UserPlus size={16} />}
+                {mode === "buy" ? "Comprar" : "Afiliar-se"}
               </button>
 
               {/* Shipping Info */}
