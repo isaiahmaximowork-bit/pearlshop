@@ -579,6 +579,12 @@ const Builder = () => {
         {/* Tab switcher */}
         <div className="flex border-b border-border">
           <button
+            onClick={() => setLeftTab("header")}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-medium transition-colors ${leftTab === "header" ? "text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            <PanelTop size={14} /> Header
+          </button>
+          <button
             onClick={() => setLeftTab("sections")}
             className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-medium transition-colors ${leftTab === "sections" ? "text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
           >
@@ -588,11 +594,173 @@ const Builder = () => {
             onClick={() => setLeftTab("settings")}
             className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-medium transition-colors ${leftTab === "settings" ? "text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
           >
-            <Settings size={14} /> Configurações
+            <Settings size={14} /> Config
           </button>
         </div>
 
-        {leftTab === "sections" ? (
+        {leftTab === "header" ? (
+          <div className="flex-1 overflow-y-auto p-4 space-y-6">
+            {/* LOGO */}
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Logo</p>
+              <div className="space-y-3">
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => setHeaderConfig((h) => ({ ...h, logoMode: "text" }))}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium border transition-colors ${headerConfig.logoMode === "text" ? "bg-primary text-primary-foreground border-primary" : "border-input text-muted-foreground hover:text-foreground"}`}
+                  >
+                    <Type size={12} /> Texto
+                  </button>
+                  <button
+                    onClick={() => setHeaderConfig((h) => ({ ...h, logoMode: "image" }))}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium border transition-colors ${headerConfig.logoMode === "image" ? "bg-primary text-primary-foreground border-primary" : "border-input text-muted-foreground hover:text-foreground"}`}
+                  >
+                    <Upload size={12} /> Imagem
+                  </button>
+                </div>
+
+                {headerConfig.logoMode === "text" ? (
+                  <>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground">Nome da Loja</Label>
+                      <Input
+                        value={headerConfig.logoText}
+                        onChange={(e) => setHeaderConfig((h) => ({ ...h, logoText: e.target.value }))}
+                        placeholder="Minha Loja"
+                        className="h-9"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs text-muted-foreground">Cor do Texto</Label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={headerConfig.logoTextColor}
+                          onChange={(e) => setHeaderConfig((h) => ({ ...h, logoTextColor: e.target.value }))}
+                          className="w-8 h-8 rounded border border-border cursor-pointer p-0.5"
+                        />
+                        <span className="text-[10px] font-mono text-muted-foreground w-16">{headerConfig.logoTextColor}</span>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground">URL da Imagem (PNG, até 5MB)</Label>
+                    <Input
+                      value={headerConfig.logoImageUrl}
+                      onChange={(e) => setHeaderConfig((h) => ({ ...h, logoImageUrl: e.target.value }))}
+                      placeholder="https://exemplo.com/logo.png"
+                      className="h-9"
+                    />
+                    {headerConfig.logoImageUrl && (
+                      <div className="mt-2 p-2 border border-border rounded-lg flex items-center justify-center bg-muted/30">
+                        <img src={headerConfig.logoImageUrl} alt="Logo" className="max-h-10 max-w-full object-contain" />
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Posição da Logo</Label>
+                  <div className="flex gap-1">
+                    {(["left", "center"] as LogoPosition[]).map((pos) => (
+                      <button
+                        key={pos}
+                        onClick={() => setHeaderConfig((h) => ({ ...h, logoPosition: pos }))}
+                        className={`flex-1 py-2 rounded-lg text-xs font-medium border transition-colors ${headerConfig.logoPosition === pos ? "bg-primary text-primary-foreground border-primary" : "border-input text-muted-foreground hover:text-foreground"}`}
+                      >
+                        {pos === "left" ? "Esquerda" : "Centro"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* FAIXA DE ANÚNCIO */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Faixa de Anúncio</p>
+                <Switch
+                  checked={headerConfig.announcementEnabled}
+                  onCheckedChange={(v) => setHeaderConfig((h) => ({ ...h, announcementEnabled: v }))}
+                />
+              </div>
+
+              {headerConfig.announcementEnabled && (
+                <div className="space-y-3">
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Mensagens (rotativas)</Label>
+                    {headerConfig.announcementMessages.map((msg, i) => (
+                      <div key={msg.id} className="flex gap-1.5">
+                        <Input
+                          value={msg.text}
+                          onChange={(e) => {
+                            setHeaderConfig((h) => ({
+                              ...h,
+                              announcementMessages: h.announcementMessages.map((m) =>
+                                m.id === msg.id ? { ...m, text: e.target.value } : m
+                              ),
+                            }));
+                          }}
+                          placeholder={`Mensagem ${i + 1}`}
+                          className="h-9 flex-1"
+                        />
+                        {headerConfig.announcementMessages.length > 1 && (
+                          <button
+                            onClick={() => setHeaderConfig((h) => ({ ...h, announcementMessages: h.announcementMessages.filter((m) => m.id !== msg.id) }))}
+                            className="p-2 text-muted-foreground hover:text-destructive"
+                          >
+                            <X size={12} />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full gap-1.5 text-xs"
+                      onClick={() => setHeaderConfig((h) => ({ ...h, announcementMessages: [...h.announcementMessages, { id: Date.now().toString(), text: "" }] }))}
+                    >
+                      <Plus size={12} /> Adicionar Mensagem
+                    </Button>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs text-muted-foreground">Cor da Faixa</Label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={headerConfig.announcementBgColor}
+                        onChange={(e) => setHeaderConfig((h) => ({ ...h, announcementBgColor: e.target.value }))}
+                        className="w-8 h-8 rounded border border-border cursor-pointer p-0.5"
+                      />
+                      <span className="text-[10px] font-mono text-muted-foreground w-16">{headerConfig.announcementBgColor}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs text-muted-foreground">Cor do Texto</Label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={headerConfig.announcementTextColor}
+                        onChange={(e) => setHeaderConfig((h) => ({ ...h, announcementTextColor: e.target.value }))}
+                        className="w-8 h-8 rounded border border-border cursor-pointer p-0.5"
+                      />
+                      <span className="text-[10px] font-mono text-muted-foreground w-16">{headerConfig.announcementTextColor}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* INFO about Search */}
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Pesquisa</p>
+              <p className="text-xs text-muted-foreground">A lupa de pesquisa avançada aparece automaticamente no header. O cliente poderá buscar por nome, palavras-chave e categorias com sugestões visuais em tempo real.</p>
+            </div>
+          </div>
+        ) : leftTab === "sections" ? (
           <>
             <div className="flex-1 overflow-y-auto p-4 space-y-0">
               <div className="flex items-center justify-between mb-3">
