@@ -1339,6 +1339,45 @@ const Builder = () => {
       )}
 
       <ProductDetailModal product={selectedProduct} open={!!selectedProduct} onOpenChange={(open) => { if (!open) setSelectedProduct(null); }} />
+
+      {/* Preview Password Dialog */}
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-lg">Pré-visualizar Loja</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Sua loja é privada. Insira o código de acesso para pré-visualizar.
+            </p>
+            <Input
+              type="text"
+              value={previewPassword}
+              onChange={(e) => { setPreviewPassword(e.target.value); setPreviewError(""); }}
+              placeholder="Código de acesso"
+              className="h-10"
+            />
+            {previewError && <p className="text-xs text-destructive">{previewError}</p>}
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" size="sm" onClick={() => setPreviewOpen(false)}>Cancelar</Button>
+              <Button
+                size="sm"
+                className="gap-2"
+                onClick={() => {
+                  if (store && previewPassword === store.access_code) {
+                    window.open(`/loja/${store.slug}?code=${previewPassword}`, "_blank");
+                    setPreviewOpen(false);
+                  } else {
+                    setPreviewError("Código de acesso incorreto.");
+                  }
+                }}
+              >
+                <ExternalLink size={14} /> Abrir Loja
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
