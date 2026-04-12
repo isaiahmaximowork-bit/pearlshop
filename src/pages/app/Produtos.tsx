@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Search, Package, RefreshCcw, AlertCircle, ExternalLink, Filter } from "lucide-react";
 import { toast } from "sonner";
 import { ProductDetailModal } from "@/components/ProductDetailModal";
 import { ProductCard } from "@/components/ProductCard";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface CatalogProduct {
   id: string;
@@ -20,6 +21,7 @@ interface CatalogProduct {
   original_price: number | null;
   currency: string | null;
   is_on_sale: boolean | null;
+  is_verified: boolean;
 }
 
 const Produtos = () => {
@@ -27,6 +29,8 @@ const Produtos = () => {
   const [search, setSearch] = useState("");
   const [isImporting, setIsImporting] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<CatalogProduct | null>(null);
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   const { data: products = [], isLoading, error, refetch } = useQuery({
     queryKey: ["catalog-products", search],
@@ -34,7 +38,6 @@ const Produtos = () => {
       let query = supabase
         .from("catalog_products")
         .select("*")
-        .eq("source_platform", "tiktok_shop")
         .order("created_at", { ascending: false });
 
       if (search) {
@@ -44,6 +47,46 @@ const Produtos = () => {
       const { data, error } = await query;
       if (error) throw new Error(error.message);
       return (data || []) as CatalogProduct[];
+    },
+  });
+
+  // Fetch user's affiliated product IDs
+  const { data: affiliatedIds = [] } = useQuery({
+    queryKey: ["user-products-ids", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data } = await supabase
+        .from("user_products")
+        .select("catalog_product_id")
+        .eq("user_id", user.id);
+      return (data || []).map(r => r.catalog_product_id);
+    },
+    enabled: !!user,
+  });
+
+  const affiliateMutation = useMutation({
+    mutationFn: async (product: CatalogProduct) => {
+      if (!user) throw new Error("Faça login primeiro");
+      const { error } = await supabase.from("user_products").insert({
+        user_id: user.id,
+        catalog_product_id: product.id,
+        affiliate_url: `https://shop.tiktok.com/view/product/${product.product_id}`,
+      });
+      if (error) throw error;
+    },
+    onSuccess: (_, product) => {
+      queryClient.invalidateQueries({ queryKey: ["user-products-ids"] });
+      queryClient.invalidateQueries({ queryKey: ["user-products"] });
+      // Open TikTok Shop affiliate page
+      window.open(`https://shop.tiktok.com/view/product/${product.product_id}`, "_blank");
+      toast.success("Produto adicionado aos seus produtos! Conclua a afiliação no TikTok Shop.");
+    },
+    onError: (err: any) => {
+      if (err?.code === "23505") {
+        toast.info("Você já está afiliado a este produto.");
+      } else {
+        toast.error(err.message || "Erro ao afiliar-se");
+      }
     },
   });
 
@@ -76,7 +119,6 @@ const Produtos = () => {
     if (product.price != null) {
       return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: product.currency || 'BRL' }).format(product.price);
     }
-    // Fallback: raw_payload
     const payload = product.raw_payload as Record<string, unknown> | null;
     const skus = payload?.skus as Array<{ price?: { sale_price?: string; tax_exclusive_price?: string; currency?: string } }> | undefined;
     const sku = skus?.[0]?.price;
@@ -94,7 +136,7 @@ const Produtos = () => {
             Catálogo de Produtos
           </h1>
           <p className="text-muted-foreground font-medium tracking-tight">
-            Produtos importados do TikTok Shop diretamente para sua conta.
+            Produtos disponíveis para afiliação. Lojas verificadas são parceiras oficiais.
           </p>
         </div>
         <button
@@ -178,7 +220,10 @@ const Produtos = () => {
                     price={getPrice(product)}
                     status={product.status}
                     imageUrl={product.image_url}
+                    isVerified={product.is_verified}
+                    isAffiliated={affiliatedIds.includes(product.id)}
                     onClick={() => setSelectedProduct(product)}
+                    onAffiliate={() => affiliateMutation.mutate(product)}
                   />
                 ))}
               </div>
