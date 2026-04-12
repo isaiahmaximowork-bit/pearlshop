@@ -23,6 +23,39 @@ import {
 import BannerConfig from "@/components/builder/BannerConfig";
 import DestaqueConfig from "@/components/builder/DestaqueConfig";
 
+// ─── Header Config Types ───
+type LogoMode = "text" | "image";
+type LogoPosition = "center" | "left";
+
+interface AnnouncementMessage {
+  id: string;
+  text: string;
+}
+
+interface HeaderConfig {
+  logoMode: LogoMode;
+  logoText: string;
+  logoTextColor: string;
+  logoImageUrl: string;
+  logoPosition: LogoPosition;
+  announcementEnabled: boolean;
+  announcementMessages: AnnouncementMessage[];
+  announcementBgColor: string;
+  announcementTextColor: string;
+}
+
+const defaultHeaderConfig: HeaderConfig = {
+  logoMode: "text",
+  logoText: "",
+  logoTextColor: "#ffffff",
+  logoImageUrl: "",
+  logoPosition: "center",
+  announcementEnabled: false,
+  announcementMessages: [{ id: "1", text: "" }],
+  announcementBgColor: "#7c3aed",
+  announcementTextColor: "#ffffff",
+};
+
 interface StoreTheme {
   titleFont: FontFamily;
   subtitleFont: FontFamily;
