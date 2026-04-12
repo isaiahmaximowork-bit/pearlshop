@@ -1,4 +1,4 @@
-import { MoreHorizontal, UserPlus, Package, ShieldCheck, ShieldAlert } from "lucide-react";
+import { MoreHorizontal, UserPlus, Package, BadgeCheck } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface ProductCardProps {
@@ -34,19 +34,8 @@ export function ProductCard({ title, price, status, imageUrl, isVerified, isAffi
             <Package className="h-10 w-10 text-muted-foreground/40" />
           </div>
         )}
-        {/* Verified badge */}
-        {isVerified !== undefined && (
-          <div className={`absolute top-2 left-2 flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm ${
-            isVerified
-              ? "bg-green-500/20 text-green-400 border border-green-500/30"
-              : "bg-yellow-500/20 text-yellow-500 border border-yellow-500/30"
-          }`}>
-            {isVerified ? <ShieldCheck size={12} /> : <ShieldAlert size={12} />}
-            {isVerified ? "Verificado" : "Não verificado"}
-          </div>
-        )}
       </div>
-      <div className="space-y-3 flex-1 flex flex-col">
+      <div className="space-y-2 flex-1 flex flex-col">
         <h4 className="text-sm font-medium text-foreground leading-tight line-clamp-2">
           {title}
         </h4>
@@ -59,6 +48,13 @@ export function ProductCard({ title, price, status, imageUrl, isVerified, isAffi
             <MoreHorizontal size={16} />
           </button>
         </div>
+
+        {isVerified && (
+          <div className="flex items-center gap-1.5">
+            <BadgeCheck size={16} className="text-[#3897f0] shrink-0" />
+            <span className="text-[11px] font-semibold text-[#3897f0]">Loja verificada</span>
+          </div>
+        )}
 
         <button
           onClick={(e) => { e.stopPropagation(); onAffiliate?.(); }}
