@@ -346,12 +346,22 @@ const StorePage = () => {
         setHeaderConfig((h) => ({ ...h, logoText: data.store_name || "" }));
       }
 
-      // Fetch products
-      const { data: products } = await supabase
-        .from("catalog_products")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (products) setCatalogProducts(products as unknown as CatalogProduct[]);
+      // Fetch only affiliated products with a link set (for this store owner)
+      const { data: userProds } = await supabase
+        .from("user_products")
+        .select("affiliate_url, catalog_products(*)")
+        .eq("user_id", data.user_id)
+        .not("affiliate_url", "is", null);
+      
+      if (userProds) {
+        const mapped: StoreProduct[] = userProds
+          .filter((up: any) => up.catalog_products && up.affiliate_url)
+          .map((up: any) => ({
+            ...up.catalog_products,
+            user_affiliate_url: up.affiliate_url,
+          }));
+        setStoreProducts(mapped);
+      }
 
       setLoading(false);
     };
