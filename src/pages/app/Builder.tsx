@@ -45,6 +45,8 @@ interface HeaderConfig {
   announcementMessages: AnnouncementMessage[];
   announcementBgColor: string;
   announcementTextColor: string;
+  headerBgColor: string;
+  logoColor: string;
 }
 
 const defaultHeaderConfig: HeaderConfig = {
@@ -57,6 +59,8 @@ const defaultHeaderConfig: HeaderConfig = {
   announcementMessages: [{ id: "1", text: "" }],
   announcementBgColor: "#7c3aed",
   announcementTextColor: "#ffffff",
+  headerBgColor: "",
+  logoColor: "",
 };
 
 interface StoreTheme {
