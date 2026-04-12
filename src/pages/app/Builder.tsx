@@ -10,10 +10,10 @@ import {
   Plus, Trash2, GripVertical, Image, Star, ShoppingBag,
   X, ArrowLeft, Save, Settings2, Monitor, Tablet, Smartphone,
   Layers, Settings, ChevronLeft, ChevronRight, Bold, Italic,
-  Search, Upload, Type, PanelTop, Eye, ExternalLink
+  Search, Upload, Type, PanelTop, Eye, ExternalLink, ChevronDown
 } from "lucide-react";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/logo.png";
 import { supabase } from "@/integrations/supabase/client";
@@ -111,7 +111,7 @@ const sectionIcons: Record<SectionType, React.ReactNode> = {
 };
 
 type DeviceMode = "desktop" | "tablet" | "mobile";
-type LeftTab = "header" | "sections" | "settings";
+type LeftTab = "sections" | "settings";
 
 const deviceWidths: Record<DeviceMode, string> = {
   desktop: "100%",
@@ -434,6 +434,8 @@ const Builder = () => {
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [deviceMode, setDeviceMode] = useState<DeviceMode>("desktop");
   const [leftTab, setLeftTab] = useState<LeftTab>("sections");
+  const [headerExpanded, setHeaderExpanded] = useState(true);
+  const [sectionsExpanded, setSectionsExpanded] = useState(true);
   const [theme, setTheme] = useState<StoreTheme>({ ...defaultTheme });
   const [catalogProducts, setCatalogProducts] = useState<CatalogProduct[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<CatalogProduct | null>(null);
@@ -457,7 +459,13 @@ const Builder = () => {
         .eq("user_id", user.id)
         .limit(1)
         .single();
-      if (data) setStore(data);
+      if (data) {
+        setStore(data);
+        // Set default logo text from store name
+        if (!headerConfig.logoText && data.store_name) {
+          setHeaderConfig((h) => ({ ...h, logoText: data.store_name }));
+        }
+      }
     };
     fetchStore();
   }, [user]);
@@ -599,14 +607,8 @@ const Builder = () => {
           </Button>
         </div>
 
-        {/* Tab switcher */}
+        {/* Tab switcher — Seções and Config */}
         <div className="flex border-b border-border">
-          <button
-            onClick={() => setLeftTab("header")}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-medium transition-colors ${leftTab === "header" ? "text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
-          >
-            <PanelTop size={14} /> Header
-          </button>
           <button
             onClick={() => setLeftTab("sections")}
             className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-medium transition-colors ${leftTab === "sections" ? "text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
@@ -617,246 +619,214 @@ const Builder = () => {
             onClick={() => setLeftTab("settings")}
             className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-medium transition-colors ${leftTab === "settings" ? "text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
           >
-            <Settings size={14} /> Config
+            <Settings size={14} /> Configurações
           </button>
         </div>
 
-        {leftTab === "header" ? (
-          <div className="flex-1 overflow-y-auto p-4 space-y-6">
-            {/* LOGO */}
-            <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Logo</p>
-              <div className="space-y-3">
-                <div className="flex gap-1">
-                  <button
-                    onClick={() => setHeaderConfig((h) => ({ ...h, logoMode: "text" }))}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium border transition-colors ${headerConfig.logoMode === "text" ? "bg-primary text-primary-foreground border-primary" : "border-input text-muted-foreground hover:text-foreground"}`}
-                  >
-                    <Type size={12} /> Texto
-                  </button>
-                  <button
-                    onClick={() => setHeaderConfig((h) => ({ ...h, logoMode: "image" }))}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium border transition-colors ${headerConfig.logoMode === "image" ? "bg-primary text-primary-foreground border-primary" : "border-input text-muted-foreground hover:text-foreground"}`}
-                  >
-                    <Upload size={12} /> Imagem
-                  </button>
+        {leftTab === "sections" ? (
+          <div className="flex-1 overflow-y-auto flex flex-col">
+            {/* ─── HEADER (collapsible) ─── */}
+            <div className="border-b border-border">
+              <button
+                onClick={() => setHeaderExpanded((v) => !v)}
+                className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <PanelTop size={14} className="text-foreground" />
+                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Header</p>
                 </div>
+                <ChevronDown size={14} className={`text-muted-foreground transition-transform ${headerExpanded ? "rotate-180" : ""}`} />
+              </button>
 
-                {headerConfig.logoMode === "text" ? (
-                  <>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground">Nome da Loja</Label>
-                      <Input
-                        value={headerConfig.logoText}
-                        onChange={(e) => setHeaderConfig((h) => ({ ...h, logoText: e.target.value }))}
-                        placeholder="Minha Loja"
-                        className="h-9"
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <Label className="text-xs text-muted-foreground">Cor do Texto</Label>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="color"
-                          value={headerConfig.logoTextColor}
-                          onChange={(e) => setHeaderConfig((h) => ({ ...h, logoTextColor: e.target.value }))}
-                          className="w-8 h-8 rounded border border-border cursor-pointer p-0.5"
-                        />
-                        <span className="text-[10px] font-mono text-muted-foreground w-16">{headerConfig.logoTextColor}</span>
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <div className="space-y-1.5">
-                    <Label className="text-xs text-muted-foreground">URL da Imagem (PNG, até 5MB)</Label>
-                    <Input
-                      value={headerConfig.logoImageUrl}
-                      onChange={(e) => setHeaderConfig((h) => ({ ...h, logoImageUrl: e.target.value }))}
-                      placeholder="https://exemplo.com/logo.png"
-                      className="h-9"
-                    />
-                    {headerConfig.logoImageUrl && (
-                      <div className="mt-2 p-2 border border-border rounded-lg flex items-center justify-center bg-muted/30">
-                        <img src={headerConfig.logoImageUrl} alt="Logo" className="max-h-10 max-w-full object-contain" />
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                <div className="space-y-1.5">
-                  <Label className="text-xs text-muted-foreground">Posição da Logo</Label>
-                  <div className="flex gap-1">
-                    {(["left", "center"] as LogoPosition[]).map((pos) => (
-                      <button
-                        key={pos}
-                        onClick={() => setHeaderConfig((h) => ({ ...h, logoPosition: pos }))}
-                        className={`flex-1 py-2 rounded-lg text-xs font-medium border transition-colors ${headerConfig.logoPosition === pos ? "bg-primary text-primary-foreground border-primary" : "border-input text-muted-foreground hover:text-foreground"}`}
-                      >
-                        {pos === "left" ? "Esquerda" : "Centro"}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* FAIXA DE ANÚNCIO */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Faixa de Anúncio</p>
-                <Switch
-                  checked={headerConfig.announcementEnabled}
-                  onCheckedChange={(v) => setHeaderConfig((h) => ({ ...h, announcementEnabled: v }))}
-                />
-              </div>
-
-              {headerConfig.announcementEnabled && (
-                <div className="space-y-3">
-                  <div className="space-y-2">
-                    <Label className="text-xs text-muted-foreground">Mensagens (rotativas)</Label>
-                    {headerConfig.announcementMessages.map((msg, i) => (
-                      <div key={msg.id} className="flex gap-1.5">
-                        <Input
-                          value={msg.text}
-                          onChange={(e) => {
-                            setHeaderConfig((h) => ({
-                              ...h,
-                              announcementMessages: h.announcementMessages.map((m) =>
-                                m.id === msg.id ? { ...m, text: e.target.value } : m
-                              ),
-                            }));
-                          }}
-                          placeholder={`Mensagem ${i + 1}`}
-                          className="h-9 flex-1"
-                        />
-                        {headerConfig.announcementMessages.length > 1 && (
-                          <button
-                            onClick={() => setHeaderConfig((h) => ({ ...h, announcementMessages: h.announcementMessages.filter((m) => m.id !== msg.id) }))}
-                            className="p-2 text-muted-foreground hover:text-destructive"
-                          >
-                            <X size={12} />
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full gap-1.5 text-xs"
-                      onClick={() => setHeaderConfig((h) => ({ ...h, announcementMessages: [...h.announcementMessages, { id: Date.now().toString(), text: "" }] }))}
-                    >
-                      <Plus size={12} /> Adicionar Mensagem
-                    </Button>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs text-muted-foreground">Cor da Faixa</Label>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="color"
-                        value={headerConfig.announcementBgColor}
-                        onChange={(e) => setHeaderConfig((h) => ({ ...h, announcementBgColor: e.target.value }))}
-                        className="w-8 h-8 rounded border border-border cursor-pointer p-0.5"
-                      />
-                      <span className="text-[10px] font-mono text-muted-foreground w-16">{headerConfig.announcementBgColor}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs text-muted-foreground">Cor do Texto</Label>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="color"
-                        value={headerConfig.announcementTextColor}
-                        onChange={(e) => setHeaderConfig((h) => ({ ...h, announcementTextColor: e.target.value }))}
-                        className="w-8 h-8 rounded border border-border cursor-pointer p-0.5"
-                      />
-                      <span className="text-[10px] font-mono text-muted-foreground w-16">{headerConfig.announcementTextColor}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* INFO about Search */}
-            <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Pesquisa</p>
-              <p className="text-xs text-muted-foreground">A lupa de pesquisa avançada aparece automaticamente no header. O cliente poderá buscar por nome, palavras-chave e categorias com sugestões visuais em tempo real.</p>
-            </div>
-          </div>
-        ) : leftTab === "sections" ? (
-          <>
-            <div className="flex-1 overflow-y-auto p-4 space-y-0">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Seções</p>
-                <span className="text-xs text-muted-foreground">{sections.length}</span>
-              </div>
-
-              {sections.map((section, index) => {
-                const isSelected = selectedSectionId === section.id;
-                return (
-                  <div key={section.id}>
-                    {index === 0 && dropIndicator === 0 && dragIndex !== null && (
-                      <div className="h-0.5 bg-primary rounded-full mx-2 my-1 transition-all" />
-                    )}
-                    <div
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, index)}
-                      onDragEnd={handleDragEnd}
-                      onDragOver={(e) => handleDragOver(e, index)}
-                      onDrop={handleDrop}
-                      onClick={() => setSelectedSectionId(section.id)}
-                      className={`group flex items-center gap-2 p-3 rounded-xl border transition-all cursor-pointer ${isSelected ? "border-primary bg-primary/5 shadow-sm" : "border-transparent hover:bg-muted/50"}`}
-                    >
-                      <div className="cursor-grab text-muted-foreground/40 group-hover:text-muted-foreground transition-colors">
-                        <GripVertical size={14} />
-                      </div>
-                      <span className="text-foreground">{sectionIcons[section.type]}</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">{section.title || sectionLabels[section.type]}</p>
-                        <p className="text-[10px] text-muted-foreground">{sectionDescriptions[section.type]}</p>
-                      </div>
-                      <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={(e) => { e.stopPropagation(); removeSection(section.id); }} className="p-1 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors" title="Remover">
-                          <Trash2 size={12} />
+              {headerExpanded && (
+                <div className="px-4 pb-4 space-y-5">
+                  {/* LOGO */}
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Logo</p>
+                    <div className="space-y-2.5">
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => setHeaderConfig((h) => ({ ...h, logoMode: "text" }))}
+                          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium border transition-colors ${headerConfig.logoMode === "text" ? "bg-primary text-primary-foreground border-primary" : "border-input text-muted-foreground hover:text-foreground"}`}
+                        >
+                          <Type size={12} /> Texto
+                        </button>
+                        <button
+                          onClick={() => setHeaderConfig((h) => ({ ...h, logoMode: "image" }))}
+                          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium border transition-colors ${headerConfig.logoMode === "image" ? "bg-primary text-primary-foreground border-primary" : "border-input text-muted-foreground hover:text-foreground"}`}
+                        >
+                          <Upload size={12} /> Imagem
                         </button>
                       </div>
+
+                      {headerConfig.logoMode === "text" ? (
+                        <>
+                          <div className="space-y-1">
+                            <Label className="text-xs text-muted-foreground">Nome da Loja</Label>
+                            <Input
+                              value={headerConfig.logoText}
+                              onChange={(e) => setHeaderConfig((h) => ({ ...h, logoText: e.target.value }))}
+                              placeholder={store?.store_name || "Minha Loja"}
+                              className="h-8 text-xs"
+                            />
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <Label className="text-xs text-muted-foreground">Cor do Texto</Label>
+                            <div className="flex items-center gap-2">
+                              <input type="color" value={headerConfig.logoTextColor} onChange={(e) => setHeaderConfig((h) => ({ ...h, logoTextColor: e.target.value }))} className="w-7 h-7 rounded border border-border cursor-pointer p-0.5" />
+                              <span className="text-[10px] font-mono text-muted-foreground">{headerConfig.logoTextColor}</span>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="space-y-1">
+                          <Label className="text-xs text-muted-foreground">URL da Imagem (PNG, até 5MB)</Label>
+                          <Input value={headerConfig.logoImageUrl} onChange={(e) => setHeaderConfig((h) => ({ ...h, logoImageUrl: e.target.value }))} placeholder="https://exemplo.com/logo.png" className="h-8 text-xs" />
+                          {headerConfig.logoImageUrl && (
+                            <div className="mt-1.5 p-1.5 border border-border rounded-lg flex items-center justify-center bg-muted/30">
+                              <img src={headerConfig.logoImageUrl} alt="Logo" className="max-h-8 max-w-full object-contain" />
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">Posição</Label>
+                        <div className="flex gap-1">
+                          {(["left", "center"] as LogoPosition[]).map((pos) => (
+                            <button key={pos} onClick={() => setHeaderConfig((h) => ({ ...h, logoPosition: pos }))} className={`flex-1 py-1.5 rounded-lg text-xs font-medium border transition-colors ${headerConfig.logoPosition === pos ? "bg-primary text-primary-foreground border-primary" : "border-input text-muted-foreground hover:text-foreground"}`}>
+                              {pos === "left" ? "Esquerda" : "Centro"}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     </div>
-                    {index === sections.length - 1 && dropIndicator === sections.length && dragIndex !== null && (
-                      <div className="h-0.5 bg-primary rounded-full mx-2 my-1 transition-all" />
+                  </div>
+
+                  {/* FAIXA DE ANÚNCIO */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Faixa de Anúncio</p>
+                      <Switch checked={headerConfig.announcementEnabled} onCheckedChange={(v) => setHeaderConfig((h) => ({ ...h, announcementEnabled: v }))} />
+                    </div>
+                    {headerConfig.announcementEnabled && (
+                      <div className="space-y-2.5">
+                        <div className="space-y-1.5">
+                          {headerConfig.announcementMessages.map((msg, i) => (
+                            <div key={msg.id} className="flex gap-1">
+                              <Input value={msg.text} onChange={(e) => setHeaderConfig((h) => ({ ...h, announcementMessages: h.announcementMessages.map((m) => m.id === msg.id ? { ...m, text: e.target.value } : m) }))} placeholder={`Mensagem ${i + 1}`} className="h-8 text-xs flex-1" />
+                              {headerConfig.announcementMessages.length > 1 && (
+                                <button onClick={() => setHeaderConfig((h) => ({ ...h, announcementMessages: h.announcementMessages.filter((m) => m.id !== msg.id) }))} className="p-1.5 text-muted-foreground hover:text-destructive"><X size={12} /></button>
+                              )}
+                            </div>
+                          ))}
+                          <Button variant="outline" size="sm" className="w-full gap-1 text-[10px] h-7" onClick={() => setHeaderConfig((h) => ({ ...h, announcementMessages: [...h.announcementMessages, { id: Date.now().toString(), text: "" }] }))}>
+                            <Plus size={10} /> Mensagem
+                          </Button>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs text-muted-foreground">Cor da Faixa</Label>
+                          <input type="color" value={headerConfig.announcementBgColor} onChange={(e) => setHeaderConfig((h) => ({ ...h, announcementBgColor: e.target.value }))} className="w-7 h-7 rounded border border-border cursor-pointer p-0.5" />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs text-muted-foreground">Cor do Texto</Label>
+                          <input type="color" value={headerConfig.announcementTextColor} onChange={(e) => setHeaderConfig((h) => ({ ...h, announcementTextColor: e.target.value }))} className="w-7 h-7 rounded border border-border cursor-pointer p-0.5" />
+                        </div>
+                      </div>
                     )}
                   </div>
-                );
-              })}
-            </div>
 
-            <div className="p-4 border-t border-border">
-              {addingSection ? (
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Adicionar Seção</p>
-                    <button onClick={() => setAddingSection(false)} className="text-muted-foreground hover:text-foreground"><X size={14} /></button>
-                  </div>
-                  {(["banner", "destaque", "produtos"] as SectionType[]).map((type) => (
-                    <button
-                      key={type}
-                      onClick={() => addSection(type)}
-                      className="w-full flex items-center gap-3 p-3 rounded-xl border border-border bg-background hover:border-primary/30 hover:bg-muted/50 transition-all text-left"
-                    >
-                      <span className="text-foreground">{sectionIcons[type]}</span>
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-foreground">{sectionLabels[type]}</p>
-                        <p className="text-[10px] text-muted-foreground">{sectionDescriptions[type]}</p>
-                      </div>
-                    </button>
-                  ))}
+                  <p className="text-[10px] text-muted-foreground">🔍 A lupa de pesquisa aparece automaticamente no header.</p>
                 </div>
-              ) : (
-                <Button onClick={() => setAddingSection(true)} variant="outline" className="w-full gap-2">
-                  <Plus size={14} /> Adicionar Seção
-                </Button>
               )}
             </div>
-          </>
+
+            {/* ─── SEÇÕES (collapsible) ─── */}
+            <div className="flex-1 flex flex-col">
+              <button
+                onClick={() => setSectionsExpanded((v) => !v)}
+                className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition-colors border-b border-border"
+              >
+                <div className="flex items-center gap-2">
+                  <Layers size={14} className="text-foreground" />
+                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Seções</p>
+                  <span className="text-[10px] text-muted-foreground">({sections.length})</span>
+                </div>
+                <ChevronDown size={14} className={`text-muted-foreground transition-transform ${sectionsExpanded ? "rotate-180" : ""}`} />
+              </button>
+
+              {sectionsExpanded && (
+                <>
+                  <div className="flex-1 overflow-y-auto p-4 space-y-0">
+                    {sections.map((section, index) => {
+                      const isSelected = selectedSectionId === section.id;
+                      return (
+                        <div key={section.id}>
+                          {index === 0 && dropIndicator === 0 && dragIndex !== null && (
+                            <div className="h-0.5 bg-primary rounded-full mx-2 my-1 transition-all" />
+                          )}
+                          <div
+                            draggable
+                            onDragStart={(e) => handleDragStart(e, index)}
+                            onDragEnd={handleDragEnd}
+                            onDragOver={(e) => handleDragOver(e, index)}
+                            onDrop={handleDrop}
+                            onClick={() => setSelectedSectionId(section.id)}
+                            className={`group flex items-center gap-2 p-3 rounded-xl border transition-all cursor-pointer ${isSelected ? "border-primary bg-primary/5 shadow-sm" : "border-transparent hover:bg-muted/50"}`}
+                          >
+                            <div className="cursor-grab text-muted-foreground/40 group-hover:text-muted-foreground transition-colors">
+                              <GripVertical size={14} />
+                            </div>
+                            <span className="text-foreground">{sectionIcons[section.type]}</span>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-foreground truncate">{section.title || sectionLabels[section.type]}</p>
+                              <p className="text-[10px] text-muted-foreground">{sectionDescriptions[section.type]}</p>
+                            </div>
+                            <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button onClick={(e) => { e.stopPropagation(); removeSection(section.id); }} className="p-1 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors" title="Remover">
+                                <Trash2 size={12} />
+                              </button>
+                            </div>
+                          </div>
+                          {index === sections.length - 1 && dropIndicator === sections.length && dragIndex !== null && (
+                            <div className="h-0.5 bg-primary rounded-full mx-2 my-1 transition-all" />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="p-4 border-t border-border">
+                    {addingSection ? (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Adicionar Seção</p>
+                          <button onClick={() => setAddingSection(false)} className="text-muted-foreground hover:text-foreground"><X size={14} /></button>
+                        </div>
+                        {(["banner", "destaque", "produtos"] as SectionType[]).map((type) => (
+                          <button
+                            key={type}
+                            onClick={() => addSection(type)}
+                            className="w-full flex items-center gap-3 p-3 rounded-xl border border-border bg-background hover:border-primary/30 hover:bg-muted/50 transition-all text-left"
+                          >
+                            <span className="text-foreground">{sectionIcons[type]}</span>
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium text-foreground">{sectionLabels[type]}</p>
+                              <p className="text-[10px] text-muted-foreground">{sectionDescriptions[type]}</p>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <Button onClick={() => setAddingSection(true)} variant="outline" className="w-full gap-2">
+                        <Plus size={14} /> Adicionar Seção
+                      </Button>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
         ) : (
           <div className="flex-1 overflow-y-auto p-4 space-y-6">
             <div>
