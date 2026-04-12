@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ProductDetailModal } from "@/components/ProductDetailModal";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,9 +10,11 @@ import {
   Plus, Trash2, GripVertical, Image, Star, ShoppingBag,
   X, ArrowLeft, Save, Settings2, Monitor, Tablet, Smartphone,
   Layers, Settings, ChevronLeft, ChevronRight, Bold, Italic,
-  Search, Upload, Type, PanelTop
+  Search, Upload, Type, PanelTop, Eye, ExternalLink
 } from "lucide-react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import type {
@@ -438,6 +441,26 @@ const Builder = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [announcementIndex, setAnnouncementIndex] = useState(0);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewPassword, setPreviewPassword] = useState("");
+  const [previewError, setPreviewError] = useState("");
+  const [store, setStore] = useState<{ slug: string; is_public: boolean; access_code: string; store_name: string } | null>(null);
+  const { user } = useAuth();
+
+  // Fetch user's store
+  useEffect(() => {
+    if (!user) return;
+    const fetchStore = async () => {
+      const { data } = await supabase
+        .from("stores")
+        .select("slug, is_public, access_code, store_name")
+        .eq("user_id", user.id)
+        .limit(1)
+        .single();
+      if (data) setStore(data);
+    };
+    fetchStore();
+  }, [user]);
 
   // Rotate announcement messages
   useEffect(() => {
@@ -962,9 +985,29 @@ const Builder = () => {
               </button>
             ))}
           </div>
-          <div className="flex-1 flex justify-end">
+          <div className="flex-1 flex justify-end gap-2">
             <Button onClick={handleSave} size="sm" className="gap-2">
               <Save size={14} /> Salvar
+            </Button>
+            <Button
+              onClick={() => {
+                if (!store) {
+                  toast.error("Nenhuma loja encontrada. Crie uma loja primeiro.");
+                  return;
+                }
+                if (store.is_public) {
+                  window.open(`/loja/${store.slug}`, "_blank");
+                } else {
+                  setPreviewOpen(true);
+                  setPreviewPassword("");
+                  setPreviewError("");
+                }
+              }}
+              size="sm"
+              variant="outline"
+              className="gap-2"
+            >
+              <Eye size={14} /> Pré-visualizar
             </Button>
           </div>
         </div>
@@ -1296,6 +1339,45 @@ const Builder = () => {
       )}
 
       <ProductDetailModal product={selectedProduct} open={!!selectedProduct} onOpenChange={(open) => { if (!open) setSelectedProduct(null); }} />
+
+      {/* Preview Password Dialog */}
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-lg">Pré-visualizar Loja</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Sua loja é privada. Insira o código de acesso para pré-visualizar.
+            </p>
+            <Input
+              type="text"
+              value={previewPassword}
+              onChange={(e) => { setPreviewPassword(e.target.value); setPreviewError(""); }}
+              placeholder="Código de acesso"
+              className="h-10"
+            />
+            {previewError && <p className="text-xs text-destructive">{previewError}</p>}
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" size="sm" onClick={() => setPreviewOpen(false)}>Cancelar</Button>
+              <Button
+                size="sm"
+                className="gap-2"
+                onClick={() => {
+                  if (store && previewPassword === store.access_code) {
+                    window.open(`/loja/${store.slug}?code=${previewPassword}`, "_blank");
+                    setPreviewOpen(false);
+                  } else {
+                    setPreviewError("Código de acesso incorreto.");
+                  }
+                }}
+              >
+                <ExternalLink size={14} /> Abrir Loja
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
