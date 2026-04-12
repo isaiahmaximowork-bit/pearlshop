@@ -381,8 +381,8 @@ const StorePage = () => {
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
     const q = searchQuery.toLowerCase();
-    return catalogProducts.filter((p) => p.product_name.toLowerCase().includes(q)).slice(0, 10);
-  }, [searchQuery, catalogProducts]);
+    return storeProducts.filter((p) => p.product_name.toLowerCase().includes(q)).slice(0, 10);
+  }, [searchQuery, storeProducts]);
 
   if (loading) {
     return (
