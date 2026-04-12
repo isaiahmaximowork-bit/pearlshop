@@ -1,4 +1,5 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ProductDetailModal } from "@/components/ProductDetailModal";
 import { Input } from "@/components/ui/input";
