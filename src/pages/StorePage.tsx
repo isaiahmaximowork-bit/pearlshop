@@ -508,7 +508,7 @@ const StorePage = () => {
               <span className="text-base font-bold" style={{ color: headerConfig.logoColor || headerConfig.logoTextColor }}>{headerConfig.logoText || storeName || "Loja"}</span>
             )}
           </div>
-          <button onClick={() => setSearchOpen(!searchOpen)} className="w-8 h-8 rounded-lg border border-border flex items-center justify-center transition-colors" style={{ color: theme.subtitleColor }}>
+          <button onClick={() => setSearchOpen(!searchOpen)} className="w-8 h-8 rounded-lg flex items-center justify-center transition-opacity hover:opacity-80" style={{ backgroundColor: headerConfig.iconBgColor || "#2a2a2e", color: theme.iconColor }}>
             <Search size={16} />
           </button>
 
@@ -516,8 +516,9 @@ const StorePage = () => {
           {searchOpen && (
             <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border shadow-lg z-50 p-3 space-y-2">
               <div className="flex items-center gap-2 border border-border rounded-lg px-3 py-2">
-                <Search size={14} style={{ color: theme.subtitleColor }} />
+                <Search size={14} style={{ color: headerConfig.searchTextColor || "#a1a1aa" }} />
                 <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Buscar produtos..."
+                  className="flex-1 bg-transparent text-sm outline-none text-foreground" style={{ color: headerConfig.searchTextColor || undefined }} autoFocus />
                   className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground text-foreground" autoFocus />
                 {searchQuery && <button onClick={() => setSearchQuery("")} className="text-muted-foreground hover:text-foreground"><X size={12} /></button>}
               </div>
@@ -580,15 +581,16 @@ const StorePage = () => {
             </div>
             {/* Row 2: Search bar */}
             <div className="pb-3 max-w-xl mx-auto relative">
-              <div className="flex items-center gap-2 border border-border rounded-xl px-4 py-2.5 bg-muted/30">
-                <Search size={16} style={{ color: theme.subtitleColor }} />
+              <div className="flex items-center gap-2 rounded-xl px-4 py-2.5" style={{ backgroundColor: headerConfig.iconBgColor || "#2a2a2e" }}>
+                <Search size={16} style={{ color: headerConfig.searchTextColor || "#a1a1aa" }} />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => { setSearchQuery(e.target.value); setSearchOpen(true); }}
                   onFocus={() => setSearchOpen(true)}
                   placeholder="Buscar produtos..."
-                  className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground text-foreground"
+                  className="flex-1 bg-transparent text-sm outline-none"
+                  style={{ color: headerConfig.searchTextColor || "#a1a1aa" }}
                 />
                 {searchQuery && <button onClick={() => setSearchQuery("")} className="text-muted-foreground hover:text-foreground"><X size={14} /></button>}
               </div>
