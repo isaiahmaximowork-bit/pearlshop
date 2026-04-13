@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { ProductDetailModal } from "@/components/ProductDetailModal";
 import StoreFooter from "@/components/StoreFooter";
 import type { FooterConfig } from "@/components/StoreFooter";
+import StoreHamburgerMenu from "@/components/StoreHamburgerMenu";
+import { PRODUCT_CATEGORIES } from "@/components/builder/types";
 import type { TextPosition, FontFamily, BannerTextConfig, BannerItem, BuilderSection } from "@/components/builder/types";
 
 // ─── Types (mirror Builder) ───
