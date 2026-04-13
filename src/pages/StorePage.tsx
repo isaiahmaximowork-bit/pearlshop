@@ -6,6 +6,8 @@ import { Search, X, ShoppingBag, ChevronLeft, ChevronRight, Image } from "lucide
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ProductDetailModal } from "@/components/ProductDetailModal";
+import StoreFooter from "@/components/StoreFooter";
+import type { FooterConfig } from "@/components/StoreFooter";
 import type { TextPosition, FontFamily, BannerTextConfig, BannerItem, BuilderSection } from "@/components/builder/types";
 
 // ─── Types (mirror Builder) ───
