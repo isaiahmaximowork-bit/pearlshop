@@ -30,6 +30,9 @@ interface HeaderConfig {
   announcementTextColor: string;
   headerBgColor: string;
   logoColor: string;
+  menuBgColor: string;
+  menuTextColor: string;
+  featuredCategories: string[];
 }
 
 interface StoreTheme {
