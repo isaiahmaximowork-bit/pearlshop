@@ -1466,6 +1466,21 @@ const Builder = () => {
             {selectedSection.type === "destaque" && (
               <DestaqueConfig section={selectedSection} />
             )}
+            {selectedSection.type === "produtos" && (
+              <div className="space-y-3">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Filtrar por Categoria</p>
+                <select
+                  value={selectedSection.categoryFilter || ""}
+                  onChange={(e) => setSections((prev) => prev.map((s) => s.id === selectedSection.id ? { ...s, categoryFilter: e.target.value } : s))}
+                  className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  {PRODUCT_CATEGORIES.map((cat) => (
+                    <option key={cat.value} value={cat.value}>{cat.label}</option>
+                  ))}
+                </select>
+                <p className="text-[10px] text-muted-foreground">Escolha "Todos os Produtos" para exibir tudo, ou filtre por uma categoria específica.</p>
+              </div>
+            )}
           </div>
 
           <div className="p-4 border-t border-border">
