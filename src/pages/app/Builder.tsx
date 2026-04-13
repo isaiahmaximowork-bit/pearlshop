@@ -11,7 +11,8 @@ import {
   Plus, Trash2, GripVertical, Image, Star, ShoppingBag,
   X, ArrowLeft, Save, Settings2, Monitor, Tablet, Smartphone,
   Layers, Settings, ChevronLeft, ChevronRight, Bold, Italic,
-  Search, Upload, Type, PanelTop, Eye, ExternalLink, ChevronDown
+  Search, Upload, Type, PanelTop, Eye, ExternalLink, ChevronDown,
+  Palette, Menu, Tag, Megaphone
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -458,6 +459,11 @@ const Builder = () => {
   const [deviceMode, setDeviceMode] = useState<DeviceMode>("desktop");
   const [leftTab, setLeftTab] = useState<LeftTab>("sections");
   const [headerExpanded, setHeaderExpanded] = useState(false);
+  const [headerLogoExpanded, setHeaderLogoExpanded] = useState(false);
+  const [headerAnnouncementExpanded, setHeaderAnnouncementExpanded] = useState(false);
+  const [headerMenuExpanded, setHeaderMenuExpanded] = useState(false);
+  const [headerCategoriesExpanded, setHeaderCategoriesExpanded] = useState(false);
+  const [userAffiliatedCategories, setUserAffiliatedCategories] = useState<string[]>([]);
   const [sectionsExpanded, setSectionsExpanded] = useState(false);
   const [theme, setTheme] = useState<StoreTheme>({ ...defaultTheme });
   const [catalogProducts, setCatalogProducts] = useState<CatalogProduct[]>([]);
