@@ -21,16 +21,16 @@ const BannerSection = () => (
         className="flex flex-col justify-center items-start px-5 md:px-12 py-8 md:py-12 lg:py-16 order-1 text-left"
       >
         <p className="text-white/70 text-sm font-medium mb-5 font-poppins tracking-wide">
-          Tenha sua própria loja online
+          Sua vitrine online em segundos
         </p>
 
         <h2
           className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] xl:text-6xl font-black text-white tracking-tighter leading-[0.95] mb-6 md:mb-10 font-poppins"
           style={{ fontWeight: 900 }}
         >
-          Com produtos que<br />
-          já estão vendendo<br />
-          no TikTok Shop
+          Todos os seus<br />
+          produtos afiliados<br />
+          numa vitrine só
         </h2>
 
         <motion.button
@@ -38,12 +38,12 @@ const BannerSection = () => (
           whileTap={{ scale: 0.95 }}
           className="group w-full sm:w-auto px-8 md:px-12 py-4 md:py-5 rounded-full bg-white text-purple-700 font-extrabold text-sm md:text-base tracking-tight transition-all flex items-center justify-center gap-3 shadow-[0_10px_40px_rgba(0,0,0,0.15)]"
         >
-          Criar minha loja agora
+          Criar minha vitrine agora
           <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
         </motion.button>
 
         <p className="text-white/50 text-xs font-medium mt-4 font-poppins">
-          Comece agora. Sem cartão. Sem risco.
+          Grátis. Sem cartão. Pronta em 30 segundos.
         </p>
       </motion.div>
 

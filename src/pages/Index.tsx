@@ -172,9 +172,9 @@ const Index = () => {
             transition={{ duration: 0.8, ease: "circOut" }}
             className="text-[40px] sm:text-5xl md:text-6xl lg:text-[84px] leading-[0.95] tracking-tighter mb-6 md:mb-10 font-poppins"
           >
-            <span className="font-semibold text-white">Venda no</span> <br />
-            <span className="font-extrabold text-white">TikTok Shop.</span> <br />
-            <span className="font-extrabold text-gradient-purple italic">Sem gravar, <br /> sem aparecer.</span>
+            <span className="font-semibold text-white">Escale o</span> <br />
+            <span className="font-extrabold text-white">TikTok Shop</span> <br />
+            <span className="font-extrabold text-gradient-purple italic">em 5 redes <br /> com 1 clique.</span>
           </motion.h1>
 
           <motion.p 
@@ -183,8 +183,8 @@ const Index = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-base md:text-xl text-zinc-400 max-w-xl mb-8 md:mb-12 leading-relaxed font-medium font-poppins"
           >
-            Você escolhe o produto.<br />
-            A gente cria, testa e publica os vídeos pra você.
+            Vitrine com seus produtos afiliados. Vídeos gerados por IA.<br />
+            Publicação automática em todas as redes. Sem gravar nada.
           </motion.p>
 
           <motion.div 
@@ -195,7 +195,7 @@ const Index = () => {
           >
             <button className="group relative w-full sm:w-[520px] h-[60px] md:h-[76px] overflow-hidden rounded-2xl btn-purple-flow text-white font-extrabold text-base md:text-xl uppercase tracking-tighter shadow-[0_20px_50px_rgba(147,51,234,0.3)] active:scale-95 font-poppins">
               <div className="relative flex items-center justify-center gap-3 z-10">
-                <span>Testar com 1 produto</span>
+                <span>Começar agora — é grátis</span>
                 <div className="overflow-hidden w-0 opacity-0 group-hover:w-8 group-hover:opacity-100 transition-all duration-500 ease-out translate-x-4 group-hover:translate-x-0">
                   <ArrowRight size={28} />
                 </div>
@@ -215,7 +215,7 @@ const Index = () => {
               <img src="https://i.pravatar.cc/40?img=8" alt="" className="w-7 h-7 rounded-full border-2 border-[#020105] object-cover" />
             </div>
             <p className="text-xs text-zinc-500 font-medium font-poppins">
-              <span className="text-zinc-300 font-bold">+1.482</span> usuários ativos venderam hoje
+              <span className="text-zinc-300 font-bold">O único app</span> que escala TikTok Shop em 5 redes
             </p>
           </motion.div>
 
@@ -225,7 +225,7 @@ const Index = () => {
             transition={{ delay: 0.5 }}
             className="space-y-4"
           >
-            <p className="text-xs font-bold font-poppins text-zinc-500 uppercase tracking-wider text-center w-full">LANCE EM TODAS AS PLATAFORMAS</p>
+            <p className="text-xs font-bold font-poppins text-zinc-500 uppercase tracking-wider text-center w-full">PUBLIQUE EM 5 REDES COM 1 CLIQUE</p>
             
             <div className="relative w-full overflow-hidden mask-fade-edges-h">
               <div className="flex animate-marquee-h whitespace-nowrap gap-4">
