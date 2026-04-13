@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from "react";
+import type { FooterConfig } from "@/components/StoreFooter";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -460,6 +461,10 @@ const Builder = () => {
   const [previewError, setPreviewError] = useState("");
   const [store, setStore] = useState<{ id: string; slug: string; is_public: boolean; access_code: string; store_name: string } | null>(null);
   const [saving, setSaving] = useState(false);
+  const [footerConfig, setFooterConfig] = useState<FooterConfig>({
+    bgColor: '#1a1a1a', textColor: '#ffffff', logoColor: '#ffffff',
+    instagramUrl: '', tiktokUrl: '', youtubeUrl: '', supportEmail: '',
+  });
   const { user } = useAuth();
 
   // Fetch user's store + load saved builder config
@@ -482,6 +487,7 @@ const Builder = () => {
             if (saved.sections) setSections(saved.sections);
             if (saved.theme) setTheme(saved.theme);
             if (saved.headerConfig) setHeaderConfig(saved.headerConfig);
+            if (saved.footerConfig) setFooterConfig(saved.footerConfig);
           } catch {
             // ignore invalid JSON
           }
@@ -625,7 +631,7 @@ const Builder = () => {
     }
     setSaving(true);
     try {
-      const builderData = JSON.stringify({ sections, theme, headerConfig });
+      const builderData = JSON.stringify({ sections, theme, headerConfig, footerConfig });
       const { error } = await supabase
         .from("stores")
         .update({ preview_cache: builderData })
@@ -992,6 +998,49 @@ const Builder = () => {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* Rodapé */}
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Rodapé</p>
+              <div className="space-y-3">
+                {([
+                  { key: "bgColor" as const, label: "Cor de Fundo" },
+                  { key: "textColor" as const, label: "Cor do Texto" },
+                  { key: "logoColor" as const, label: "Cor da Logo" },
+                ]).map(({ key, label }) => (
+                  <div key={key} className="flex items-center justify-between">
+                    <Label className="text-xs text-muted-foreground">{label}</Label>
+                    <div className="flex items-center gap-2">
+                      <input type="color" value={footerConfig[key]} onChange={(e) => setFooterConfig((f) => ({ ...f, [key]: e.target.value }))} className="w-8 h-8 rounded border border-border cursor-pointer p-0.5" />
+                      <span className="text-[10px] font-mono text-muted-foreground w-16">{footerConfig[key]}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Redes Sociais & Suporte */}
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Redes Sociais & Suporte</p>
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Link do Instagram</Label>
+                  <Input value={footerConfig.instagramUrl} onChange={(e) => setFooterConfig((f) => ({ ...f, instagramUrl: e.target.value }))} placeholder="https://instagram.com/sua-loja" className="h-8 text-xs" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Link do TikTok</Label>
+                  <Input value={footerConfig.tiktokUrl} onChange={(e) => setFooterConfig((f) => ({ ...f, tiktokUrl: e.target.value }))} placeholder="https://tiktok.com/@sua-loja" className="h-8 text-xs" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Link do YouTube</Label>
+                  <Input value={footerConfig.youtubeUrl} onChange={(e) => setFooterConfig((f) => ({ ...f, youtubeUrl: e.target.value }))} placeholder="https://youtube.com/@sua-loja" className="h-8 text-xs" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">E-mail de Suporte</Label>
+                  <Input value={footerConfig.supportEmail} onChange={(e) => setFooterConfig((f) => ({ ...f, supportEmail: e.target.value }))} placeholder="suporte@sua-loja.com" className="h-8 text-xs" />
+                </div>
               </div>
             </div>
           </div>

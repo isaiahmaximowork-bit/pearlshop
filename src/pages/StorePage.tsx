@@ -6,6 +6,8 @@ import { Search, X, ShoppingBag, ChevronLeft, ChevronRight, Image } from "lucide
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ProductDetailModal } from "@/components/ProductDetailModal";
+import StoreFooter from "@/components/StoreFooter";
+import type { FooterConfig } from "@/components/StoreFooter";
 import type { TextPosition, FontFamily, BannerTextConfig, BannerItem, BuilderSection } from "@/components/builder/types";
 
 // ─── Types (mirror Builder) ───
@@ -290,6 +292,7 @@ const StorePage = () => {
   const [sections, setSections] = useState<BuilderSection[]>([]);
   const [theme, setTheme] = useState<StoreTheme>({ ...defaultTheme });
   const [headerConfig, setHeaderConfig] = useState<HeaderConfig>({ ...defaultHeaderConfig });
+  const [footerConfig, setFooterConfig] = useState<FooterConfig>({ bgColor: '#1a1a1a', textColor: '#ffffff', logoColor: '#ffffff', instagramUrl: '', tiktokUrl: '', youtubeUrl: '', supportEmail: '' });
   const [storeProducts, setStoreProducts] = useState<StoreProduct[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<StoreProduct | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -339,6 +342,7 @@ const StorePage = () => {
             if (!hc.logoText) hc.logoText = data.store_name || "";
             setHeaderConfig(hc);
           }
+          if (saved.footerConfig) setFooterConfig((prev) => ({ ...prev, ...saved.footerConfig }));
         } catch { /* ignore */ }
       }
 
@@ -648,6 +652,8 @@ const StorePage = () => {
           </div>
         ))}
       </main>
+
+      <StoreFooter storeName={storeName} config={footerConfig} />
 
       <ProductDetailModal product={selectedProduct} open={!!selectedProduct} onOpenChange={(open) => { if (!open) setSelectedProduct(null); }} mode="buy" buyUrl={selectedProduct?.user_affiliate_url} />
     </div>

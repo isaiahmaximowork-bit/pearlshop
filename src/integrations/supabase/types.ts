@@ -120,35 +120,56 @@ export type Database = {
         Row: {
           access_code: string
           created_at: string
+          footer_bg_color: string | null
+          footer_logo_color: string | null
+          footer_text_color: string | null
           id: string
+          instagram_url: string | null
           is_public: boolean
           preview_cache: string | null
           slug: string
           store_name: string
+          support_email: string | null
+          tiktok_url: string | null
           updated_at: string
           user_id: string
+          youtube_url: string | null
         }
         Insert: {
           access_code?: string
           created_at?: string
+          footer_bg_color?: string | null
+          footer_logo_color?: string | null
+          footer_text_color?: string | null
           id?: string
+          instagram_url?: string | null
           is_public?: boolean
           preview_cache?: string | null
           slug?: string
           store_name?: string
+          support_email?: string | null
+          tiktok_url?: string | null
           updated_at?: string
           user_id: string
+          youtube_url?: string | null
         }
         Update: {
           access_code?: string
           created_at?: string
+          footer_bg_color?: string | null
+          footer_logo_color?: string | null
+          footer_text_color?: string | null
           id?: string
+          instagram_url?: string | null
           is_public?: boolean
           preview_cache?: string | null
           slug?: string
           store_name?: string
+          support_email?: string | null
+          tiktok_url?: string | null
           updated_at?: string
           user_id?: string
+          youtube_url?: string | null
         }
         Relationships: []
       }
