@@ -49,6 +49,8 @@ interface HeaderConfig {
   announcementTextColor: string;
   headerBgColor: string;
   logoColor: string;
+  iconBgColor: string;
+  searchTextColor: string;
   menuBgColor: string;
   menuTextColor: string;
   menuHighlightColor: string;
@@ -68,6 +70,8 @@ const defaultHeaderConfig: HeaderConfig = {
   announcementTextColor: "#ffffff",
   headerBgColor: "",
   logoColor: "",
+  iconBgColor: "#2a2a2e",
+  searchTextColor: "#a1a1aa",
   menuBgColor: "#1a1a1a",
   menuTextColor: "#ffffff",
   menuHighlightColor: "#ffffff",
