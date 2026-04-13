@@ -80,7 +80,7 @@ const Register = () => {
       email,
       password,
       options: {
-        emailRedirectTo: 'https://pearlshop.io/login',
+        emailRedirectTo: `${window.location.origin}/login`,
         data: {
           name,
           avatar_id: selectedAvatarId || 'strawberry',
