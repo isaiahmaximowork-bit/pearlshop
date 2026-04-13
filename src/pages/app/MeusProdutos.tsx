@@ -7,7 +7,6 @@ import { Package, Trash2, Search, Filter, Tag, ChevronDown } from "lucide-react"
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { PRODUCT_CATEGORIES } from "@/components/builder/types";
-import { ProductDetailModal } from "@/components/ProductDetailModal";
 import { MyProductModal } from "@/components/MyProductModal";
 
 const MeusProdutos = () => {
