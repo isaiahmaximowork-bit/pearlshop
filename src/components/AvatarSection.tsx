@@ -65,16 +65,19 @@ const AvatarSection = () => (
           whileInView={{ opacity: 1, y: 0 }}
           className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 mb-8"
         >
-          <span className="text-[9px] font-black text-purple-400 uppercase tracking-[0.4em]">Vídeos com IA</span>
+          <span className="text-[9px] font-black text-purple-400 uppercase tracking-[0.4em]">Avatares IA • Novo</span>
         </motion.div>
 
         <h2 className="text-3xl sm:text-5xl md:text-7xl font-black tracking-tighter leading-[0.95] mb-6 md:mb-8 font-poppins text-white">
-          A IA grava por você. <br />
-          <span className="text-gradient-purple uppercase tracking-tight">Publica em 5 redes.</span>
+          Crie vídeos UGC com avatares IA <br />
+          <span className="text-gradient-purple uppercase tracking-tight">que realmente convertem</span>
         </h2>
 
-        <p className="text-zinc-500 text-base md:text-xl font-medium max-w-3xl mx-auto leading-relaxed">
-          Avatares realistas apresentam seus produtos e publicam automaticamente no TikTok, Instagram, YouTube, Facebook e na sua loja.
+        <p className="text-zinc-500 text-base md:text-xl font-medium max-w-3xl mx-auto leading-relaxed mb-4">
+          Escolha um avatar, coloque seu produto e deixe ele criar vídeos que vendem por você.
+        </p>
+        <p className="text-purple-400 text-base md:text-lg font-semibold">
+          ⚡ Em menos de 2 minutos, seu primeiro vídeo já está pronto.
         </p>
       </div>
 
