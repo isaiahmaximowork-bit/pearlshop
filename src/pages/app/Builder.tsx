@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import type { FooterConfig } from "@/components/StoreFooter";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ProductDetailModal } from "@/components/ProductDetailModal";
@@ -12,7 +12,7 @@ import {
   X, ArrowLeft, Save, Settings2, Monitor, Tablet, Smartphone,
   Layers, Settings, ChevronLeft, ChevronRight, Bold, Italic,
   Search, Upload, Type, PanelTop, Eye, ExternalLink, ChevronDown,
-  Palette, Menu, Tag, Megaphone
+  Menu, Tag, Megaphone
 } from "lucide-react";
 import { toast } from "sonner";
 
