@@ -229,8 +229,8 @@ const StoreSettings = () => {
             )}
           </div>
           <div className="flex items-center justify-center p-6 md:p-8">
-            <div className="w-44 h-44 md:w-56 md:h-56 rounded-2xl overflow-hidden border border-border shadow-sm flex-shrink-0">
-              <img src={previewImage} alt="Preview da loja" className="w-full h-full object-cover" />
+            <div className="w-44 h-44 md:w-56 md:h-56 flex-shrink-0">
+              <StoreMiniPreview previewCache={store?.preview_cache || null} storeName={store?.store_name || "Loja"} />
             </div>
           </div>
         </div>
