@@ -32,6 +32,8 @@ interface HeaderConfig {
   logoColor: string;
   menuBgColor: string;
   menuTextColor: string;
+  menuHighlightColor: string;
+  menuDetailColor: string;
   featuredCategories: string[];
 }
 
@@ -89,7 +91,9 @@ const defaultHeaderConfig: HeaderConfig = {
   announcementMessages: [{ id: "1", text: "" }],
   announcementBgColor: "#7c3aed", announcementTextColor: "#ffffff",
   headerBgColor: "", logoColor: "",
-  menuBgColor: "#1a1a1a", menuTextColor: "#ffffff", featuredCategories: [],
+  menuBgColor: "#1a1a1a", menuTextColor: "#ffffff",
+  menuHighlightColor: "#ffffff", menuDetailColor: "#ffffff33",
+  featuredCategories: [],
 };
 
 // ─── Helpers ───
@@ -483,7 +487,7 @@ const StorePage = () => {
         {/* Mobile Header */}
         <div className="md:hidden px-4 py-3 flex items-center gap-3 relative bg-card" style={{ backgroundColor: headerConfig.headerBgColor || undefined }}>
           <StoreHamburgerMenu
-            config={{ menuBgColor: headerConfig.menuBgColor || "#1a1a1a", menuTextColor: headerConfig.menuTextColor || "#ffffff" }}
+            config={{ menuBgColor: headerConfig.menuBgColor || "#1a1a1a", menuTextColor: headerConfig.menuTextColor || "#ffffff", menuHighlightColor: headerConfig.menuHighlightColor, menuDetailColor: headerConfig.menuDetailColor }}
             logoMode={headerConfig.logoMode}
             logoText={headerConfig.logoText || storeName || "Loja"}
             logoImageUrl={headerConfig.logoImageUrl}
@@ -551,7 +555,7 @@ const StorePage = () => {
             {/* Row 1: Hamburger + Logo */}
             <div className="flex items-center py-4">
               <StoreHamburgerMenu
-                config={{ menuBgColor: headerConfig.menuBgColor || "#1a1a1a", menuTextColor: headerConfig.menuTextColor || "#ffffff" }}
+                config={{ menuBgColor: headerConfig.menuBgColor || "#1a1a1a", menuTextColor: headerConfig.menuTextColor || "#ffffff", menuHighlightColor: headerConfig.menuHighlightColor, menuDetailColor: headerConfig.menuDetailColor }}
                 logoMode={headerConfig.logoMode}
                 logoText={headerConfig.logoText || storeName || "Loja"}
                 logoImageUrl={headerConfig.logoImageUrl}

@@ -20,6 +20,7 @@ import Builder from "./pages/app/Builder.tsx";
 import StoreSettings from "./pages/app/StoreSettings.tsx";
 import EditarPerfil from "./pages/app/EditarPerfil.tsx";
 import StorePage from "./pages/StorePage.tsx";
+import AvisoLegal from "./pages/AvisoLegal.tsx";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -33,6 +34,7 @@ const App = () => (
             {/* Public routes */}
             <Route path="/" element={<Index />} />
             <Route path="/loja/:slug" element={<StorePage />} />
+            <Route path="/aviso-legal" element={<AvisoLegal />} />
 
             {/* Auth routes */}
             <Route path="/login" element={<Login />} />

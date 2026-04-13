@@ -15,6 +15,7 @@ interface FooterConfig {
 interface StoreFooterProps {
   storeName: string;
   config: FooterConfig;
+  storeSlug?: string;
 }
 
 const defaultConfig: FooterConfig = {
@@ -27,7 +28,7 @@ const defaultConfig: FooterConfig = {
   supportEmail: '',
 };
 
-const StoreFooter = ({ storeName, config: rawConfig }: StoreFooterProps) => {
+const StoreFooter = ({ storeName, config: rawConfig, storeSlug }: StoreFooterProps) => {
   const config = { ...defaultConfig, ...rawConfig };
   const mutedColor = `${config.textColor}99`;
   const borderColor = `${config.textColor}15`;
@@ -43,19 +44,17 @@ const StoreFooter = ({ storeName, config: rawConfig }: StoreFooterProps) => {
             {storeName || 'Loja'}
           </h3>
 
-          {/* Disclaimer */}
-          <div className="max-w-xl space-y-3" style={{ color: mutedColor }}>
-            <p className="text-xs leading-relaxed">
-              Todos os produtos exibidos nesta loja são vendidos exclusivamente através do <strong style={{ color: config.textColor }}>TikTok Shop</strong>.
-              Ao clicar em "Comprar", você será redirecionado para a página do produto no TikTok, onde toda a transação será realizada.
-            </p>
-            <p className="text-xs leading-relaxed">
-              A <strong style={{ color: config.textColor }}>PearlShop.io</strong> é apenas uma plataforma de vitrine e não se responsabiliza por entregas, trocas, devoluções, qualidade dos produtos ou qualquer problema decorrente da compra.
-              Qualquer questão relacionada ao produto deve ser tratada diretamente com o vendedor responsável no TikTok Shop.
-            </p>
-            <p className="text-xs leading-relaxed">
-              Nenhum dado pessoal é coletado por esta loja. Ao utilizar este site, você concorda com os termos acima.
-            </p>
+          {/* Legal Links */}
+          <div className="flex items-center gap-4 flex-wrap justify-center">
+            <a href="/aviso-legal" className="text-xs font-medium hover:underline transition-colors" style={{ color: mutedColor }}>
+              Aviso Legal
+            </a>
+            <a href="/termos-de-uso" className="text-xs font-medium hover:underline transition-colors" style={{ color: mutedColor }}>
+              Termos de Uso
+            </a>
+            <a href="/politica-de-privacidade" className="text-xs font-medium hover:underline transition-colors" style={{ color: mutedColor }}>
+              Privacidade
+            </a>
           </div>
 
           {/* Social links */}

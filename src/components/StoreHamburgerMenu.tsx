@@ -5,6 +5,8 @@ import { PRODUCT_CATEGORIES } from "@/components/builder/types";
 interface MenuConfig {
   menuBgColor: string;
   menuTextColor: string;
+  menuHighlightColor?: string;
+  menuDetailColor?: string;
 }
 
 interface StoreHamburgerMenuProps {
@@ -15,7 +17,7 @@ interface StoreHamburgerMenuProps {
   logoColor: string;
   titleColor: string;
   subtitleColor: string;
-  categories: string[]; // category slugs that exist in the store
+  categories: string[];
   onSelectCategory: (cat: string) => void;
   activeCategory: string;
 }
@@ -26,13 +28,15 @@ const StoreHamburgerMenu = ({
   logoText,
   logoImageUrl,
   logoColor,
-  titleColor,
-  subtitleColor,
   categories,
   onSelectCategory,
   activeCategory,
 }: StoreHamburgerMenuProps) => {
   const [open, setOpen] = useState(false);
+
+  const highlightColor = config.menuHighlightColor || config.menuTextColor;
+  const detailColor = config.menuDetailColor || `${config.menuTextColor}20`;
+  const textColor = config.menuTextColor;
 
   const categoryItems = PRODUCT_CATEGORIES.filter(
     (c) => c.value === "" || c.value === "promocao" || categories.includes(c.value)
@@ -43,12 +47,11 @@ const StoreHamburgerMenu = ({
       <button
         onClick={() => setOpen(true)}
         className="w-8 h-8 rounded-lg border border-border flex items-center justify-center transition-colors hover:bg-muted/50"
-        style={{ color: subtitleColor }}
+        style={{ color: textColor }}
       >
         <Menu size={16} />
       </button>
 
-      {/* Overlay */}
       {open && (
         <div className="fixed inset-0 z-50 flex">
           <div className="absolute inset-0 bg-black/50" onClick={() => setOpen(false)} />
@@ -68,18 +71,18 @@ const StoreHamburgerMenu = ({
               <button
                 onClick={() => setOpen(false)}
                 className="p-1 rounded-lg hover:opacity-70 transition-opacity"
-                style={{ color: config.menuTextColor }}
+                style={{ color: textColor }}
               >
                 <X size={18} />
               </button>
             </div>
 
             {/* Separator */}
-            <div className="mx-5" style={{ borderTop: `1px solid ${config.menuTextColor}20` }} />
+            <div className="mx-5" style={{ borderTop: `1px solid ${detailColor}` }} />
 
             {/* Categories */}
             <div className="flex-1 overflow-y-auto py-4 px-5">
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-3" style={{ color: titleColor }}>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] mb-3" style={{ color: highlightColor }}>
                 Categorias
               </p>
               <div className="space-y-1">
@@ -94,8 +97,8 @@ const StoreHamburgerMenu = ({
                       }}
                       className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
                       style={{
-                        color: isActive ? titleColor : subtitleColor,
-                        backgroundColor: isActive ? `${config.menuTextColor}10` : "transparent",
+                        color: isActive ? highlightColor : textColor,
+                        backgroundColor: isActive ? `${textColor}10` : "transparent",
                       }}
                     >
                       {cat.label}
@@ -103,6 +106,14 @@ const StoreHamburgerMenu = ({
                   );
                 })}
               </div>
+            </div>
+
+            {/* Footer separator */}
+            <div className="mx-5" style={{ borderTop: `1px solid ${detailColor}` }} />
+            <div className="p-4">
+              <a href="/aviso-legal" className="text-[10px] font-medium hover:underline" style={{ color: `${textColor}80` }}>
+                Aviso Legal
+              </a>
             </div>
           </div>
         </div>
