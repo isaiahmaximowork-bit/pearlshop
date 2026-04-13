@@ -1,5 +1,5 @@
 import { Instagram, Youtube, Mail } from 'lucide-react';
-import { TikTokIcon } from '@/components/TikTokIcon';
+import TikTokIcon from '@/components/TikTokIcon';
 import logo from '@/assets/logo.png';
 
 interface FooterConfig {
