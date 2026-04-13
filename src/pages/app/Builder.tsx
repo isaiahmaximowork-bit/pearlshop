@@ -806,6 +806,7 @@ const Builder = () => {
                             <span className="text-[10px] font-mono text-muted-foreground">{headerConfig.searchTextColor || "padrão"}</span>
                           </div>
                         </div>
+                      </div>
                     )}
                   </div>
 
