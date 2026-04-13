@@ -391,6 +391,23 @@ const StorePage = () => {
     }
   };
 
+  // Available categories from products
+  const availableCategories = useMemo(() => {
+    const cats = new Set<string>();
+    storeProducts.forEach((p) => { if (p.user_category) cats.add(p.user_category); });
+    return Array.from(cats);
+  }, [storeProducts]);
+
+  // Filter products by category
+  const filterByCategory = (products: StoreProduct[], cat: string) => {
+    if (!cat) return products;
+    if (cat === "promocao") return products.filter((p) => p.is_on_sale);
+    return products.filter((p) => p.user_category === cat);
+  };
+
+  // Global filtered products (for active category from menu)
+  const filteredProducts = useMemo(() => filterByCategory(storeProducts, activeCategory), [storeProducts, activeCategory]);
+
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
     const q = searchQuery.toLowerCase();
