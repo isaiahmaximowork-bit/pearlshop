@@ -664,75 +664,88 @@ const StorePage = () => {
 
       {/* Sections */}
       <main className="max-w-6xl mx-auto">
-        {sections.map((section) => (
-          <div key={section.id}>
-            {(section.title || section.subtitle) && (
-              <div className="px-4 md:px-8 pt-6 pb-2">
-                {section.title && (
-                  <h2 className="text-lg leading-tight" style={{ color: theme.titleColor, fontFamily: `'${theme.titleFont}', sans-serif`, fontWeight: theme.titleBold ? 700 : 400, fontStyle: theme.titleItalic ? "italic" : "normal" }}>
-                    {section.title}
-                  </h2>
-                )}
-                {section.subtitle && (
-                  <p className="text-sm mt-0.5" style={{ color: theme.subtitleColor, fontFamily: `'${theme.subtitleFont}', sans-serif`, fontWeight: theme.subtitleBold ? 600 : 400, fontStyle: theme.subtitleItalic ? "italic" : "normal" }}>
-                    {section.subtitle}
-                  </p>
-                )}
-              </div>
-            )}
-
-            <div className="px-4 md:px-8 pb-4">
-              {section.type === "banner" && section.banners && section.banners.length > 0 && (
-                <StoreBannerPreview banners={section.banners} iconColor={theme.iconColor} />
-              )}
-
-              {section.type === "destaque" && (
-                <StoreDestaquePreview products={filteredProducts.slice(0, 5)} theme={theme} onSelect={(p) => setSelectedProduct(p as StoreProduct)} />
-              )}
-
-              {section.type === "produtos" && (() => {
-                let sectionProds = activeCategory ? filteredProducts : storeProducts;
-                if (section.categoryFilter) sectionProds = filterByCategory(sectionProds as StoreProduct[], section.categoryFilter);
-                return (
-                <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
-                  {sectionProds.map((product) => {
-                    const info = getProductPriceInfo(product);
-                    return (
-                      <div key={product.id} className="rounded-xl bg-card border border-border flex flex-col overflow-hidden cursor-pointer" onClick={() => setSelectedProduct(product)}>
-                        <div className="aspect-square w-full overflow-hidden">
-                          {product.image_url ? (
-                            <img src={product.image_url} alt={product.product_name} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-muted"><ShoppingBag size={24} className="text-muted-foreground/20" /></div>
-                          )}
-                        </div>
-                        <div className="p-2">
-                          <p className="text-xs text-center truncate" style={{ color: theme.titleColor, fontFamily: `'${theme.titleFont}', sans-serif`, fontWeight: theme.titleBold ? 700 : 500 }}>
-                            {product.product_name}
-                          </p>
-                          {info && (
-                            <div className="flex items-center justify-center gap-1.5 mt-0.5">
-                              {info.hasDiscount && <span className="text-[10px] line-through text-muted-foreground">R${info.originalPrice!.toFixed(2)}</span>}
-                              <span className="text-xs" style={{ color: info.hasDiscount ? '#ef4444' : theme.priceColor, fontWeight: 700 }}>
-                                R${(info.salePrice || info.originalPrice)!.toFixed(2)}
-                              </span>
-                            </div>
-                          )}
-                          <button onClick={(e) => { e.stopPropagation(); setSelectedProduct(product); }}
-                            className="mt-1.5 w-full py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-all"
-                            style={{ backgroundColor: theme.buttonBgColor, color: theme.buttonTextColor }}>
-                            Comprar
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-                );
-              })()}
-            </div>
+        {activeCategory && filteredProducts.length === 0 ? (
+          <div className="px-4 md:px-8 py-16 text-center">
+            <ShoppingBag size={48} className="mx-auto mb-4 text-muted-foreground/30" />
+            <p className="text-sm text-muted-foreground">Nenhum produto encontrado nesta categoria.</p>
           </div>
-        ))}
+        ) : (
+          sections.map((section) => {
+            let sectionProds: StoreProduct[] = [];
+            if (section.type === "produtos") {
+              sectionProds = activeCategory ? filteredProducts : storeProducts;
+              if (section.categoryFilter) sectionProds = filterByCategory(sectionProds, section.categoryFilter);
+            }
+            if (section.type === "destaque" && activeCategory && filteredProducts.length === 0) return null;
+            if (section.type === "produtos" && sectionProds.length === 0) return null;
+
+            return (
+              <div key={section.id}>
+                {(section.title || section.subtitle) && (
+                  <div className="px-4 md:px-8 pt-6 pb-2">
+                    {section.title && (
+                      <h2 className="text-lg leading-tight" style={{ color: theme.titleColor, fontFamily: `'${theme.titleFont}', sans-serif`, fontWeight: theme.titleBold ? 700 : 400, fontStyle: theme.titleItalic ? "italic" : "normal" }}>
+                        {section.title}
+                      </h2>
+                    )}
+                    {section.subtitle && (
+                      <p className="text-sm mt-0.5" style={{ color: theme.subtitleColor, fontFamily: `'${theme.subtitleFont}', sans-serif`, fontWeight: theme.subtitleBold ? 600 : 400, fontStyle: theme.subtitleItalic ? "italic" : "normal" }}>
+                        {section.subtitle}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                <div className="px-4 md:px-8 pb-4">
+                  {section.type === "banner" && section.banners && section.banners.length > 0 && (
+                    <StoreBannerPreview banners={section.banners} iconColor={theme.iconColor} />
+                  )}
+
+                  {section.type === "destaque" && (
+                    <StoreDestaquePreview products={filteredProducts.slice(0, 5)} theme={theme} onSelect={(p) => setSelectedProduct(p as StoreProduct)} />
+                  )}
+
+                  {section.type === "produtos" && (
+                    <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
+                      {sectionProds.map((product) => {
+                        const info = getProductPriceInfo(product);
+                        return (
+                          <div key={product.id} className="rounded-xl bg-card border border-border flex flex-col overflow-hidden cursor-pointer" onClick={() => setSelectedProduct(product)}>
+                            <div className="aspect-square w-full overflow-hidden">
+                              {product.image_url ? (
+                                <img src={product.image_url} alt={product.product_name} className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center bg-muted"><ShoppingBag size={24} className="text-muted-foreground/20" /></div>
+                              )}
+                            </div>
+                            <div className="p-2">
+                              <p className="text-xs text-center truncate" style={{ color: theme.titleColor, fontFamily: `'${theme.titleFont}', sans-serif`, fontWeight: theme.titleBold ? 700 : 500 }}>
+                                {product.product_name}
+                              </p>
+                              {info && (
+                                <div className="flex items-center justify-center gap-1.5 mt-0.5">
+                                  {info.hasDiscount && <span className="text-[10px] line-through text-muted-foreground">R${info.originalPrice!.toFixed(2)}</span>}
+                                  <span className="text-xs" style={{ color: info.hasDiscount ? '#ef4444' : theme.priceColor, fontWeight: 700 }}>
+                                    R${(info.salePrice || info.originalPrice)!.toFixed(2)}
+                                  </span>
+                                </div>
+                              )}
+                              <button onClick={(e) => { e.stopPropagation(); setSelectedProduct(product); }}
+                                className="mt-1.5 w-full py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-all"
+                                style={{ backgroundColor: theme.buttonBgColor, color: theme.buttonTextColor }}>
+                                Comprar
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })
+        )}
       </main>
 
       <StoreFooter storeName={storeName} config={footerConfig} />
