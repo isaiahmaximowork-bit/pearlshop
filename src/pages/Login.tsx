@@ -42,7 +42,12 @@ const Login = () => {
 
   useEffect(() => {
     if (!loading && user) {
-      navigate('/app', { replace: true });
+      // If on app domain or dev, just navigate. Otherwise redirect to app domain.
+      if (APP_ORIGIN) {
+        window.location.href = APP_ORIGIN + '/app';
+      } else {
+        navigate('/app', { replace: true });
+      }
     }
   }, [user, loading, navigate]);
 
@@ -57,7 +62,11 @@ const Login = () => {
         : error.message);
       return;
     }
-    navigate('/app');
+    if (APP_ORIGIN) {
+      window.location.href = APP_ORIGIN + '/app';
+    } else {
+      navigate('/app');
+    }
   };
 
   return (
