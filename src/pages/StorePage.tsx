@@ -653,6 +653,8 @@ const StorePage = () => {
         ))}
       </main>
 
+      <StoreFooter storeName={storeName} config={footerConfig} />
+
       <ProductDetailModal product={selectedProduct} open={!!selectedProduct} onOpenChange={(open) => { if (!open) setSelectedProduct(null); }} mode="buy" buyUrl={selectedProduct?.user_affiliate_url} />
     </div>
   );
