@@ -487,6 +487,7 @@ const Builder = () => {
             if (saved.sections) setSections(saved.sections);
             if (saved.theme) setTheme(saved.theme);
             if (saved.headerConfig) setHeaderConfig(saved.headerConfig);
+            if (saved.footerConfig) setFooterConfig(saved.footerConfig);
           } catch {
             // ignore invalid JSON
           }
@@ -630,7 +631,7 @@ const Builder = () => {
     }
     setSaving(true);
     try {
-      const builderData = JSON.stringify({ sections, theme, headerConfig });
+      const builderData = JSON.stringify({ sections, theme, headerConfig, footerConfig });
       const { error } = await supabase
         .from("stores")
         .update({ preview_cache: builderData })
