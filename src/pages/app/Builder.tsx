@@ -549,8 +549,23 @@ const Builder = () => {
     fetchProducts();
   }, []);
 
-  const [dragIndex, setDragIndex] = useState<number | null>(null);
-  const [dropIndicator, setDropIndicator] = useState<number | null>(null);
+  // Fetch user's affiliated product categories
+  useEffect(() => {
+    if (!user) return;
+    const fetchCategories = async () => {
+      const { data } = await supabase
+        .from("user_products")
+        .select("category")
+        .eq("user_id", user.id)
+        .not("affiliate_url", "is", null);
+      if (data) {
+        const cats = new Set<string>();
+        data.forEach((row: any) => { if (row.category) cats.add(row.category); });
+        setUserAffiliatedCategories(Array.from(cats));
+      }
+    };
+    fetchCategories();
+  }, [user]);
 
   const selectedSection = sections.find((s) => s.id === selectedSectionId) || null;
   const hasRightPanel = !!selectedSection;
