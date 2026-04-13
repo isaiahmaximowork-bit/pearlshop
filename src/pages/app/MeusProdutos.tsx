@@ -1,18 +1,21 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Package, Trash2, ExternalLink, Link2, Check, AlertCircle, Tag } from "lucide-react";
+import { Package, Trash2, Search, Filter, Tag, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { PRODUCT_CATEGORIES } from "@/components/builder/types";
+import { MyProductModal } from "@/components/MyProductModal";
 
 const MeusProdutos = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [editingLinkId, setEditingLinkId] = useState<string | null>(null);
-  const [linkValue, setLinkValue] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const { data: myProducts = [], isLoading } = useQuery({
     queryKey: ["user-products", user?.id],
@@ -50,8 +53,6 @@ const MeusProdutos = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-products"] });
       toast.success("Link de vendas salvo com sucesso!");
-      setEditingLinkId(null);
-      setLinkValue("");
     },
     onError: () => toast.error("Erro ao salvar link."),
   });
@@ -75,28 +76,131 @@ const MeusProdutos = () => {
     return "—";
   };
 
-  const startEditLink = (item: any) => {
-    setEditingLinkId(item.id);
-    setLinkValue(item.affiliate_url || "");
+  // Filter products
+  const filtered = useMemo(() => {
+    return myProducts.filter((item: any) => {
+      const product = item.catalog_products;
+      if (!product) return false;
+      const matchesSearch = !searchQuery || product.product_name.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = !categoryFilter || item.category === categoryFilter;
+      return matchesSearch && matchesCategory;
+    });
+  }, [myProducts, searchQuery, categoryFilter]);
+
+  // Split into 3 groups
+  const activeProducts = filtered.filter((item: any) => !!item.affiliate_url && item.catalog_products?.status !== 'inactive');
+  const pendingProducts = filtered.filter((item: any) => !item.affiliate_url && item.catalog_products?.status !== 'inactive');
+  const inactiveProducts = filtered.filter((item: any) => item.catalog_products?.status === 'inactive');
+
+  const openProductModal = (item: any) => {
+    setSelectedProduct(item);
+    setModalOpen(true);
   };
 
-  const saveLink = (id: string) => {
-    if (!linkValue.trim()) {
-      toast.error("Insira um link válido.");
-      return;
-    }
-    updateLinkMutation.mutate({ id, url: linkValue.trim() });
+  const renderProductCard = (item: any) => {
+    const product = item.catalog_products;
+    if (!product) return null;
+    return (
+      <motion.div
+        key={item.id}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        onClick={() => openProductModal(item)}
+        className="bg-card rounded-3xl border border-border p-4 shadow-sm hover:shadow-xl transition-all group flex flex-col h-full cursor-pointer"
+      >
+        <div className="aspect-square rounded-2xl bg-muted overflow-hidden mb-4 relative shrink-0">
+          {product.image_url ? (
+            <img src={product.image_url} alt={product.product_name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <Package className="h-10 w-10 text-muted-foreground/40" />
+            </div>
+          )}
+        </div>
+        <div className="space-y-2 flex-1 flex flex-col">
+          <h4 className="text-sm font-medium text-foreground leading-tight line-clamp-2">
+            {product.product_name}
+          </h4>
+          <span className="text-lg font-black text-foreground">{getPrice(product)}</span>
+          {item.category && (
+            <div className="flex items-center gap-1">
+              <Tag size={10} className="text-muted-foreground" />
+              <span className="text-[10px] text-muted-foreground font-medium">
+                {PRODUCT_CATEGORIES.find(c => c.value === item.category)?.label || item.category}
+              </span>
+            </div>
+          )}
+          <div className="mt-auto flex gap-2 pt-2">
+            <button
+              onClick={(e) => { e.stopPropagation(); removeMutation.mutate(item.id); }}
+              className="p-2.5 rounded-xl border border-border bg-card text-muted-foreground hover:text-destructive hover:border-destructive/50 transition-colors"
+              title="Remover produto"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    );
   };
+
+  const renderSection = (title: string, products: any[], colorClass: string, dotColor: string) => (
+    <div className="space-y-4">
+      <div className="flex items-center gap-3">
+        <div className={`w-3 h-3 rounded-full ${dotColor}`} />
+        <h2 className={`text-lg font-black tracking-tight uppercase ${colorClass}`}>{title}</h2>
+        <span className="text-sm text-muted-foreground font-medium">({products.length})</span>
+      </div>
+      {products.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {products.map(renderProductCard)}
+        </div>
+      ) : (
+        <div className="py-8 text-center text-muted-foreground text-sm border border-dashed border-border rounded-2xl">
+          Nenhum produto nesta seção
+        </div>
+      )}
+    </div>
+  );
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto w-full space-y-6 md:space-y-10">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto w-full space-y-6 md:space-y-8">
       <div className="space-y-1">
         <h1 className="text-2xl md:text-3xl font-black tracking-tighter text-foreground uppercase">
           Meus Produtos
         </h1>
         <p className="text-muted-foreground font-medium tracking-tight">
-          Produtos que você se afiliou. Adicione seu link de vendas para exibir na loja.
+          Gerencie seus produtos afiliados. Adicione links de vendas e organize por categoria.
         </p>
+      </div>
+
+      {/* Search and Filters */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Buscar produto..."
+            className="w-full bg-card border border-border rounded-xl py-2.5 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+          />
+        </div>
+        <div className="relative">
+          <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="appearance-none bg-card border border-border rounded-xl py-2.5 pl-9 pr-10 text-sm outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
+          >
+            {PRODUCT_CATEGORIES.filter(c => c.value !== "promocao").map((cat) => (
+              <option key={cat.value} value={cat.value}>
+                {cat.value === "" ? "Todas as categorias" : cat.label}
+              </option>
+            ))}
+          </select>
+          <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+        </div>
       </div>
 
       {isLoading && (
@@ -120,125 +224,29 @@ const MeusProdutos = () => {
       )}
 
       {!isLoading && myProducts.length > 0 && (
-        <>
-          <p className="text-sm text-muted-foreground">{myProducts.length} produtos afiliados</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {myProducts.map((item: any) => {
-              const product = item.catalog_products;
-              if (!product) return null;
-              const hasLink = !!item.affiliate_url;
-              return (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-card rounded-3xl border border-border p-4 shadow-sm hover:shadow-xl transition-all group flex flex-col h-full"
-                >
-                  <div className="aspect-square rounded-2xl bg-muted overflow-hidden mb-4 relative shrink-0">
-                    {product.image_url ? (
-                      <img src={product.image_url} alt={product.product_name} className="w-full h-full object-cover" loading="lazy" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Package className="h-10 w-10 text-muted-foreground/40" />
-                      </div>
-                    )}
-                    {/* Status badge: link or missing */}
-                    <div className={`absolute top-2 left-2 flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm ${
-                      hasLink
-                        ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                        : "bg-yellow-500/20 text-yellow-500 border border-yellow-500/30"
-                    }`}>
-                      {hasLink ? <Check size={12} /> : <AlertCircle size={12} />}
-                      {hasLink ? "Na loja" : "Sem link"}
-                    </div>
-                  </div>
-                  <div className="space-y-3 flex-1 flex flex-col">
-                    <h4 className="text-sm font-medium text-foreground leading-tight line-clamp-2">
-                      {product.product_name}
-                    </h4>
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg font-black text-foreground">{getPrice(product)}</span>
-                    </div>
+        <div className="space-y-10">
+          {renderSection("Produtos Ativos", activeProducts, "text-green-400", "bg-green-500")}
+          <div className="border-t border-border" />
+          {renderSection("Verificação Pendente", pendingProducts, "text-yellow-400", "bg-yellow-500")}
+          <div className="border-t border-border" />
+          {renderSection("Produtos Inativos", inactiveProducts, "text-muted-foreground", "bg-muted-foreground")}
+        </div>
+      )}
 
-                    {/* Affiliate link section */}
-                    {editingLinkId === item.id ? (
-                      <div className="space-y-2">
-                        <input
-                          type="url"
-                          value={linkValue}
-                          onChange={(e) => setLinkValue(e.target.value)}
-                          placeholder="https://seu-link-de-afiliado.com"
-                          className="w-full bg-muted border border-border rounded-xl py-2 px-3 text-xs outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                          autoFocus
-                        />
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => saveLink(item.id)}
-                            disabled={updateLinkMutation.isPending}
-                            className="flex-1 py-2 bg-primary text-primary-foreground rounded-xl font-bold text-[10px] uppercase tracking-widest hover:opacity-90 transition-all"
-                          >
-                            Salvar
-                          </button>
-                          <button
-                            onClick={() => { setEditingLinkId(null); setLinkValue(""); }}
-                            className="py-2 px-3 rounded-xl border border-border bg-card text-muted-foreground text-[10px] font-bold uppercase hover:bg-muted transition-colors"
-                          >
-                            Cancelar
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => startEditLink(item)}
-                        className={`py-2 px-3 rounded-xl border text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
-                          hasLink
-                            ? "border-green-500/30 bg-green-500/10 text-green-400 hover:bg-green-500/20"
-                            : "border-yellow-500/30 bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20"
-                        }`}
-                      >
-                        <Link2 size={12} />
-                        {hasLink ? "Editar link de vendas" : "Adicionar link de vendas"}
-                      </button>
-                    )}
-
-                    {/* Category selector */}
-                    <div className="flex items-center gap-2">
-                      <Tag size={12} className="text-muted-foreground flex-shrink-0" />
-                      <select
-                        value={item.category || ""}
-                        onChange={(e) => updateCategoryMutation.mutate({ id: item.id, category: e.target.value })}
-                        className="flex-1 bg-muted border border-border rounded-lg py-1.5 px-2 text-xs outline-none focus:ring-2 focus:ring-primary/20"
-                      >
-                        {PRODUCT_CATEGORIES.filter(c => c.value !== "promocao").map((cat) => (
-                          <option key={cat.value} value={cat.value}>{cat.value === "" ? "Sem categoria" : cat.label}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="mt-auto flex gap-2">
-                      <a
-                        href={item.affiliate_url || `https://shop.tiktok.com/view/product/${product.product_id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 py-3 bg-primary text-primary-foreground rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95 shadow-lg"
-                      >
-                        <ExternalLink size={14} />
-                        Abrir no TikTok
-                      </a>
-                      <button
-                        onClick={() => removeMutation.mutate(item.id)}
-                        className="p-3 rounded-xl border border-border bg-card text-muted-foreground hover:text-destructive hover:border-destructive/50 transition-colors"
-                        title="Remover produto"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </>
+      {/* Product Modal */}
+      {selectedProduct && (
+        <MyProductModal
+          item={selectedProduct}
+          open={modalOpen}
+          onOpenChange={(open) => {
+            setModalOpen(open);
+            if (!open) setSelectedProduct(null);
+          }}
+          onSaveLink={(id, url) => updateLinkMutation.mutate({ id, url })}
+          onUpdateCategory={(id, category) => updateCategoryMutation.mutate({ id, category })}
+          onRemove={(id) => { removeMutation.mutate(id); setModalOpen(false); }}
+          isSavingLink={updateLinkMutation.isPending}
+        />
       )}
     </div>
   );
