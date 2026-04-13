@@ -21,7 +21,7 @@ import {
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import defaultPreview from "@/assets/store-default-preview.png";
+import StoreMiniPreview from "@/components/StoreMiniPreview";
 
 interface Store {
   id: string;
