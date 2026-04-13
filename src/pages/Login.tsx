@@ -4,6 +4,7 @@ import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { APP_ORIGIN } from '@/lib/domain';
 import { toast } from 'sonner';
 import logo from '@/assets/logo.png';
 
@@ -41,7 +42,12 @@ const Login = () => {
 
   useEffect(() => {
     if (!loading && user) {
-      navigate('/app', { replace: true });
+      // If on app domain or dev, just navigate. Otherwise redirect to app domain.
+      if (APP_ORIGIN) {
+        window.location.href = APP_ORIGIN + '/app';
+      } else {
+        navigate('/app', { replace: true });
+      }
     }
   }, [user, loading, navigate]);
 
@@ -56,7 +62,11 @@ const Login = () => {
         : error.message);
       return;
     }
-    navigate('/app');
+    if (APP_ORIGIN) {
+      window.location.href = APP_ORIGIN + '/app';
+    } else {
+      navigate('/app');
+    }
   };
 
   return (
