@@ -678,12 +678,15 @@ const StorePage = () => {
               )}
 
               {section.type === "destaque" && (
-                <StoreDestaquePreview products={storeProducts.slice(0, 5)} theme={theme} onSelect={(p) => setSelectedProduct(p as StoreProduct)} />
+                <StoreDestaquePreview products={filteredProducts.slice(0, 5)} theme={theme} onSelect={(p) => setSelectedProduct(p as StoreProduct)} />
               )}
 
-              {section.type === "produtos" && (
+              {section.type === "produtos" && (() => {
+                let sectionProds = activeCategory ? filteredProducts : storeProducts;
+                if (section.categoryFilter) sectionProds = filterByCategory(sectionProds as StoreProduct[], section.categoryFilter);
+                return (
                 <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
-                  {storeProducts.map((product) => {
+                  {sectionProds.map((product) => {
                     const info = getProductPriceInfo(product);
                     return (
                       <div key={product.id} className="rounded-xl bg-card border border-border flex flex-col overflow-hidden cursor-pointer" onClick={() => setSelectedProduct(product)}>
