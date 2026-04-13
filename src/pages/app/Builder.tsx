@@ -811,6 +811,50 @@ const Builder = () => {
                     )}
                   </div>
 
+                  {/* MENU HAMBURGER */}
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Menu Hamburger</p>
+                    <div className="space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs text-muted-foreground">Cor de Fundo</Label>
+                        <input type="color" value={headerConfig.menuBgColor || "#1a1a1a"} onChange={(e) => setHeaderConfig((h) => ({ ...h, menuBgColor: e.target.value }))} className="w-7 h-7 rounded border border-border cursor-pointer p-0.5" />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs text-muted-foreground">Cor do Texto</Label>
+                        <input type="color" value={headerConfig.menuTextColor || "#ffffff"} onChange={(e) => setHeaderConfig((h) => ({ ...h, menuTextColor: e.target.value }))} className="w-7 h-7 rounded border border-border cursor-pointer p-0.5" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* CATEGORIAS EM DESTAQUE (Desktop Header) */}
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Categorias em Destaque</p>
+                    <p className="text-[10px] text-muted-foreground mb-2">Aparecem na header do desktop, abaixo da busca.</p>
+                    <div className="space-y-1.5">
+                      {PRODUCT_CATEGORIES.filter(c => c.value !== "").map((cat) => {
+                        const isSelected = (headerConfig.featuredCategories || []).includes(cat.value);
+                        return (
+                          <label key={cat.value} className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={(e) => {
+                                setHeaderConfig((h) => ({
+                                  ...h,
+                                  featuredCategories: e.target.checked
+                                    ? [...(h.featuredCategories || []), cat.value]
+                                    : (h.featuredCategories || []).filter((v) => v !== cat.value),
+                                }));
+                              }}
+                              className="rounded border-border"
+                            />
+                            <span className="text-xs text-muted-foreground">{cat.label}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+
                   <p className="text-[10px] text-muted-foreground">🔍 A lupa de pesquisa aparece automaticamente no header.</p>
                 </div>
               )}
