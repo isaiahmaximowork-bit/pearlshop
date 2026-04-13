@@ -342,6 +342,7 @@ const StorePage = () => {
             if (!hc.logoText) hc.logoText = data.store_name || "";
             setHeaderConfig(hc);
           }
+          if (saved.footerConfig) setFooterConfig((prev) => ({ ...prev, ...saved.footerConfig }));
         } catch { /* ignore */ }
       }
 
