@@ -49,6 +49,8 @@ interface HeaderConfig {
   announcementTextColor: string;
   headerBgColor: string;
   logoColor: string;
+  iconBgColor: string;
+  searchTextColor: string;
   menuBgColor: string;
   menuTextColor: string;
   menuHighlightColor: string;
@@ -68,6 +70,8 @@ const defaultHeaderConfig: HeaderConfig = {
   announcementTextColor: "#ffffff",
   headerBgColor: "",
   logoColor: "",
+  iconBgColor: "#2a2a2e",
+  searchTextColor: "#a1a1aa",
   menuBgColor: "#1a1a1a",
   menuTextColor: "#ffffff",
   menuHighlightColor: "#ffffff",
@@ -788,6 +792,20 @@ const Builder = () => {
                             <span className="text-[10px] font-mono text-muted-foreground">{headerConfig.headerBgColor || "padrão"}</span>
                           </div>
                         </div>
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs text-muted-foreground">Cor de Fundo dos Ícones</Label>
+                          <div className="flex items-center gap-2">
+                            <input type="color" value={headerConfig.iconBgColor || "#2a2a2e"} onChange={(e) => setHeaderConfig((h) => ({ ...h, iconBgColor: e.target.value }))} className="w-7 h-7 rounded border border-border cursor-pointer p-0.5" />
+                            <span className="text-[10px] font-mono text-muted-foreground">{headerConfig.iconBgColor || "padrão"}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs text-muted-foreground">Cor do Texto da Busca</Label>
+                          <div className="flex items-center gap-2">
+                            <input type="color" value={headerConfig.searchTextColor || "#a1a1aa"} onChange={(e) => setHeaderConfig((h) => ({ ...h, searchTextColor: e.target.value }))} className="w-7 h-7 rounded border border-border cursor-pointer p-0.5" />
+                            <span className="text-[10px] font-mono text-muted-foreground">{headerConfig.searchTextColor || "padrão"}</span>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -1240,8 +1258,8 @@ const Builder = () => {
                   <div className="relative">
                     <button
                       onClick={() => setSearchOpen(!searchOpen)}
-                      className="w-8 h-8 rounded-lg border border-border flex items-center justify-center hover:text-foreground transition-colors"
-                      style={{ color: theme.iconColor }}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center hover:opacity-80 transition-opacity"
+                      style={{ backgroundColor: headerConfig.iconBgColor || "#2a2a2e", color: theme.iconColor }}
                     >
                       <Search size={16} />
                     </button>
@@ -1252,8 +1270,8 @@ const Builder = () => {
                   <div className="relative">
                     <button
                       onClick={() => setSearchOpen(!searchOpen)}
-                      className="w-8 h-8 rounded-lg border border-border flex items-center justify-center hover:text-foreground transition-colors"
-                      style={{ color: theme.iconColor }}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center hover:opacity-80 transition-opacity"
+                      style={{ backgroundColor: headerConfig.iconBgColor || "#2a2a2e", color: theme.iconColor }}
                     >
                       <Search size={16} />
                     </button>
