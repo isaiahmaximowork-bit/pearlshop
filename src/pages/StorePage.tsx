@@ -559,7 +559,7 @@ const StorePage = () => {
             {/* Row 1: Hamburger + Logo */}
             <div className="flex items-center py-4">
               <StoreHamburgerMenu
-                config={{ menuBgColor: headerConfig.menuBgColor || "#1a1a1a", menuTextColor: headerConfig.menuTextColor || "#ffffff", menuHighlightColor: headerConfig.menuHighlightColor, menuDetailColor: headerConfig.menuDetailColor }}
+                config={{ menuBgColor: headerConfig.menuBgColor || "#1a1a1a", menuTextColor: headerConfig.menuTextColor || "#ffffff", menuHighlightColor: headerConfig.menuHighlightColor, menuDetailColor: headerConfig.menuDetailColor, iconBgColor: headerConfig.iconBgColor, iconColor: theme.iconColor }}
                 logoMode={headerConfig.logoMode}
                 logoText={headerConfig.logoText || storeName || "Loja"}
                 logoImageUrl={headerConfig.logoImageUrl}
