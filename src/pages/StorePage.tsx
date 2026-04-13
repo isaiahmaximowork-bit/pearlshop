@@ -361,7 +361,7 @@ const StorePage = () => {
       // Fetch only affiliated products with a link set (for this store owner)
       const { data: userProds } = await supabase
         .from("user_products")
-        .select("affiliate_url, catalog_products(*)")
+        .select("affiliate_url, category, catalog_products(*)")
         .eq("user_id", data.user_id)
         .not("affiliate_url", "is", null);
       
@@ -371,6 +371,7 @@ const StorePage = () => {
           .map((up: any) => ({
             ...up.catalog_products,
             user_affiliate_url: up.affiliate_url,
+            user_category: up.category || "",
           }));
         setStoreProducts(mapped);
       }
