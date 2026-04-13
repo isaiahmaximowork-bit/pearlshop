@@ -252,7 +252,7 @@ const StoreDestaquePreview = ({ products, theme, onSelect }: { products: Catalog
         {products.map((product) => {
           const info = getProductPriceInfo(product);
           return (
-            <div key={product.id} className="flex flex-col flex-shrink-0" style={{ width: `${100 / products.length}%` }}>
+            <div key={product.id} className="flex flex-col flex-shrink-0 cursor-pointer" style={{ width: `${100 / products.length}%` }} onClick={() => onSelect(product)}>
               <div className="w-full aspect-square overflow-hidden">
                 {product.image_url ? (
                   <img src={product.image_url} alt={product.product_name} className="w-full h-full object-cover" />
@@ -268,7 +268,7 @@ const StoreDestaquePreview = ({ products, theme, onSelect }: { products: Catalog
                     <span className="text-lg" style={{ color: info.hasDiscount ? '#ef4444' : theme.priceColor, fontWeight: 700 }}>R${(info.salePrice || info.originalPrice)!.toFixed(2)}</span>
                   </div>
                 )}
-                <button onClick={() => window.open(getProductShopUrl(product), '_blank')} className="w-full py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider hover:opacity-90 transition-all"
+                <button onClick={(e) => { e.stopPropagation(); onSelect(product); }} className="w-full py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider hover:opacity-90 transition-all"
                   style={{ backgroundColor: theme.buttonBgColor, color: theme.buttonTextColor }}>Comprar</button>
               </div>
             </div>
@@ -278,7 +278,7 @@ const StoreDestaquePreview = ({ products, theme, onSelect }: { products: Catalog
       {products.length > 1 && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
           {products.map((_, i) => (
-            <button key={i} onClick={() => setActiveIndex(i)} className="w-2 h-2 rounded-full transition-all"
+            <button key={i} onClick={(e) => { e.stopPropagation(); setActiveIndex(i); }} className="w-2 h-2 rounded-full transition-all"
               style={{ backgroundColor: i === activeIndex ? theme.iconColor : `${theme.iconColor}66`, transform: i === activeIndex ? "scale(1.25)" : "scale(1)" }} />
           ))}
         </div>

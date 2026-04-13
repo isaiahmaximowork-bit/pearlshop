@@ -21,7 +21,7 @@ import {
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import defaultPreview from "@/assets/store-default-preview.png";
+import StoreMiniPreview from "@/components/StoreMiniPreview";
 
 interface Store {
   id: string;
@@ -136,8 +136,6 @@ const StoreSettings = () => {
 
   const canGoPublic = hasMinProducts && tasks.logoChanged && tasks.videoPublished;
 
-  const previewImage = store?.preview_cache || defaultPreview;
-
   if (loading) {
     return (
       <div className="p-4 md:p-8 flex items-center justify-center min-h-[60vh]">
@@ -231,8 +229,8 @@ const StoreSettings = () => {
             )}
           </div>
           <div className="flex items-center justify-center p-6 md:p-8">
-            <div className="w-44 h-44 md:w-56 md:h-56 rounded-2xl overflow-hidden border border-border shadow-sm flex-shrink-0">
-              <img src={previewImage} alt="Preview da loja" className="w-full h-full object-cover" />
+            <div className="w-44 h-44 md:w-56 md:h-56 flex-shrink-0">
+              <StoreMiniPreview previewCache={store?.preview_cache || null} storeName={store?.store_name || "Loja"} />
             </div>
           </div>
         </div>
