@@ -7,6 +7,8 @@ interface MenuConfig {
   menuTextColor: string;
   menuHighlightColor?: string;
   menuDetailColor?: string;
+  iconBgColor?: string;
+  iconColor?: string;
 }
 
 interface StoreHamburgerMenuProps {
@@ -46,8 +48,8 @@ const StoreHamburgerMenu = ({
     <>
       <button
         onClick={() => setOpen(true)}
-        className="w-8 h-8 rounded-lg border border-border flex items-center justify-center transition-colors hover:bg-muted/50"
-        style={{ color: textColor }}
+        className="w-8 h-8 rounded-lg flex items-center justify-center transition-opacity hover:opacity-80"
+        style={{ backgroundColor: config.iconBgColor || "#2a2a2e", color: config.iconColor || textColor }}
       >
         <Menu size={16} />
       </button>
