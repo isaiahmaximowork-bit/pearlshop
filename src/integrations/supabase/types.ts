@@ -222,6 +222,7 @@ export type Database = {
         Row: {
           affiliate_url: string | null
           catalog_product_id: string
+          category: string | null
           created_at: string
           id: string
           user_id: string
@@ -229,6 +230,7 @@ export type Database = {
         Insert: {
           affiliate_url?: string | null
           catalog_product_id: string
+          category?: string | null
           created_at?: string
           id?: string
           user_id: string
@@ -236,6 +238,7 @@ export type Database = {
         Update: {
           affiliate_url?: string | null
           catalog_product_id?: string
+          category?: string | null
           created_at?: string
           id?: string
           user_id?: string

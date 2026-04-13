@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { ProductDetailModal } from "@/components/ProductDetailModal";
 import StoreFooter from "@/components/StoreFooter";
 import type { FooterConfig } from "@/components/StoreFooter";
+import StoreHamburgerMenu from "@/components/StoreHamburgerMenu";
+import { PRODUCT_CATEGORIES } from "@/components/builder/types";
 import type { TextPosition, FontFamily, BannerTextConfig, BannerItem, BuilderSection } from "@/components/builder/types";
 
 // ─── Types (mirror Builder) ───
@@ -28,6 +30,9 @@ interface HeaderConfig {
   announcementTextColor: string;
   headerBgColor: string;
   logoColor: string;
+  menuBgColor: string;
+  menuTextColor: string;
+  featuredCategories: string[];
 }
 
 interface StoreTheme {
@@ -69,6 +74,7 @@ interface CatalogProduct {
 
 interface StoreProduct extends CatalogProduct {
   user_affiliate_url: string;
+  user_category: string;
 }
 
 const defaultTheme: StoreTheme = {
@@ -83,6 +89,7 @@ const defaultHeaderConfig: HeaderConfig = {
   announcementMessages: [{ id: "1", text: "" }],
   announcementBgColor: "#7c3aed", announcementTextColor: "#ffffff",
   headerBgColor: "", logoColor: "",
+  menuBgColor: "#1a1a1a", menuTextColor: "#ffffff", featuredCategories: [],
 };
 
 // ─── Helpers ───
@@ -297,6 +304,7 @@ const StorePage = () => {
   const [selectedProduct, setSelectedProduct] = useState<StoreProduct | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState("");
 
   const [storeData, setStoreData] = useState<{ id: string; user_id: string; is_public: boolean; access_code: string; store_name: string; preview_cache: string | null } | null>(null);
 
@@ -353,7 +361,7 @@ const StorePage = () => {
       // Fetch only affiliated products with a link set (for this store owner)
       const { data: userProds } = await supabase
         .from("user_products")
-        .select("affiliate_url, catalog_products(*)")
+        .select("affiliate_url, category, catalog_products(*)")
         .eq("user_id", data.user_id)
         .not("affiliate_url", "is", null);
       
@@ -363,6 +371,7 @@ const StorePage = () => {
           .map((up: any) => ({
             ...up.catalog_products,
             user_affiliate_url: up.affiliate_url,
+            user_category: up.category || "",
           }));
         setStoreProducts(mapped);
       }
@@ -381,6 +390,23 @@ const StorePage = () => {
       setCodeError("Código de acesso incorreto.");
     }
   };
+
+  // Available categories from products
+  const availableCategories = useMemo(() => {
+    const cats = new Set<string>();
+    storeProducts.forEach((p) => { if (p.user_category) cats.add(p.user_category); });
+    return Array.from(cats);
+  }, [storeProducts]);
+
+  // Filter products by category
+  const filterByCategory = (products: StoreProduct[], cat: string) => {
+    if (!cat) return products;
+    if (cat === "promocao") return products.filter((p) => p.is_on_sale);
+    return products.filter((p) => p.user_category === cat);
+  };
+
+  // Global filtered products (for active category from menu)
+  const filteredProducts = useMemo(() => filterByCategory(storeProducts, activeCategory), [storeProducts, activeCategory]);
 
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
@@ -454,37 +480,30 @@ const StorePage = () => {
 
       {/* Header */}
       <header className="w-full border-b border-border" style={{ backgroundColor: headerConfig.headerBgColor || undefined }}>
-        {/* Mobile Header - same as before */}
+        {/* Mobile Header */}
         <div className="md:hidden px-4 py-3 flex items-center gap-3 relative bg-card" style={{ backgroundColor: headerConfig.headerBgColor || undefined }}>
-          {headerConfig.logoPosition === "left" ? (
-            <>
-              <div className="flex-shrink-0">
-                {headerConfig.logoMode === "image" && headerConfig.logoImageUrl ? (
-                  <img src={headerConfig.logoImageUrl} alt="Logo" className="h-8 max-w-[120px] object-contain" />
-                ) : (
-                  <span className="text-base font-bold" style={{ color: headerConfig.logoColor || headerConfig.logoTextColor }}>{headerConfig.logoText || storeName || "Loja"}</span>
-                )}
-              </div>
-              <div className="flex-1" />
-              <button onClick={() => setSearchOpen(!searchOpen)} className="w-8 h-8 rounded-lg border border-border flex items-center justify-center transition-colors" style={{ color: theme.subtitleColor }}>
-                <Search size={16} />
-              </button>
-            </>
-          ) : (
-            <>
-              <button onClick={() => setSearchOpen(!searchOpen)} className="w-8 h-8 rounded-lg border border-border flex items-center justify-center transition-colors" style={{ color: theme.subtitleColor }}>
-                <Search size={16} />
-              </button>
-              <div className="flex-1 flex justify-center">
-                {headerConfig.logoMode === "image" && headerConfig.logoImageUrl ? (
-                  <img src={headerConfig.logoImageUrl} alt="Logo" className="h-8 max-w-[120px] object-contain" />
-                ) : (
-                  <span className="text-base font-bold" style={{ color: headerConfig.logoColor || headerConfig.logoTextColor }}>{headerConfig.logoText || storeName || "Loja"}</span>
-                )}
-              </div>
-              <div className="w-8" />
-            </>
-          )}
+          <StoreHamburgerMenu
+            config={{ menuBgColor: headerConfig.menuBgColor || "#1a1a1a", menuTextColor: headerConfig.menuTextColor || "#ffffff" }}
+            logoMode={headerConfig.logoMode}
+            logoText={headerConfig.logoText || storeName || "Loja"}
+            logoImageUrl={headerConfig.logoImageUrl}
+            logoColor={headerConfig.logoColor || headerConfig.logoTextColor}
+            titleColor={theme.titleColor}
+            subtitleColor={theme.subtitleColor}
+            categories={availableCategories}
+            onSelectCategory={setActiveCategory}
+            activeCategory={activeCategory}
+          />
+          <div className="flex-1 flex justify-center">
+            {headerConfig.logoMode === "image" && headerConfig.logoImageUrl ? (
+              <img src={headerConfig.logoImageUrl} alt="Logo" className="h-8 max-w-[120px] object-contain" />
+            ) : (
+              <span className="text-base font-bold" style={{ color: headerConfig.logoColor || headerConfig.logoTextColor }}>{headerConfig.logoText || storeName || "Loja"}</span>
+            )}
+          </div>
+          <button onClick={() => setSearchOpen(!searchOpen)} className="w-8 h-8 rounded-lg border border-border flex items-center justify-center transition-colors" style={{ color: theme.subtitleColor }}>
+            <Search size={16} />
+          </button>
 
           {/* Mobile Search Dropdown */}
           {searchOpen && (
@@ -526,19 +545,34 @@ const StorePage = () => {
           )}
         </div>
 
-        {/* Desktop Header - logo top, search bar centered below */}
+        {/* Desktop Header */}
         <div className="hidden md:block bg-card" style={{ backgroundColor: headerConfig.headerBgColor || undefined }}>
           <div className="max-w-6xl mx-auto px-8">
-            {/* Row 1: Logo */}
-            <div className="flex items-center justify-center py-4">
-              {headerConfig.logoMode === "image" && headerConfig.logoImageUrl ? (
-                <img src={headerConfig.logoImageUrl} alt="Logo" className="h-10 max-w-[180px] object-contain" />
-              ) : (
-                <span className="text-xl font-bold" style={{ color: headerConfig.logoColor || headerConfig.logoTextColor }}>{headerConfig.logoText || storeName || "Loja"}</span>
-              )}
+            {/* Row 1: Hamburger + Logo */}
+            <div className="flex items-center py-4">
+              <StoreHamburgerMenu
+                config={{ menuBgColor: headerConfig.menuBgColor || "#1a1a1a", menuTextColor: headerConfig.menuTextColor || "#ffffff" }}
+                logoMode={headerConfig.logoMode}
+                logoText={headerConfig.logoText || storeName || "Loja"}
+                logoImageUrl={headerConfig.logoImageUrl}
+                logoColor={headerConfig.logoColor || headerConfig.logoTextColor}
+                titleColor={theme.titleColor}
+                subtitleColor={theme.subtitleColor}
+                categories={availableCategories}
+                onSelectCategory={setActiveCategory}
+                activeCategory={activeCategory}
+              />
+              <div className="flex-1 flex items-center justify-center">
+                {headerConfig.logoMode === "image" && headerConfig.logoImageUrl ? (
+                  <img src={headerConfig.logoImageUrl} alt="Logo" className="h-10 max-w-[180px] object-contain" />
+                ) : (
+                  <span className="text-xl font-bold" style={{ color: headerConfig.logoColor || headerConfig.logoTextColor }}>{headerConfig.logoText || storeName || "Loja"}</span>
+                )}
+              </div>
+              <div className="w-8" /> {/* spacer to balance hamburger */}
             </div>
             {/* Row 2: Search bar */}
-            <div className="pb-4 max-w-xl mx-auto relative">
+            <div className="pb-3 max-w-xl mx-auto relative">
               <div className="flex items-center gap-2 border border-border rounded-xl px-4 py-2.5 bg-muted/30">
                 <Search size={16} style={{ color: theme.subtitleColor }} />
                 <input
@@ -580,6 +614,41 @@ const StorePage = () => {
                 </div>
               )}
             </div>
+            {/* Row 3: Featured Categories (desktop only) */}
+            {(headerConfig.featuredCategories || []).length > 0 && (
+              <div className="pb-3 flex items-center justify-center gap-2 flex-wrap">
+                <button
+                  onClick={() => setActiveCategory("")}
+                  className="px-3 py-1.5 rounded-full text-xs font-medium transition-all border"
+                  style={{
+                    backgroundColor: activeCategory === "" ? theme.buttonBgColor : "transparent",
+                    color: activeCategory === "" ? theme.buttonTextColor : theme.subtitleColor,
+                    borderColor: activeCategory === "" ? theme.buttonBgColor : `${theme.subtitleColor}30`,
+                  }}
+                >
+                  Todos
+                </button>
+                {(headerConfig.featuredCategories || []).map((catSlug) => {
+                  const cat = PRODUCT_CATEGORIES.find((c) => c.value === catSlug);
+                  if (!cat) return null;
+                  const isActive = activeCategory === catSlug;
+                  return (
+                    <button
+                      key={catSlug}
+                      onClick={() => setActiveCategory(isActive ? "" : catSlug)}
+                      className="px-3 py-1.5 rounded-full text-xs font-medium transition-all border"
+                      style={{
+                        backgroundColor: isActive ? theme.buttonBgColor : "transparent",
+                        color: isActive ? theme.buttonTextColor : theme.subtitleColor,
+                        borderColor: isActive ? theme.buttonBgColor : `${theme.subtitleColor}30`,
+                      }}
+                    >
+                      {cat.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </header>
@@ -609,12 +678,15 @@ const StorePage = () => {
               )}
 
               {section.type === "destaque" && (
-                <StoreDestaquePreview products={storeProducts.slice(0, 5)} theme={theme} onSelect={(p) => setSelectedProduct(p as StoreProduct)} />
+                <StoreDestaquePreview products={filteredProducts.slice(0, 5)} theme={theme} onSelect={(p) => setSelectedProduct(p as StoreProduct)} />
               )}
 
-              {section.type === "produtos" && (
+              {section.type === "produtos" && (() => {
+                let sectionProds = activeCategory ? filteredProducts : storeProducts;
+                if (section.categoryFilter) sectionProds = filterByCategory(sectionProds as StoreProduct[], section.categoryFilter);
+                return (
                 <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
-                  {storeProducts.map((product) => {
+                  {sectionProds.map((product) => {
                     const info = getProductPriceInfo(product);
                     return (
                       <div key={product.id} className="rounded-xl bg-card border border-border flex flex-col overflow-hidden cursor-pointer" onClick={() => setSelectedProduct(product)}>
@@ -647,7 +719,8 @@ const StorePage = () => {
                     );
                   })}
                 </div>
-              )}
+                );
+              })()}
             </div>
           </div>
         ))}

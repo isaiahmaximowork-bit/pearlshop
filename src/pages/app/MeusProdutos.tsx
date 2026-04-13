@@ -3,9 +3,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Package, Trash2, ExternalLink, Link2, Check, AlertCircle } from "lucide-react";
+import { Package, Trash2, ExternalLink, Link2, Check, AlertCircle, Tag } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { PRODUCT_CATEGORIES } from "@/components/builder/types";
 
 const MeusProdutos = () => {
   const { user } = useAuth();
@@ -53,6 +54,18 @@ const MeusProdutos = () => {
       setLinkValue("");
     },
     onError: () => toast.error("Erro ao salvar link."),
+  });
+
+  const updateCategoryMutation = useMutation({
+    mutationFn: async ({ id, category }: { id: string; category: string }) => {
+      const { error } = await supabase.from("user_products").update({ category }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-products"] });
+      toast.success("Categoria atualizada!");
+    },
+    onError: () => toast.error("Erro ao atualizar categoria."),
   });
 
   const getPrice = (product: any) => {
@@ -187,6 +200,20 @@ const MeusProdutos = () => {
                         {hasLink ? "Editar link de vendas" : "Adicionar link de vendas"}
                       </button>
                     )}
+
+                    {/* Category selector */}
+                    <div className="flex items-center gap-2">
+                      <Tag size={12} className="text-muted-foreground flex-shrink-0" />
+                      <select
+                        value={item.category || ""}
+                        onChange={(e) => updateCategoryMutation.mutate({ id: item.id, category: e.target.value })}
+                        className="flex-1 bg-muted border border-border rounded-lg py-1.5 px-2 text-xs outline-none focus:ring-2 focus:ring-primary/20"
+                      >
+                        {PRODUCT_CATEGORIES.filter(c => c.value !== "promocao").map((cat) => (
+                          <option key={cat.value} value={cat.value}>{cat.value === "" ? "Sem categoria" : cat.label}</option>
+                        ))}
+                      </select>
+                    </div>
 
                     <div className="mt-auto flex gap-2">
                       <a
