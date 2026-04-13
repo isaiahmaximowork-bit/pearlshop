@@ -792,7 +792,20 @@ const Builder = () => {
                             <span className="text-[10px] font-mono text-muted-foreground">{headerConfig.headerBgColor || "padrão"}</span>
                           </div>
                         </div>
-                      </div>
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs text-muted-foreground">Cor de Fundo dos Ícones</Label>
+                          <div className="flex items-center gap-2">
+                            <input type="color" value={headerConfig.iconBgColor || "#2a2a2e"} onChange={(e) => setHeaderConfig((h) => ({ ...h, iconBgColor: e.target.value }))} className="w-7 h-7 rounded border border-border cursor-pointer p-0.5" />
+                            <span className="text-[10px] font-mono text-muted-foreground">{headerConfig.iconBgColor || "padrão"}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs text-muted-foreground">Cor do Texto da Busca</Label>
+                          <div className="flex items-center gap-2">
+                            <input type="color" value={headerConfig.searchTextColor || "#a1a1aa"} onChange={(e) => setHeaderConfig((h) => ({ ...h, searchTextColor: e.target.value }))} className="w-7 h-7 rounded border border-border cursor-pointer p-0.5" />
+                            <span className="text-[10px] font-mono text-muted-foreground">{headerConfig.searchTextColor || "padrão"}</span>
+                          </div>
+                        </div>
                     )}
                   </div>
 
