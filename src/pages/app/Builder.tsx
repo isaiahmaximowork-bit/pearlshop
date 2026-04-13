@@ -1258,8 +1258,10 @@ const Builder = () => {
                   <div className="relative">
                     <button
                       onClick={() => setSearchOpen(!searchOpen)}
-                      className="w-8 h-8 rounded-lg border border-border flex items-center justify-center hover:text-foreground transition-colors"
-                      style={{ color: theme.iconColor }}
+                    <button
+                      onClick={() => setSearchOpen(!searchOpen)}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center hover:opacity-80 transition-opacity"
+                      style={{ backgroundColor: headerConfig.iconBgColor || "#2a2a2e", color: theme.iconColor }}
                     >
                       <Search size={16} />
                     </button>
@@ -1270,8 +1272,10 @@ const Builder = () => {
                   <div className="relative">
                     <button
                       onClick={() => setSearchOpen(!searchOpen)}
-                      className="w-8 h-8 rounded-lg border border-border flex items-center justify-center hover:text-foreground transition-colors"
-                      style={{ color: theme.iconColor }}
+                    <button
+                      onClick={() => setSearchOpen(!searchOpen)}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center hover:opacity-80 transition-opacity"
+                      style={{ backgroundColor: headerConfig.iconBgColor || "#2a2a2e", color: theme.iconColor }}
                     >
                       <Search size={16} />
                     </button>
