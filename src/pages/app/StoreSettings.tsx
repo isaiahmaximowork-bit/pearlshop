@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, Package, Pencil, ExternalLink, Globe, Lock, Unlock, RefreshCw, ShieldCheck, CheckCircle2, Circle, Video, ImageIcon } from "lucide-react";
+import { Eye, Package, Pencil, ExternalLink, Globe, Lock, Unlock, RefreshCw, ShieldCheck, CheckCircle2, Circle, Video, ImageIcon, AlertTriangle } from "lucide-react";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import defaultPreview from "@/assets/store-default-preview.png";
 
 interface Store {
@@ -42,8 +43,22 @@ const StoreSettings = () => {
   const [saving, setSaving] = useState(false);
   const [regenConfirmed, setRegenConfirmed] = useState(false);
 
+  // Fetch affiliated product count
+  const { data: affiliatedCount = 0 } = useQuery({
+    queryKey: ['affiliated-count', user?.id],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from('user_products')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user!.id);
+      return count || 0;
+    },
+    enabled: !!user,
+  });
+
+  const hasMinProducts = affiliatedCount >= 3;
+
   const [tasks] = useState({
-    affiliatedProducts: 0,
     logoChanged: false,
     videoPublished: false,
   });
@@ -76,6 +91,10 @@ const StoreSettings = () => {
 
   const handleSave = async () => {
     if (!user) return;
+    if (!hasMinProducts) {
+      toast.error("Você precisa se afiliar a pelo menos 3 produtos antes de criar uma loja.");
+      return;
+    }
     setSaving(true);
 
     let error;
@@ -115,7 +134,7 @@ const StoreSettings = () => {
     toast.success("Código de acesso regenerado com sucesso!");
   };
 
-  const canGoPublic = tasks.affiliatedProducts >= 3 && tasks.logoChanged && tasks.videoPublished;
+  const canGoPublic = hasMinProducts && tasks.logoChanged && tasks.videoPublished;
 
   const previewImage = store?.preview_cache || defaultPreview;
 
@@ -134,8 +153,22 @@ const StoreSettings = () => {
         <p className="text-sm text-muted-foreground mt-1">Configure e gerencie sua loja virtual</p>
       </div>
 
+      {/* Minimum products warning */}
+      {!hasMinProducts && !store && (
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5 flex items-start gap-4">
+          <AlertTriangle size={22} className="text-amber-500 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-foreground">Afilie-se a pelo menos 3 produtos</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Você tem <span className="font-bold text-foreground">{affiliatedCount}</span> de 3 produtos necessários para criar sua loja virtual.
+              Vá ao <button onClick={() => navigate('/app/produtos')} className="text-primary hover:underline font-semibold">Catálogo</button> para adicionar produtos.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Store Card */}
-      <div className="rounded-2xl border border-border bg-card overflow-hidden">
+      <div className={`rounded-2xl border border-border bg-card overflow-hidden ${!hasMinProducts && !store ? 'opacity-50 pointer-events-none' : ''}`}>
         <div className="flex flex-col md:flex-row">
           <div className="flex-1 p-6 md:p-8 flex flex-col justify-between gap-5">
             {editing ? (
@@ -147,7 +180,7 @@ const StoreSettings = () => {
                 <div className="space-y-2">
                   <Label htmlFor="slug" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Slug</Label>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground whitespace-nowrap">pearlshop.io/shop/</span>
+                    <span className="text-sm text-muted-foreground whitespace-nowrap">pearlshop.io/loja/</span>
                     <Input id="slug" value={slug} onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))} placeholder="minha-loja" />
                   </div>
                 </div>
@@ -166,7 +199,7 @@ const StoreSettings = () => {
                 {store?.slug ? (
                   <p className="text-sm text-muted-foreground flex items-center gap-1.5">
                     <ExternalLink size={14} />
-                    pearlshop.io/shop/{store.slug}
+                    pearlshop.io/loja/{store.slug}
                   </p>
                 ) : (
                   <p className="text-sm text-muted-foreground">Configure o nome e slug da sua loja</p>
@@ -192,7 +225,7 @@ const StoreSettings = () => {
                     <Button size="sm" variant="outline" className="gap-2" onClick={() => setEditing(true)}>Configurações</Button>
                   </>
                 ) : (
-                  <Button size="sm" className="gap-2" onClick={() => setEditing(true)}>Criar Minha Loja</Button>
+                  <Button size="sm" className="gap-2" disabled={!hasMinProducts} onClick={() => setEditing(true)}>Criar Minha Loja</Button>
                 )}
               </div>
             )}
@@ -244,7 +277,7 @@ const StoreSettings = () => {
         </div>
       )}
 
-      {/* Tasks */}
+      {/* Tasks — only show when store exists */}
       {store && (
         <div className="rounded-2xl border border-border bg-card p-6 md:p-8 space-y-5">
           <div className="flex items-center justify-between">
@@ -252,17 +285,17 @@ const StoreSettings = () => {
               <Unlock size={18} className="text-primary" />
               <h3 className="text-base font-bold text-foreground">Tornar Loja Pública</h3>
             </div>
-            <span className="text-xs text-muted-foreground font-medium">{[tasks.affiliatedProducts >= 3, tasks.logoChanged, tasks.videoPublished].filter(Boolean).length}/3 concluídas</span>
+            <span className="text-xs text-muted-foreground font-medium">{[hasMinProducts, tasks.logoChanged, tasks.videoPublished].filter(Boolean).length}/3 concluídas</span>
           </div>
           <p className="text-sm text-muted-foreground">Complete as tarefas abaixo para desbloquear o acesso público à sua loja.</p>
           <div className="space-y-3">
-            <div className={`flex items-center gap-3 p-4 rounded-xl border ${tasks.affiliatedProducts >= 3 ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-border bg-muted/30'}`}>
-              {tasks.affiliatedProducts >= 3 ? <CheckCircle2 size={20} className="text-emerald-500 flex-shrink-0" /> : <Circle size={20} className="text-muted-foreground flex-shrink-0" />}
+            <div className={`flex items-center gap-3 p-4 rounded-xl border ${hasMinProducts ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-border bg-muted/30'}`}>
+              {hasMinProducts ? <CheckCircle2 size={20} className="text-emerald-500 flex-shrink-0" /> : <Circle size={20} className="text-muted-foreground flex-shrink-0" />}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-foreground">Afiliar-se a 3 produtos</p>
                 <p className="text-xs text-muted-foreground">Adicione pelo menos 3 produtos à sua loja</p>
               </div>
-              <span className="text-xs font-bold text-muted-foreground flex-shrink-0">{tasks.affiliatedProducts}/3</span>
+              <span className="text-xs font-bold text-muted-foreground flex-shrink-0">{Math.min(affiliatedCount, 3)}/3</span>
             </div>
             <div className={`flex items-center gap-3 p-4 rounded-xl border ${tasks.logoChanged ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-border bg-muted/30'}`}>
               {tasks.logoChanged ? <CheckCircle2 size={20} className="text-emerald-500 flex-shrink-0" /> : <Circle size={20} className="text-muted-foreground flex-shrink-0" />}
