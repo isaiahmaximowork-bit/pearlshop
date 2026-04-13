@@ -74,6 +74,7 @@ interface CatalogProduct {
 
 interface StoreProduct extends CatalogProduct {
   user_affiliate_url: string;
+  user_category: string;
 }
 
 const defaultTheme: StoreTheme = {
