@@ -1258,8 +1258,6 @@ const Builder = () => {
                   <div className="relative">
                     <button
                       onClick={() => setSearchOpen(!searchOpen)}
-                    <button
-                      onClick={() => setSearchOpen(!searchOpen)}
                       className="w-8 h-8 rounded-lg flex items-center justify-center hover:opacity-80 transition-opacity"
                       style={{ backgroundColor: headerConfig.iconBgColor || "#2a2a2e", color: theme.iconColor }}
                     >
@@ -1270,8 +1268,6 @@ const Builder = () => {
               ) : (
                 <>
                   <div className="relative">
-                    <button
-                      onClick={() => setSearchOpen(!searchOpen)}
                     <button
                       onClick={() => setSearchOpen(!searchOpen)}
                       className="w-8 h-8 rounded-lg flex items-center justify-center hover:opacity-80 transition-opacity"
