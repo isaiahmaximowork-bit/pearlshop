@@ -637,7 +637,7 @@ const StorePage = () => {
                 >
                   Todos
                 </button>
-                {(headerConfig.featuredCategories || []).map((catSlug) => {
+                {(headerConfig.featuredCategories || []).filter((catSlug) => availableCategories.includes(catSlug) || catSlug === "promocao").map((catSlug) => {
                   const cat = PRODUCT_CATEGORIES.find((c) => c.value === catSlug);
                   if (!cat) return null;
                   const isActive = activeCategory === catSlug;
