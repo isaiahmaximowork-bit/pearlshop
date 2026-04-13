@@ -48,6 +48,9 @@ interface HeaderConfig {
   announcementTextColor: string;
   headerBgColor: string;
   logoColor: string;
+  menuBgColor: string;
+  menuTextColor: string;
+  featuredCategories: string[]; // category slugs shown in desktop header
 }
 
 const defaultHeaderConfig: HeaderConfig = {
@@ -62,6 +65,9 @@ const defaultHeaderConfig: HeaderConfig = {
   announcementTextColor: "#ffffff",
   headerBgColor: "",
   logoColor: "",
+  menuBgColor: "#1a1a1a",
+  menuTextColor: "#ffffff",
+  featuredCategories: [],
 };
 
 interface StoreTheme {
