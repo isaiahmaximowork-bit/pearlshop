@@ -72,7 +72,7 @@ const StoreFooter = ({ storeName, config: rawConfig }: StoreFooterProps) => {
                 <a href={config.tiktokUrl} target="_blank" rel="noopener noreferrer"
                   className="w-9 h-9 rounded-full flex items-center justify-center transition-opacity hover:opacity-70"
                   style={{ backgroundColor: `${config.textColor}15` }}>
-                  <TikTokIcon size={16} color={config.textColor} />
+                  <TikTokIcon size={16} />
                 </a>
               )}
               {config.youtubeUrl && (
