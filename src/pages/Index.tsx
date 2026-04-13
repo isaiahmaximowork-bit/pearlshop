@@ -12,6 +12,7 @@ import ReviewSection from '@/components/ReviewSection';
 import FaqSection from '@/components/FaqSection';
 
 import FooterSection from '@/components/FooterSection';
+import { APP_ORIGIN } from '@/lib/domain';
 import logo from '@/assets/logo.png';
 
 import thumb1 from '@/assets/thumbnails/video1.jpg';
