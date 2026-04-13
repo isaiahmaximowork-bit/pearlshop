@@ -4,7 +4,7 @@ import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { APP_ORIGIN } from '@/lib/domain';
+
 import { toast } from 'sonner';
 import logo from '@/assets/logo.png';
 
