@@ -43,7 +43,24 @@ export interface BuilderSection {
   subtitle: string;
   showBorder?: boolean;
   banners?: BannerItem[];
+  categoryFilter?: string; // "" = all, "promocao" = on sale, or category slug
 }
+
+// Predefined product categories
+export const PRODUCT_CATEGORIES = [
+  { value: "", label: "Todos os Produtos" },
+  { value: "promocao", label: "Produtos em Promoção" },
+  { value: "moda-feminina", label: "Moda Feminina" },
+  { value: "moda-masculina", label: "Moda Masculina" },
+  { value: "acessorios", label: "Acessórios" },
+  { value: "beleza", label: "Beleza & Cosméticos" },
+  { value: "casa", label: "Casa & Decoração" },
+  { value: "eletronicos", label: "Eletrônicos" },
+  { value: "fitness", label: "Fitness & Esporte" },
+  { value: "kids", label: "Infantil" },
+  { value: "pets", label: "Pets" },
+  { value: "outros", label: "Outros" },
+] as const;
 
 export const defaultTextConfig: BannerTextConfig = {
   title: "",
