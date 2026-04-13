@@ -60,17 +60,14 @@ const OperationalFlowSection = () => (
           className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-6"
         >
           <Zap size={12} className="text-purple-500" />
-          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.3em]">Operational Flow</span>
+          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.3em]">Como funciona</span>
         </motion.div>
         
         <h2 className="text-3xl sm:text-5xl md:text-7xl font-extrabold tracking-tighter mb-4 font-poppins leading-tight">
-          Veja isso <span className="italic text-gradient-purple uppercase">Acontecendo.</span>
+          Do produto ao <span className="italic text-gradient-purple uppercase">Lucro.</span>
         </h2>
         <p className="text-zinc-500 text-lg max-w-2xl mx-auto font-poppins">
-          O fluxo automatizado que transforma produtos em lucro, <br className="hidden md:block" /> sem que você precise gravar um único segundo.
-        </p>
-        <p className="mt-4 text-sm text-purple-400 font-semibold font-poppins tracking-wide">
-          Em menos de 2 minutos, seu primeiro vídeo já está no ar.
+          Escolha o produto. A IA cria o vídeo. Publica em 5 redes. <br className="hidden md:block" /> Você só acompanha as vendas.
         </p>
       </div>
 

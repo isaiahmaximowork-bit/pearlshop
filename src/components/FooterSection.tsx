@@ -89,7 +89,7 @@ const FooterSection = () => {
 
         {/* Copyright */}
         <div className="mt-20 flex flex-col md:flex-row justify-between items-center gap-4 opacity-40">
-          <p className="text-[10px] font-black uppercase tracking-[0.5em]">© 2026 PearlShop.io • Made with AI</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.5em]">© 2026 PearlShop.io</p>
         </div>
 
         {/* By PearlPost */}

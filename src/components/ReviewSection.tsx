@@ -177,12 +177,12 @@ const ReviewSection = () => {
           </motion.div>
 
           <h2 className="text-3xl sm:text-5xl md:text-8xl font-black tracking-tighter leading-tight font-poppins">
-            FEED DE <br />
-            <span className="italic text-transparent bg-clip-text bg-gradient-to-b from-purple-400 to-purple-800 uppercase tracking-tight">Resultados.</span>
+            QUEM USA, <br />
+            <span className="italic text-transparent bg-clip-text bg-gradient-to-b from-purple-400 to-purple-800 uppercase tracking-tight">Vende.</span>
           </h2>
 
           <p className="text-zinc-500 text-lg md:text-xl font-medium max-w-2xl mx-auto italic">
-            O que a comunidade está postando nas redes usando a PearlShop.
+            Resultados reais de quem escalou o TikTok Shop em 5 redes com a PearlShop.
           </p>
         </div>
 
