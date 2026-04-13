@@ -50,7 +50,9 @@ interface HeaderConfig {
   logoColor: string;
   menuBgColor: string;
   menuTextColor: string;
-  featuredCategories: string[]; // category slugs shown in desktop header
+  menuHighlightColor: string;
+  menuDetailColor: string;
+  featuredCategories: string[];
 }
 
 const defaultHeaderConfig: HeaderConfig = {
@@ -67,6 +69,8 @@ const defaultHeaderConfig: HeaderConfig = {
   logoColor: "",
   menuBgColor: "#1a1a1a",
   menuTextColor: "#ffffff",
+  menuHighlightColor: "#ffffff",
+  menuDetailColor: "#ffffff33",
   featuredCategories: [],
 };
 
