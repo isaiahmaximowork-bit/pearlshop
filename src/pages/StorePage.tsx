@@ -519,7 +519,7 @@ const StorePage = () => {
                 <Search size={14} style={{ color: headerConfig.searchTextColor || "#a1a1aa" }} />
                 <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Buscar produtos..."
                   className="flex-1 bg-transparent text-sm outline-none text-foreground" style={{ color: headerConfig.searchTextColor || undefined }} autoFocus />
-                  className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground text-foreground" autoFocus />
+                  
                 {searchQuery && <button onClick={() => setSearchQuery("")} className="text-muted-foreground hover:text-foreground"><X size={12} /></button>}
               </div>
               {searchQuery.trim() && (
