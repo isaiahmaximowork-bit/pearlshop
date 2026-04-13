@@ -3,9 +3,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Package, Trash2, ExternalLink, Link2, Check, AlertCircle } from "lucide-react";
+import { Package, Trash2, ExternalLink, Link2, Check, AlertCircle, Tag } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { PRODUCT_CATEGORIES } from "@/components/builder/types";
 
 const MeusProdutos = () => {
   const { user } = useAuth();
