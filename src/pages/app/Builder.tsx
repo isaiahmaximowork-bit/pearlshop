@@ -567,6 +567,9 @@ const Builder = () => {
     fetchCategories();
   }, [user]);
 
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dropIndicator, setDropIndicator] = useState<number | null>(null);
+
   const selectedSection = sections.find((s) => s.id === selectedSectionId) || null;
   const hasRightPanel = !!selectedSection;
 
