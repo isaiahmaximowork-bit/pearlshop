@@ -22,7 +22,7 @@ import type {
   SectionType, BuilderSection, BannerItem, BannerTextConfig, TextPosition, FontFamily,
 } from "@/components/builder/types";
 import {
-  defaultTextConfig, sectionLabels, sectionDescriptions, fontOptions,
+  defaultTextConfig, sectionLabels, sectionDescriptions, fontOptions, PRODUCT_CATEGORIES,
 } from "@/components/builder/types";
 import BannerConfig from "@/components/builder/BannerConfig";
 import DestaqueConfig from "@/components/builder/DestaqueConfig";
