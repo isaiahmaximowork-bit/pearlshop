@@ -292,6 +292,7 @@ const StorePage = () => {
   const [sections, setSections] = useState<BuilderSection[]>([]);
   const [theme, setTheme] = useState<StoreTheme>({ ...defaultTheme });
   const [headerConfig, setHeaderConfig] = useState<HeaderConfig>({ ...defaultHeaderConfig });
+  const [footerConfig, setFooterConfig] = useState<FooterConfig>({ bgColor: '#1a1a1a', textColor: '#ffffff', logoColor: '#ffffff', instagramUrl: '', tiktokUrl: '', youtubeUrl: '', supportEmail: '' });
   const [storeProducts, setStoreProducts] = useState<StoreProduct[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<StoreProduct | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
