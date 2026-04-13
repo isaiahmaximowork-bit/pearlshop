@@ -65,8 +65,8 @@ const FaqSection = () => {
       <div className="max-w-4xl mx-auto w-full">
         <div className="text-center mb-16 space-y-4">
           <h2 className="text-3xl sm:text-5xl md:text-7xl font-black tracking-tighter leading-tight font-poppins">
-            DÚVIDAS <br />
-            <span className="italic text-transparent bg-clip-text bg-gradient-to-b from-purple-400 to-purple-800 uppercase tracking-tight">Frequentes.</span>
+            ANTES DE <br />
+            <span className="italic text-transparent bg-clip-text bg-gradient-to-b from-purple-400 to-purple-800 uppercase tracking-tight">Começar.</span>
           </h2>
         </div>
 
