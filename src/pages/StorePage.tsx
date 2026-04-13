@@ -88,6 +88,7 @@ const defaultHeaderConfig: HeaderConfig = {
   announcementMessages: [{ id: "1", text: "" }],
   announcementBgColor: "#7c3aed", announcementTextColor: "#ffffff",
   headerBgColor: "", logoColor: "",
+  menuBgColor: "#1a1a1a", menuTextColor: "#ffffff", featuredCategories: [],
 };
 
 // ─── Helpers ───
