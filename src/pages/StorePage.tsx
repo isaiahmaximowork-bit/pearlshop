@@ -480,37 +480,30 @@ const StorePage = () => {
 
       {/* Header */}
       <header className="w-full border-b border-border" style={{ backgroundColor: headerConfig.headerBgColor || undefined }}>
-        {/* Mobile Header - same as before */}
+        {/* Mobile Header */}
         <div className="md:hidden px-4 py-3 flex items-center gap-3 relative bg-card" style={{ backgroundColor: headerConfig.headerBgColor || undefined }}>
-          {headerConfig.logoPosition === "left" ? (
-            <>
-              <div className="flex-shrink-0">
-                {headerConfig.logoMode === "image" && headerConfig.logoImageUrl ? (
-                  <img src={headerConfig.logoImageUrl} alt="Logo" className="h-8 max-w-[120px] object-contain" />
-                ) : (
-                  <span className="text-base font-bold" style={{ color: headerConfig.logoColor || headerConfig.logoTextColor }}>{headerConfig.logoText || storeName || "Loja"}</span>
-                )}
-              </div>
-              <div className="flex-1" />
-              <button onClick={() => setSearchOpen(!searchOpen)} className="w-8 h-8 rounded-lg border border-border flex items-center justify-center transition-colors" style={{ color: theme.subtitleColor }}>
-                <Search size={16} />
-              </button>
-            </>
-          ) : (
-            <>
-              <button onClick={() => setSearchOpen(!searchOpen)} className="w-8 h-8 rounded-lg border border-border flex items-center justify-center transition-colors" style={{ color: theme.subtitleColor }}>
-                <Search size={16} />
-              </button>
-              <div className="flex-1 flex justify-center">
-                {headerConfig.logoMode === "image" && headerConfig.logoImageUrl ? (
-                  <img src={headerConfig.logoImageUrl} alt="Logo" className="h-8 max-w-[120px] object-contain" />
-                ) : (
-                  <span className="text-base font-bold" style={{ color: headerConfig.logoColor || headerConfig.logoTextColor }}>{headerConfig.logoText || storeName || "Loja"}</span>
-                )}
-              </div>
-              <div className="w-8" />
-            </>
-          )}
+          <StoreHamburgerMenu
+            config={{ menuBgColor: headerConfig.menuBgColor || "#1a1a1a", menuTextColor: headerConfig.menuTextColor || "#ffffff" }}
+            logoMode={headerConfig.logoMode}
+            logoText={headerConfig.logoText || storeName || "Loja"}
+            logoImageUrl={headerConfig.logoImageUrl}
+            logoColor={headerConfig.logoColor || headerConfig.logoTextColor}
+            titleColor={theme.titleColor}
+            subtitleColor={theme.subtitleColor}
+            categories={availableCategories}
+            onSelectCategory={setActiveCategory}
+            activeCategory={activeCategory}
+          />
+          <div className="flex-1 flex justify-center">
+            {headerConfig.logoMode === "image" && headerConfig.logoImageUrl ? (
+              <img src={headerConfig.logoImageUrl} alt="Logo" className="h-8 max-w-[120px] object-contain" />
+            ) : (
+              <span className="text-base font-bold" style={{ color: headerConfig.logoColor || headerConfig.logoTextColor }}>{headerConfig.logoText || storeName || "Loja"}</span>
+            )}
+          </div>
+          <button onClick={() => setSearchOpen(!searchOpen)} className="w-8 h-8 rounded-lg border border-border flex items-center justify-center transition-colors" style={{ color: theme.subtitleColor }}>
+            <Search size={16} />
+          </button>
 
           {/* Mobile Search Dropdown */}
           {searchOpen && (
