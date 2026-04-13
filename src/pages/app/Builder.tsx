@@ -726,94 +726,86 @@ const Builder = () => {
               </button>
 
               {headerExpanded && (
-                <div className="px-4 pb-4 space-y-5">
-                  {/* LOGO */}
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Logo</p>
-                    <div className="space-y-2.5">
-                      <div className="flex gap-1">
-                        <button
-                          onClick={() => setHeaderConfig((h) => ({ ...h, logoMode: "text" }))}
-                          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium border transition-colors ${headerConfig.logoMode === "text" ? "bg-primary text-primary-foreground border-primary" : "border-input text-muted-foreground hover:text-foreground"}`}
-                        >
-                          <Type size={12} /> Texto
-                        </button>
-                        <button
-                          onClick={() => setHeaderConfig((h) => ({ ...h, logoMode: "image" }))}
-                          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium border transition-colors ${headerConfig.logoMode === "image" ? "bg-primary text-primary-foreground border-primary" : "border-input text-muted-foreground hover:text-foreground"}`}
-                        >
-                          <Upload size={12} /> Imagem
-                        </button>
+                <div className="pb-2">
+                  {/* ── Logo Sub-section ── */}
+                  <div className="border-b border-border">
+                    <button onClick={() => setHeaderLogoExpanded((v) => !v)} className="w-full flex items-center justify-between px-6 py-2.5 hover:bg-muted/30 transition-colors">
+                      <div className="flex items-center gap-2">
+                        <Type size={12} className="text-muted-foreground" />
+                        <span className="text-[11px] font-semibold text-muted-foreground">Logo</span>
                       </div>
-
-                      {headerConfig.logoMode === "text" ? (
-                        <>
-                          <div className="space-y-1">
-                            <Label className="text-xs text-muted-foreground">Nome da Loja</Label>
-                            <Input
-                              value={headerConfig.logoText}
-                              onChange={(e) => setHeaderConfig((h) => ({ ...h, logoText: e.target.value }))}
-                              placeholder={store?.store_name || "Minha Loja"}
-                              className="h-8 text-xs"
-                            />
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <Label className="text-xs text-muted-foreground">Cor do Texto</Label>
-                            <div className="flex items-center gap-2">
-                              <input type="color" value={headerConfig.logoTextColor} onChange={(e) => setHeaderConfig((h) => ({ ...h, logoTextColor: e.target.value }))} className="w-7 h-7 rounded border border-border cursor-pointer p-0.5" />
-                              <span className="text-[10px] font-mono text-muted-foreground">{headerConfig.logoTextColor}</span>
-                            </div>
-                          </div>
-                        </>
-                      ) : (
-                        <div className="space-y-1">
-                          <Label className="text-xs text-muted-foreground">URL da Imagem (PNG, até 5MB)</Label>
-                          <Input value={headerConfig.logoImageUrl} onChange={(e) => setHeaderConfig((h) => ({ ...h, logoImageUrl: e.target.value }))} placeholder="https://exemplo.com/logo.png" className="h-8 text-xs" />
-                          {headerConfig.logoImageUrl && (
-                            <div className="mt-1.5 p-1.5 border border-border rounded-lg flex items-center justify-center bg-muted/30">
-                              <img src={headerConfig.logoImageUrl} alt="Logo" className="max-h-8 max-w-full object-contain" />
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      <div className="space-y-1">
-                        <Label className="text-xs text-muted-foreground">Posição</Label>
+                      <ChevronDown size={12} className={`text-muted-foreground transition-transform ${headerLogoExpanded ? "rotate-180" : ""}`} />
+                    </button>
+                    {headerLogoExpanded && (
+                      <div className="px-6 pb-3 space-y-2.5">
                         <div className="flex gap-1">
-                          {(["left", "center"] as LogoPosition[]).map((pos) => (
-                            <button key={pos} onClick={() => setHeaderConfig((h) => ({ ...h, logoPosition: pos }))} className={`flex-1 py-1.5 rounded-lg text-xs font-medium border transition-colors ${headerConfig.logoPosition === pos ? "bg-primary text-primary-foreground border-primary" : "border-input text-muted-foreground hover:text-foreground"}`}>
-                              {pos === "left" ? "Esquerda" : "Centro"}
-                            </button>
-                          ))}
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <Label className="text-xs text-muted-foreground">Cor de Fundo da Header</Label>
-                        <div className="flex items-center gap-2">
-                          <input type="color" value={headerConfig.headerBgColor || "#1c1c1e"} onChange={(e) => setHeaderConfig((h) => ({ ...h, headerBgColor: e.target.value }))} className="w-7 h-7 rounded border border-border cursor-pointer p-0.5" />
-                          <span className="text-[10px] font-mono text-muted-foreground">{headerConfig.headerBgColor || "padrão"}</span>
+                          <button onClick={() => setHeaderConfig((h) => ({ ...h, logoMode: "text" }))} className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium border transition-colors ${headerConfig.logoMode === "text" ? "bg-primary text-primary-foreground border-primary" : "border-input text-muted-foreground hover:text-foreground"}`}>
+                            <Type size={12} /> Texto
+                          </button>
+                          <button onClick={() => setHeaderConfig((h) => ({ ...h, logoMode: "image" }))} className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium border transition-colors ${headerConfig.logoMode === "image" ? "bg-primary text-primary-foreground border-primary" : "border-input text-muted-foreground hover:text-foreground"}`}>
+                            <Upload size={12} /> Imagem
+                          </button>
+                        </div>
+                        {headerConfig.logoMode === "text" ? (
+                          <>
+                            <div className="space-y-1">
+                              <Label className="text-xs text-muted-foreground">Nome da Loja</Label>
+                              <Input value={headerConfig.logoText} onChange={(e) => setHeaderConfig((h) => ({ ...h, logoText: e.target.value }))} placeholder={store?.store_name || "Minha Loja"} className="h-8 text-xs" />
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <Label className="text-xs text-muted-foreground">Cor do texto do logotipo</Label>
+                              <div className="flex items-center gap-2">
+                                <input type="color" value={headerConfig.logoTextColor} onChange={(e) => setHeaderConfig((h) => ({ ...h, logoTextColor: e.target.value }))} className="w-7 h-7 rounded border border-border cursor-pointer p-0.5" />
+                                <span className="text-[10px] font-mono text-muted-foreground">{headerConfig.logoTextColor}</span>
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="space-y-1">
+                            <Label className="text-xs text-muted-foreground">URL da Imagem (PNG, até 5MB)</Label>
+                            <Input value={headerConfig.logoImageUrl} onChange={(e) => setHeaderConfig((h) => ({ ...h, logoImageUrl: e.target.value }))} placeholder="https://exemplo.com/logo.png" className="h-8 text-xs" />
+                            {headerConfig.logoImageUrl && (
+                              <div className="mt-1.5 p-1.5 border border-border rounded-lg flex items-center justify-center bg-muted/30">
+                                <img src={headerConfig.logoImageUrl} alt="Logo" className="max-h-8 max-w-full object-contain" />
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        <div className="space-y-1">
+                          <Label className="text-xs text-muted-foreground">Posição</Label>
+                          <div className="flex gap-1">
+                            {(["left", "center"] as LogoPosition[]).map((pos) => (
+                              <button key={pos} onClick={() => setHeaderConfig((h) => ({ ...h, logoPosition: pos }))} className={`flex-1 py-1.5 rounded-lg text-xs font-medium border transition-colors ${headerConfig.logoPosition === pos ? "bg-primary text-primary-foreground border-primary" : "border-input text-muted-foreground hover:text-foreground"}`}>
+                                {pos === "left" ? "Esquerda" : "Centro"}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs text-muted-foreground">Cor de Fundo da Header</Label>
+                          <div className="flex items-center gap-2">
+                            <input type="color" value={headerConfig.headerBgColor || "#1c1c1e"} onChange={(e) => setHeaderConfig((h) => ({ ...h, headerBgColor: e.target.value }))} className="w-7 h-7 rounded border border-border cursor-pointer p-0.5" />
+                            <span className="text-[10px] font-mono text-muted-foreground">{headerConfig.headerBgColor || "padrão"}</span>
+                          </div>
                         </div>
                       </div>
-
-                      <div className="flex items-center justify-between">
-                        <Label className="text-xs text-muted-foreground">Cor da Logo</Label>
-                        <div className="flex items-center gap-2">
-                          <input type="color" value={headerConfig.logoColor || headerConfig.logoTextColor} onChange={(e) => setHeaderConfig((h) => ({ ...h, logoColor: e.target.value }))} className="w-7 h-7 rounded border border-border cursor-pointer p-0.5" />
-                          <span className="text-[10px] font-mono text-muted-foreground">{headerConfig.logoColor || "padrão"}</span>
-                        </div>
-                      </div>
-                    </div>
-                    </div>
+                    )}
                   </div>
 
-                  {/* FAIXA DE ANÚNCIO */}
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Faixa de Anúncio</p>
-                      <Switch checked={headerConfig.announcementEnabled} onCheckedChange={(v) => setHeaderConfig((h) => ({ ...h, announcementEnabled: v }))} />
-                    </div>
-                    {headerConfig.announcementEnabled && (
-                      <div className="space-y-2.5">
+                  {/* ── Faixa de Anúncio Sub-section ── */}
+                  <div className="border-b border-border">
+                    <button onClick={() => setHeaderAnnouncementExpanded((v) => !v)} className="w-full flex items-center justify-between px-6 py-2.5 hover:bg-muted/30 transition-colors">
+                      <div className="flex items-center gap-2">
+                        <Megaphone size={12} className="text-muted-foreground" />
+                        <span className="text-[11px] font-semibold text-muted-foreground">Faixa de Anúncio</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Switch checked={headerConfig.announcementEnabled} onCheckedChange={(v) => { setHeaderConfig((h) => ({ ...h, announcementEnabled: v })); }} />
+                        <ChevronDown size={12} className={`text-muted-foreground transition-transform ${headerAnnouncementExpanded ? "rotate-180" : ""}`} />
+                      </div>
+                    </button>
+                    {headerAnnouncementExpanded && headerConfig.announcementEnabled && (
+                      <div className="px-6 pb-3 space-y-2.5">
                         <div className="space-y-1.5">
                           {headerConfig.announcementMessages.map((msg, i) => (
                             <div key={msg.id} className="flex gap-1">
@@ -839,51 +831,81 @@ const Builder = () => {
                     )}
                   </div>
 
-                  {/* MENU HAMBURGER */}
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Menu Hamburger</p>
-                    <div className="space-y-2.5">
-                      <div className="flex items-center justify-between">
-                        <Label className="text-xs text-muted-foreground">Cor de Fundo</Label>
-                        <input type="color" value={headerConfig.menuBgColor || "#1a1a1a"} onChange={(e) => setHeaderConfig((h) => ({ ...h, menuBgColor: e.target.value }))} className="w-7 h-7 rounded border border-border cursor-pointer p-0.5" />
+                  {/* ── Menu Hamburger Sub-section ── */}
+                  <div className="border-b border-border">
+                    <button onClick={() => setHeaderMenuExpanded((v) => !v)} className="w-full flex items-center justify-between px-6 py-2.5 hover:bg-muted/30 transition-colors">
+                      <div className="flex items-center gap-2">
+                        <Menu size={12} className="text-muted-foreground" />
+                        <span className="text-[11px] font-semibold text-muted-foreground">Menu Hamburger</span>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <Label className="text-xs text-muted-foreground">Cor do Texto</Label>
-                        <input type="color" value={headerConfig.menuTextColor || "#ffffff"} onChange={(e) => setHeaderConfig((h) => ({ ...h, menuTextColor: e.target.value }))} className="w-7 h-7 rounded border border-border cursor-pointer p-0.5" />
+                      <ChevronDown size={12} className={`text-muted-foreground transition-transform ${headerMenuExpanded ? "rotate-180" : ""}`} />
+                    </button>
+                    {headerMenuExpanded && (
+                      <div className="px-6 pb-3 space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs text-muted-foreground">Cor de Fundo</Label>
+                          <input type="color" value={headerConfig.menuBgColor || "#1a1a1a"} onChange={(e) => setHeaderConfig((h) => ({ ...h, menuBgColor: e.target.value }))} className="w-7 h-7 rounded border border-border cursor-pointer p-0.5" />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs text-muted-foreground">Cor do Texto</Label>
+                          <input type="color" value={headerConfig.menuTextColor || "#ffffff"} onChange={(e) => setHeaderConfig((h) => ({ ...h, menuTextColor: e.target.value }))} className="w-7 h-7 rounded border border-border cursor-pointer p-0.5" />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs text-muted-foreground">Cor do Texto em Destaque</Label>
+                          <input type="color" value={headerConfig.menuHighlightColor || "#ffffff"} onChange={(e) => setHeaderConfig((h) => ({ ...h, menuHighlightColor: e.target.value }))} className="w-7 h-7 rounded border border-border cursor-pointer p-0.5" />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs text-muted-foreground">Cor dos Detalhes</Label>
+                          <input type="color" value={headerConfig.menuDetailColor || "#ffffff33"} onChange={(e) => setHeaderConfig((h) => ({ ...h, menuDetailColor: e.target.value }))} className="w-7 h-7 rounded border border-border cursor-pointer p-0.5" />
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
 
-                  {/* CATEGORIAS EM DESTAQUE (Desktop Header) */}
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Categorias em Destaque</p>
-                    <p className="text-[10px] text-muted-foreground mb-2">Aparecem na header do desktop, abaixo da busca.</p>
-                    <div className="space-y-1.5">
-                      {PRODUCT_CATEGORIES.filter(c => c.value !== "").map((cat) => {
-                        const isSelected = (headerConfig.featuredCategories || []).includes(cat.value);
-                        return (
-                          <label key={cat.value} className="flex items-center gap-2 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={isSelected}
-                              onChange={(e) => {
-                                setHeaderConfig((h) => ({
-                                  ...h,
-                                  featuredCategories: e.target.checked
-                                    ? [...(h.featuredCategories || []), cat.value]
-                                    : (h.featuredCategories || []).filter((v) => v !== cat.value),
-                                }));
-                              }}
-                              className="rounded border-border"
-                            />
-                            <span className="text-xs text-muted-foreground">{cat.label}</span>
-                          </label>
-                        );
-                      })}
-                    </div>
+                  {/* ── Categorias em Destaque Sub-section ── */}
+                  <div className="border-b border-border">
+                    <button onClick={() => setHeaderCategoriesExpanded((v) => !v)} className="w-full flex items-center justify-between px-6 py-2.5 hover:bg-muted/30 transition-colors">
+                      <div className="flex items-center gap-2">
+                        <Tag size={12} className="text-muted-foreground" />
+                        <span className="text-[11px] font-semibold text-muted-foreground">Categorias em Destaque</span>
+                      </div>
+                      <ChevronDown size={12} className={`text-muted-foreground transition-transform ${headerCategoriesExpanded ? "rotate-180" : ""}`} />
+                    </button>
+                    {headerCategoriesExpanded && (
+                      <div className="px-6 pb-3 space-y-2">
+                        <p className="text-[10px] text-muted-foreground">Aparecem na header do desktop. Apenas categorias com produtos afiliados.</p>
+                        {userAffiliatedCategories.length === 0 ? (
+                          <p className="text-[10px] text-muted-foreground italic">Nenhuma categoria com produtos afiliados encontrada.</p>
+                        ) : (
+                          <div className="space-y-1.5">
+                            {PRODUCT_CATEGORIES.filter(c => c.value !== "" && c.value !== "promocao" && userAffiliatedCategories.includes(c.value)).map((cat) => {
+                              const isSelected = (headerConfig.featuredCategories || []).includes(cat.value);
+                              return (
+                                <label key={cat.value} className="flex items-center gap-2 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={isSelected}
+                                    onChange={(e) => {
+                                      setHeaderConfig((h) => ({
+                                        ...h,
+                                        featuredCategories: e.target.checked
+                                          ? [...(h.featuredCategories || []), cat.value]
+                                          : (h.featuredCategories || []).filter((v) => v !== cat.value),
+                                      }));
+                                    }}
+                                    className="rounded border-border"
+                                  />
+                                  <span className="text-xs text-muted-foreground">{cat.label}</span>
+                                </label>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
-                  <p className="text-[10px] text-muted-foreground">🔍 A lupa de pesquisa aparece automaticamente no header.</p>
+                  <p className="text-[10px] text-muted-foreground px-6 py-2">🔍 A lupa de pesquisa aparece automaticamente no header.</p>
                 </div>
               )}
             </div>
