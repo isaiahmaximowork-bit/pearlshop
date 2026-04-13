@@ -136,8 +136,6 @@ const StoreSettings = () => {
 
   const canGoPublic = hasMinProducts && tasks.logoChanged && tasks.videoPublished;
 
-  const previewImage = store?.preview_cache || defaultPreview;
-
   if (loading) {
     return (
       <div className="p-4 md:p-8 flex items-center justify-center min-h-[60vh]">
