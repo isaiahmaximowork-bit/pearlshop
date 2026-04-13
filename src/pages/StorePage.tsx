@@ -304,6 +304,7 @@ const StorePage = () => {
   const [selectedProduct, setSelectedProduct] = useState<StoreProduct | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState("");
 
   const [storeData, setStoreData] = useState<{ id: string; user_id: string; is_public: boolean; access_code: string; store_name: string; preview_cache: string | null } | null>(null);
 
