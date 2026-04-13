@@ -545,19 +545,34 @@ const StorePage = () => {
           )}
         </div>
 
-        {/* Desktop Header - logo top, search bar centered below */}
+        {/* Desktop Header */}
         <div className="hidden md:block bg-card" style={{ backgroundColor: headerConfig.headerBgColor || undefined }}>
           <div className="max-w-6xl mx-auto px-8">
-            {/* Row 1: Logo */}
-            <div className="flex items-center justify-center py-4">
-              {headerConfig.logoMode === "image" && headerConfig.logoImageUrl ? (
-                <img src={headerConfig.logoImageUrl} alt="Logo" className="h-10 max-w-[180px] object-contain" />
-              ) : (
-                <span className="text-xl font-bold" style={{ color: headerConfig.logoColor || headerConfig.logoTextColor }}>{headerConfig.logoText || storeName || "Loja"}</span>
-              )}
+            {/* Row 1: Hamburger + Logo */}
+            <div className="flex items-center py-4">
+              <StoreHamburgerMenu
+                config={{ menuBgColor: headerConfig.menuBgColor || "#1a1a1a", menuTextColor: headerConfig.menuTextColor || "#ffffff" }}
+                logoMode={headerConfig.logoMode}
+                logoText={headerConfig.logoText || storeName || "Loja"}
+                logoImageUrl={headerConfig.logoImageUrl}
+                logoColor={headerConfig.logoColor || headerConfig.logoTextColor}
+                titleColor={theme.titleColor}
+                subtitleColor={theme.subtitleColor}
+                categories={availableCategories}
+                onSelectCategory={setActiveCategory}
+                activeCategory={activeCategory}
+              />
+              <div className="flex-1 flex items-center justify-center">
+                {headerConfig.logoMode === "image" && headerConfig.logoImageUrl ? (
+                  <img src={headerConfig.logoImageUrl} alt="Logo" className="h-10 max-w-[180px] object-contain" />
+                ) : (
+                  <span className="text-xl font-bold" style={{ color: headerConfig.logoColor || headerConfig.logoTextColor }}>{headerConfig.logoText || storeName || "Loja"}</span>
+                )}
+              </div>
+              <div className="w-8" /> {/* spacer to balance hamburger */}
             </div>
             {/* Row 2: Search bar */}
-            <div className="pb-4 max-w-xl mx-auto relative">
+            <div className="pb-3 max-w-xl mx-auto relative">
               <div className="flex items-center gap-2 border border-border rounded-xl px-4 py-2.5 bg-muted/30">
                 <Search size={16} style={{ color: theme.subtitleColor }} />
                 <input
@@ -599,6 +614,41 @@ const StorePage = () => {
                 </div>
               )}
             </div>
+            {/* Row 3: Featured Categories (desktop only) */}
+            {(headerConfig.featuredCategories || []).length > 0 && (
+              <div className="pb-3 flex items-center justify-center gap-2 flex-wrap">
+                <button
+                  onClick={() => setActiveCategory("")}
+                  className="px-3 py-1.5 rounded-full text-xs font-medium transition-all border"
+                  style={{
+                    backgroundColor: activeCategory === "" ? theme.buttonBgColor : "transparent",
+                    color: activeCategory === "" ? theme.buttonTextColor : theme.subtitleColor,
+                    borderColor: activeCategory === "" ? theme.buttonBgColor : `${theme.subtitleColor}30`,
+                  }}
+                >
+                  Todos
+                </button>
+                {(headerConfig.featuredCategories || []).map((catSlug) => {
+                  const cat = PRODUCT_CATEGORIES.find((c) => c.value === catSlug);
+                  if (!cat) return null;
+                  const isActive = activeCategory === catSlug;
+                  return (
+                    <button
+                      key={catSlug}
+                      onClick={() => setActiveCategory(isActive ? "" : catSlug)}
+                      className="px-3 py-1.5 rounded-full text-xs font-medium transition-all border"
+                      style={{
+                        backgroundColor: isActive ? theme.buttonBgColor : "transparent",
+                        color: isActive ? theme.buttonTextColor : theme.subtitleColor,
+                        borderColor: isActive ? theme.buttonBgColor : `${theme.subtitleColor}30`,
+                      }}
+                    >
+                      {cat.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </header>
