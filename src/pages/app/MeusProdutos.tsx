@@ -56,6 +56,18 @@ const MeusProdutos = () => {
     onError: () => toast.error("Erro ao salvar link."),
   });
 
+  const updateCategoryMutation = useMutation({
+    mutationFn: async ({ id, category }: { id: string; category: string }) => {
+      const { error } = await supabase.from("user_products").update({ category }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-products"] });
+      toast.success("Categoria atualizada!");
+    },
+    onError: () => toast.error("Erro ao atualizar categoria."),
+  });
+
   const getPrice = (product: any) => {
     if (product.price != null) {
       return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: product.currency || 'BRL' }).format(product.price);
