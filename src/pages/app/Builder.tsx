@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import type { FooterConfig } from "@/components/StoreFooter";
-import { AnimatePresence } from "framer-motion";
+
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ProductDetailModal } from "@/components/ProductDetailModal";
