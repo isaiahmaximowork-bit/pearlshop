@@ -490,7 +490,7 @@ const StorePage = () => {
         {/* Mobile Header */}
         <div className="md:hidden px-4 py-3 flex items-center gap-3 relative bg-card" style={{ backgroundColor: headerConfig.headerBgColor || undefined }}>
           <StoreHamburgerMenu
-            config={{ menuBgColor: headerConfig.menuBgColor || "#1a1a1a", menuTextColor: headerConfig.menuTextColor || "#ffffff", menuHighlightColor: headerConfig.menuHighlightColor, menuDetailColor: headerConfig.menuDetailColor }}
+            config={{ menuBgColor: headerConfig.menuBgColor || "#1a1a1a", menuTextColor: headerConfig.menuTextColor || "#ffffff", menuHighlightColor: headerConfig.menuHighlightColor, menuDetailColor: headerConfig.menuDetailColor, iconBgColor: headerConfig.iconBgColor, iconColor: theme.iconColor }}
             logoMode={headerConfig.logoMode}
             logoText={headerConfig.logoText || storeName || "Loja"}
             logoImageUrl={headerConfig.logoImageUrl}
