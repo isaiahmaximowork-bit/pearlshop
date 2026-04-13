@@ -1,20 +1,15 @@
 /**
  * Domain routing helper.
- * pearlshop.io        → public site (landing, stores, legal pages)
- * app.pearlshop.io    → authenticated dashboard
- * In dev/preview      → all routes available
+ * Currently everything runs on a single domain (pearlshop.io).
+ * All routes (public + app) are available everywhere.
  */
 
 const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
 
-export const isAppDomain = hostname === 'app.pearlshop.io';
+export const isAppDomain = false; // disabled for now
 export const isPublicDomain = hostname === 'pearlshop.io' || hostname === 'www.pearlshop.io';
-export const isDevMode = !isAppDomain && !isPublicDomain;
+export const isDevMode = true; // all routes always available
 
-export const APP_ORIGIN = isDevMode
-  ? ''  // same origin in dev
-  : 'https://app.pearlshop.io';
+export const APP_ORIGIN = ''; // same origin
 
-export const PUBLIC_ORIGIN = isDevMode
-  ? ''
-  : 'https://pearlshop.io';
+export const PUBLIC_ORIGIN = '';
