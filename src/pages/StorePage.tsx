@@ -719,7 +719,8 @@ const StorePage = () => {
                     );
                   })}
                 </div>
-              )}
+                );
+              })()}
             </div>
           </div>
         ))}
