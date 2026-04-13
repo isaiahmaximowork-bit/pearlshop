@@ -461,6 +461,10 @@ const Builder = () => {
   const [previewError, setPreviewError] = useState("");
   const [store, setStore] = useState<{ id: string; slug: string; is_public: boolean; access_code: string; store_name: string } | null>(null);
   const [saving, setSaving] = useState(false);
+  const [footerConfig, setFooterConfig] = useState<FooterConfig>({
+    bgColor: '#1a1a1a', textColor: '#ffffff', logoColor: '#ffffff',
+    instagramUrl: '', tiktokUrl: '', youtubeUrl: '', supportEmail: '',
+  });
   const { user } = useAuth();
 
   // Fetch user's store + load saved builder config
