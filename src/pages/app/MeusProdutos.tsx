@@ -201,6 +201,20 @@ const MeusProdutos = () => {
                       </button>
                     )}
 
+                    {/* Category selector */}
+                    <div className="flex items-center gap-2">
+                      <Tag size={12} className="text-muted-foreground flex-shrink-0" />
+                      <select
+                        value={item.category || ""}
+                        onChange={(e) => updateCategoryMutation.mutate({ id: item.id, category: e.target.value })}
+                        className="flex-1 bg-muted border border-border rounded-lg py-1.5 px-2 text-xs outline-none focus:ring-2 focus:ring-primary/20"
+                      >
+                        {PRODUCT_CATEGORIES.filter(c => c.value !== "promocao").map((cat) => (
+                          <option key={cat.value} value={cat.value}>{cat.value === "" ? "Sem categoria" : cat.label}</option>
+                        ))}
+                      </select>
+                    </div>
+
                     <div className="mt-auto flex gap-2">
                       <a
                         href={item.affiliate_url || `https://shop.tiktok.com/view/product/${product.product_id}`}
