@@ -20,7 +20,12 @@ import Builder from "./pages/app/Builder.tsx";
 import StoreSettings from "./pages/app/StoreSettings.tsx";
 import EditarPerfil from "./pages/app/EditarPerfil.tsx";
 import StorePage from "./pages/StorePage.tsx";
+import { isAppDomain, isPublicDomain, isDevMode } from "@/lib/domain";
+
 const queryClient = new QueryClient();
+
+const showPublicRoutes = isPublicDomain || isDevMode;
+const showAppRoutes = isAppDomain || isDevMode;
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -30,20 +35,39 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/loja/:slug" element={<StorePage />} />
-            <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-              <Route index element={<AppHome />} />
-              <Route path="meus-produtos" element={<MeusProdutos />} />
-              <Route path="produtos" element={<Produtos />} />
-              <Route path="opcoes" element={<Opcoes />} />
-              <Route path="conexoes" element={<Conexoes />} />
-              <Route path="minha-loja" element={<StoreSettings />} />
-              <Route path="perfil" element={<EditarPerfil />} />
-            </Route>
-            <Route path="/app/builder" element={<ProtectedRoute><Builder /></ProtectedRoute>} />
+            {/* Public routes — pearlshop.io */}
+            {showPublicRoutes && (
+              <>
+                <Route path="/" element={<Index />} />
+                <Route path="/loja/:slug" element={<StorePage />} />
+              </>
+            )}
+
+            {/* Auth routes — on app domain or dev */}
+            {showAppRoutes && (
+              <>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+                  <Route index element={<AppHome />} />
+                  <Route path="meus-produtos" element={<MeusProdutos />} />
+                  <Route path="produtos" element={<Produtos />} />
+                  <Route path="opcoes" element={<Opcoes />} />
+                  <Route path="conexoes" element={<Conexoes />} />
+                  <Route path="minha-loja" element={<StoreSettings />} />
+                  <Route path="perfil" element={<EditarPerfil />} />
+                </Route>
+                <Route path="/app/builder" element={<ProtectedRoute><Builder /></ProtectedRoute>} />
+              </>
+            )}
+
+            {/* On app.pearlshop.io, root redirects to /app */}
+            {isAppDomain && (
+              <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+                <Route index element={<AppHome />} />
+              </Route>
+            )}
+
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
