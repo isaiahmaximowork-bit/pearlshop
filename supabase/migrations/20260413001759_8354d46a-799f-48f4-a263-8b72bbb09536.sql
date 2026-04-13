@@ -1,0 +1,2 @@
+UPDATE catalog_products SET price = 71.00, original_price = 89.99, is_on_sale = true WHERE product_name ILIKE '%Vestido%';
+UPDATE catalog_products SET price = 31.54, original_price = 71.41, is_on_sale = true WHERE product_name ILIKE '%Blusas%';
