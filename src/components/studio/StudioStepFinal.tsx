@@ -215,9 +215,9 @@ export function StudioStepFinal({ state, updateState }: Props) {
                 exit={{ opacity: 0, height: 0 }}
                 className="flex justify-center pt-2"
               >
-                <div className="relative w-48 sm:w-56 rounded-2xl overflow-hidden border border-border/60 bg-gradient-to-br from-primary/10 via-purple-500/10 to-background shadow-[0_12px_40px_hsl(var(--primary)/0.25)]">
+                <div className="relative max-w-xs rounded-2xl overflow-hidden border border-border/60 shadow-[0_12px_40px_hsl(var(--primary)/0.25)]">
                   {merging ? (
-                    <div className="aspect-square flex flex-col items-center justify-center gap-2 text-primary">
+                    <div className="aspect-[3/4] flex flex-col items-center justify-center gap-2 text-primary bg-gradient-to-br from-primary/10 via-purple-500/10 to-background">
                       <Loader2 size={28} className="animate-spin" />
                       <p className="text-xs font-bold">Mesclando...</p>
                     </div>
@@ -226,13 +226,13 @@ export function StudioStepFinal({ state, updateState }: Props) {
                       key={avatar.id}
                       src={avatar.img}
                       alt={avatar.name}
-                      initial={{ opacity: 0, scale: 1.05 }}
+                      initial={{ opacity: 0, scale: 1.02 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ duration: 0.5 }}
-                      className="w-full h-auto object-contain"
+                      className="block w-full h-auto"
                     />
                   ) : (
-                    <div className="aspect-square flex items-center justify-center text-primary">
+                    <div className="aspect-[3/4] flex items-center justify-center text-primary bg-gradient-to-br from-primary/10 via-purple-500/10 to-background">
                       <Sparkles size={28} />
                     </div>
                   )}
