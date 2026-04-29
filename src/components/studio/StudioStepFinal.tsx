@@ -26,15 +26,31 @@ const voiceOptions = {
   voiceStyle: { label: "Estilo", options: ["conversacional", "narrativo", "publicitario"] },
 };
 
-const interactionModes = ["Segurando produto", "Apontando", "Aplicando", "Demonstrando"];
-const avatarPoses = ["Em pé", "Sentado", "Caminhando", "Closeup"];
-const enhancements = ["Remover fundo", "Iluminação cinematográfica", "Cores vibrantes"];
+const interactionModes = [
+  "Vestindo o produto",
+  "Segurando o produto",
+  "Selfie no espelho",
+  "Selfie",
+];
+const avatarPoses = ["De frente", "De lado", "3/4", "Sentado(a)", "Andando", "Personalizado"];
+const enhancements = [
+  "Luz natural",
+  "Ultra-nitidez 8K",
+  "Mãos perfeitas",
+  "Brilho natural",
+  "Tecido real",
+  "Cabelo real",
+  "Anti-IA",
+  "Profundidade",
+  "Grão foto",
+];
 
 export function StudioStepFinal({ state, updateState }: Props) {
   const [merging, setMerging] = useState(false);
   const [merged, setMerged] = useState(false);
   const [interaction, setInteraction] = useState(interactionModes[0]);
   const [pose, setPose] = useState(avatarPoses[0]);
+  const [customPose, setCustomPose] = useState("");
   const [enhance, setEnhance] = useState<string[]>([]);
   const [manualOpen, setManualOpen] = useState(false);
 
