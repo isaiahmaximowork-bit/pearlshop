@@ -51,6 +51,7 @@ const enhancements = [
 ];
 
 export function StudioStepFinal({ state, updateState }: Props) {
+  const navigate = useNavigate();
   const [merging, setMerging] = useState(false);
   const [merged, setMerged] = useState(false);
   const [interaction, setInteraction] = useState(interactionModes[0]);
@@ -60,6 +61,8 @@ export function StudioStepFinal({ state, updateState }: Props) {
   const [manualOpen, setManualOpen] = useState(false);
   const [promptGenerated, setPromptGenerated] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [generatedJob, setGeneratedJob] = useState<any>(null);
 
   const avatar = findAvatar(state.avatarId);
 
@@ -76,12 +79,61 @@ export function StudioStepFinal({ state, updateState }: Props) {
     return `Vídeo UGC com avatar ${avatar?.name || state.avatarId || "—"}, cenário: ${state.scenarioTags.join(", ") || state.scenarioText || "padrão"}, estilo de câmera: ${state.cameraStyle}, estilo de vídeo: ${state.videoStyle}, modo de interação: ${interaction}, pose: ${finalPose}, melhorias: ${enhance.join(", ") || "nenhuma"}, proximidade ${state.proximity}%, energia ${state.energy}%, duração: ${state.duration}, voz ${state.voiceGender} ${state.voiceTone} energia ${state.voiceEnergy} estilo ${state.voiceStyle}. Roteiro: ${state.script || "(roteiro não definido)"}`;
   };
 
-  const handleGeneratePrompt = () => {
-    setPromptGenerated(true);
-    setManualOpen(true);
-    setTimeout(() => {
-      document.getElementById("manual-prompt")?.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 100);
+  const handleGenerateUGC = async () => {
+    if (!state.productId) {
+      toast.error("Selecione um produto antes");
+      return;
+    }
+    if (!state.avatarId) {
+      toast.error("Selecione um avatar antes");
+      return;
+    }
+    setGenerating(true);
+    try {
+      const finalPose = pose === "Personalizado" && customPose ? customPose : pose;
+      const { data, error } = await supabase.functions.invoke("generate-ugc", {
+        body: {
+          productId: state.productId,
+          productName: state.productId,
+          avatarId: state.avatarId,
+          avatarName: avatar?.name || state.avatarId,
+          pose: finalPose,
+          interaction,
+          scenarioTags: state.scenarioTags,
+          scenarioText: state.scenarioText,
+          cameraStyle: state.cameraStyle,
+          videoStyle: state.videoStyle,
+          enhancements: enhance,
+          proximity: state.proximity,
+          energy: state.energy,
+          duration: state.duration,
+          voiceGender: state.voiceGender,
+          voiceTone: state.voiceTone,
+          voiceEnergy: state.voiceEnergy,
+          voiceStyle: state.voiceStyle,
+          script: state.script,
+        },
+      });
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Falha na geração");
+
+      setGeneratedJob(data.job);
+      setPromptGenerated(true);
+      setManualOpen(true);
+      fireConfetti();
+      setSuccessOpen(true);
+    } catch (err: any) {
+      const msg = err?.message || "Erro ao gerar UGC";
+      if (msg.includes("Rate") || msg.includes("429")) {
+        toast.error("Muitas requisições. Aguarde alguns segundos.");
+      } else if (msg.includes("Payment") || msg.includes("402")) {
+        toast.error("Créditos de IA esgotados. Adicione créditos no workspace.");
+      } else {
+        toast.error(msg);
+      }
+    } finally {
+      setGenerating(false);
+    }
   };
 
   const fireConfetti = () => {
