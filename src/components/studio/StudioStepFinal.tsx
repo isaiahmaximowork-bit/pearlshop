@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Wand2, Copy, ChevronDown, ExternalLink, Sparkles, Image as ImageIcon, Loader2, Download, X, Rocket, Shirt, Hand, Smartphone, Camera } from "lucide-react";
+import { Wand2, Copy, ChevronDown, ExternalLink, Sparkles, Image as ImageIcon, Loader2, Download, X, Rocket } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import { glassCard, glassSelectable } from "./glass";
