@@ -19,6 +19,7 @@ import Opcoes from "./pages/app/Opcoes.tsx";
 import Builder from "./pages/app/Builder.tsx";
 import StoreSettings from "./pages/app/StoreSettings.tsx";
 import EditarPerfil from "./pages/app/EditarPerfil.tsx";
+import Studio from "./pages/app/Studio.tsx";
 import StorePage from "./pages/StorePage.tsx";
 import AvisoLegal from "./pages/AvisoLegal.tsx";
 const queryClient = new QueryClient();
@@ -47,6 +48,7 @@ const App = () => (
               <Route path="conexoes" element={<Conexoes />} />
               <Route path="minha-loja" element={<StoreSettings />} />
               <Route path="perfil" element={<EditarPerfil />} />
+              <Route path="studio" element={<Studio />} />
             </Route>
             <Route path="/app/builder" element={<ProtectedRoute><Builder /></ProtectedRoute>} />
 
