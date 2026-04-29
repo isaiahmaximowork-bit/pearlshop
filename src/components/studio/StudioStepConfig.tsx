@@ -45,7 +45,7 @@ function Section({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className={`${glassCard} overflow-hidden`}>
+    <div data-studio-section className={`${glassCard} overflow-hidden`}>
       <button
         onClick={() => setOpen((o) => !o)}
         className="w-full flex items-center justify-between p-5 text-left hover:bg-accent/30 transition-colors"
