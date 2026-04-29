@@ -147,9 +147,6 @@ export function StudioStepFinal({ state, updateState }: Props) {
         <p className="text-xs text-muted-foreground mb-5">Avatar + Produto + Cenário → foto realista</p>
 
         <div className="space-y-5">
-          {/* Dynamic interaction preview */}
-          <InteractionPreview mode={interaction} />
-
           <PillGroup
             label="Modo de interação"
             options={interactionModes}
