@@ -293,6 +293,42 @@ export function StudioStepFinal({ state, updateState }: Props) {
   );
 }
 
+function PillGroup({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  options: string[];
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div>
+      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">{label}</p>
+      <div className="flex flex-wrap gap-1.5">
+        {options.map((opt) => {
+          const sel = value === opt;
+          return (
+            <button
+              key={opt}
+              onClick={() => onChange(opt)}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                sel
+                  ? "bg-gradient-to-r from-primary to-purple-600 text-white shadow-md shadow-primary/30"
+                  : "bg-card/60 border border-border/60 text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {opt}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function SelectControl({
   label,
   value,
