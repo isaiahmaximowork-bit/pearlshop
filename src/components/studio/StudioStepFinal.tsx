@@ -509,38 +509,3 @@ function PillGroup({
   );
 }
 
-const interactionVisual: Record<string, { icon: typeof Shirt; label: string; desc: string }> = {
-  "Vestindo o produto": { icon: Shirt, label: "Vestindo o produto", desc: "Avatar usando a peça naturalmente" },
-  "Segurando o produto": { icon: Hand, label: "Segurando o produto", desc: "Mãos exibindo o item em destaque" },
-  "Selfie no espelho": { icon: Smartphone, label: "Selfie no espelho", desc: "Ângulo refletido tipo OOTD" },
-  "Selfie": { icon: Camera, label: "Selfie", desc: "Câmera frontal apontada para o avatar" },
-};
-
-function InteractionPreview({ mode }: { mode: string }) {
-  const data = interactionVisual[mode] ?? interactionVisual["Vestindo o produto"];
-  const Icon = data.icon;
-  return (
-    <div className="relative h-32 rounded-2xl border border-border/60 bg-gradient-to-br from-primary/10 via-purple-500/5 to-background overflow-hidden flex items-center justify-center">
-      <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-10 -left-10 w-32 h-32 rounded-full bg-purple-500/20 blur-3xl pointer-events-none" />
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={mode}
-          initial={{ opacity: 0, y: 10, scale: 0.9 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -10, scale: 0.9 }}
-          transition={{ duration: 0.25 }}
-          className="relative flex items-center gap-4"
-        >
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-lg shadow-primary/40">
-            <Icon size={28} className="text-white" />
-          </div>
-          <div className="text-left">
-            <p className="text-sm font-black tracking-tight">{data.label}</p>
-            <p className="text-[11px] text-muted-foreground max-w-[180px]">{data.desc}</p>
-          </div>
-        </motion.div>
-      </AnimatePresence>
-    </div>
-  );
-}
