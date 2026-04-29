@@ -332,12 +332,17 @@ export function StudioStepFinal({ state, updateState }: Props) {
           <p className="text-xs text-muted-foreground mb-4">
             Vamos montar o prompt definitivo para você usar no seu gerador de vídeo favorito.
           </p>
-          <Button
+          <button
             onClick={handleGeneratePrompt}
-            className="w-full h-12 rounded-xl bg-gradient-to-r from-primary to-purple-600 shadow-lg shadow-primary/30 gap-2 text-base font-bold"
+            className="group relative w-full h-14 rounded-xl overflow-hidden font-bold text-base text-white shadow-lg shadow-primary/40"
           >
-            <Sparkles size={18} /> Gerar vídeo
-          </Button>
+            <span className="absolute inset-0 bg-[linear-gradient(110deg,hsl(var(--primary)),#9333ea,#c084fc,#9333ea,hsl(var(--primary)))] bg-[length:300%_100%] animate-[shimmer_3s_linear_infinite]" />
+            <span className="absolute -inset-1 rounded-xl bg-primary/40 blur-xl opacity-60 group-hover:opacity-90 transition-opacity pointer-events-none" />
+            <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" />
+            <span className="relative flex items-center justify-center gap-2">
+              <Sparkles size={18} /> Gerar UGC
+            </span>
+          </button>
           <AnimatePresence>
             {promptGenerated && (
               <motion.p
