@@ -166,39 +166,54 @@ export function StudioStepConfig({ state, updateState }: Props) {
             </button>
           ))}
         </div>
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-          {avatars[state.avatarCategory].map((a) => {
-            const sel = state.avatarId === a.id;
-            return (
-              <div
-                key={a.id}
-                onClick={() => updateState({ avatarId: a.id })}
-                className={`${glassSelectable(sel)} p-2`}
-              >
-                <div className="aspect-square rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center overflow-hidden">
-                  {a.img ? (
-                    <img
-                      src={a.img}
-                      alt={a.name}
-                      loading="lazy"
-                      decoding="async"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <User size={28} className="text-primary/60" />
-                  )}
-                </div>
-                <p className="text-[10px] font-semibold text-center mt-2 truncate">{a.name}</p>
-              </div>
-            );
-          })}
-          <div className="p-2 rounded-2xl border border-dashed border-border/60 hover:border-primary/60 cursor-pointer transition-colors flex flex-col items-center justify-center text-center">
-            <div className="aspect-square w-full rounded-xl bg-accent/40 flex items-center justify-center">
+        {state.avatarCategory === "ia" && avatars.ia.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-border/60 p-10 text-center">
+            <div className="w-12 h-12 mx-auto rounded-xl bg-accent/40 flex items-center justify-center mb-3">
               <Upload size={22} className="text-muted-foreground" />
             </div>
-            <p className="text-[10px] font-semibold text-muted-foreground mt-2">Personalizado</p>
+            <p className="text-sm font-bold mb-1">Você ainda não tem avatares personalizados</p>
+            <p className="text-xs text-muted-foreground mb-4">
+              Crie um avatar com seu rosto ou de alguém autorizado para usar nos seus vídeos.
+            </p>
+            <Button className="rounded-xl gap-2 bg-gradient-to-r from-primary to-purple-600">
+              <Upload size={16} /> Criar meu avatar
+            </Button>
           </div>
-        </div>
+        ) : (
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+            {avatars[state.avatarCategory].map((a) => {
+              const sel = state.avatarId === a.id;
+              return (
+                <div
+                  key={a.id}
+                  onClick={() => updateState({ avatarId: a.id })}
+                  className={`${glassSelectable(sel)} p-2`}
+                >
+                  <div className="aspect-square rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center overflow-hidden">
+                    {a.img ? (
+                      <img
+                        src={a.img}
+                        alt={a.name}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User size={28} className="text-primary/60" />
+                    )}
+                  </div>
+                  <p className="text-[10px] font-semibold text-center mt-2 truncate">{a.name}</p>
+                </div>
+              );
+            })}
+            <div className="p-2 rounded-2xl border border-dashed border-border/60 hover:border-primary/60 cursor-pointer transition-colors flex flex-col items-center justify-center text-center">
+              <div className="aspect-square w-full rounded-xl bg-accent/40 flex items-center justify-center">
+                <Upload size={22} className="text-muted-foreground" />
+              </div>
+              <p className="text-[10px] font-semibold text-muted-foreground mt-2">Personalizado</p>
+            </div>
+          </div>
+        )}
       </Section>
 
       {/* Cenário */}
