@@ -164,8 +164,18 @@ export function StudioStepConfig({ state, updateState }: Props) {
                 onClick={() => updateState({ avatarId: a.id })}
                 className={`${glassSelectable(sel)} p-2`}
               >
-                <div className="aspect-square rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center">
-                  <User size={28} className="text-primary/60" />
+                <div className="aspect-square rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center overflow-hidden">
+                  {a.img ? (
+                    <img
+                      src={a.img}
+                      alt={a.name}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User size={28} className="text-primary/60" />
+                  )}
                 </div>
                 <p className="text-[10px] font-semibold text-center mt-2 truncate">{a.name}</p>
               </div>
