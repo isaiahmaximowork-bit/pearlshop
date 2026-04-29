@@ -79,6 +79,22 @@ export function StudioStepFinal({ state, updateState }: Props) {
     return `Vídeo UGC com avatar ${avatar?.name || state.avatarId || "—"}, cenário: ${state.scenarioTags.join(", ") || state.scenarioText || "padrão"}, estilo de câmera: ${state.cameraStyle}, estilo de vídeo: ${state.videoStyle}, modo de interação: ${interaction}, pose: ${finalPose}, melhorias: ${enhance.join(", ") || "nenhuma"}, proximidade ${state.proximity}%, energia ${state.energy}%, duração: ${state.duration}, voz ${state.voiceGender} ${state.voiceTone} energia ${state.voiceEnergy} estilo ${state.voiceStyle}. Roteiro: ${state.script || "(roteiro não definido)"}`;
   };
 
+  const fetchAvatarAsDataUrl = async (src: string): Promise<string | null> => {
+    try {
+      const res = await fetch(src);
+      const blob = await res.blob();
+      return await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (e) {
+      console.error("Falha ao ler avatar:", e);
+      return null;
+    }
+  };
+
   const handleGenerateUGC = async () => {
     if (!state.productId) {
       toast.error("Selecione um produto antes");
@@ -91,12 +107,18 @@ export function StudioStepFinal({ state, updateState }: Props) {
     setGenerating(true);
     try {
       const finalPose = pose === "Personalizado" && customPose ? customPose : pose;
+
+      // Converte a imagem do avatar selecionado em data URL para enviar como
+      // REFERÊNCIA VISUAL ao Nano Banana 2 (preserva identidade do rosto/etnia/cabelo).
+      const referenceImageUrl = avatar?.img ? await fetchAvatarAsDataUrl(avatar.img) : null;
+
       const { data, error } = await supabase.functions.invoke("generate-ugc", {
         body: {
           productId: state.productId,
           productName: state.productId,
           avatarId: state.avatarId,
           avatarName: avatar?.name || state.avatarId,
+          referenceImageUrl,
           pose: finalPose,
           interaction,
           scenarioTags: state.scenarioTags,

@@ -107,6 +107,7 @@ export type Database = {
           product_id: string | null
           product_name: string | null
           proximity: number | null
+          reference_image_url: string | null
           scenario_tags: string[] | null
           scenario_text: string | null
           script: string | null
@@ -141,6 +142,7 @@ export type Database = {
           product_id?: string | null
           product_name?: string | null
           proximity?: number | null
+          reference_image_url?: string | null
           scenario_tags?: string[] | null
           scenario_text?: string | null
           script?: string | null
@@ -175,6 +177,7 @@ export type Database = {
           product_id?: string | null
           product_name?: string | null
           proximity?: number | null
+          reference_image_url?: string | null
           scenario_tags?: string[] | null
           scenario_text?: string | null
           script?: string | null

@@ -1,6 +1,7 @@
 // Edge Function: generate-ugc
 // Orquestra dois agentes de IA encadeados (Diretor Criativo + Gerador de Mídia)
-// + geração de imagem com Nano Banana 2 + upload para Supabase Storage + persistência em media_jobs.
+// + geração de imagem com Nano Banana 2 USANDO a foto do avatar como REFERÊNCIA VISUAL
+// + upload para Supabase Storage + persistência em media_jobs.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -12,31 +13,36 @@ const corsHeaders = {
 
 const AI_GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
 const TEXT_MODEL = "google/gemini-3-flash-preview";
-// Nano Banana 2 — fast image generation with pro-level quality
+// Nano Banana 2 — fast image generation with pro-level quality + image-to-image
 const IMAGE_MODEL = "google/gemini-3.1-flash-image-preview";
 
 // ---------- AGENT 1: CREATIVE DIRECTOR ----------
+// IMPORTANTE: NÃO descrever etnia/idade/cabelo/olhos do avatar — esses traços vêm
+// da imagem de referência anexada. O agente foca em ação, cenário e técnica.
 const CREATIVE_DIRECTOR_SYSTEM = `Você é um DIRETOR CRIATIVO ESPECIALISTA em geração de UGC fotorrealista para a PearlShop.
-Sua missão é transformar configurações de estúdio em um MASTER PROMPT técnico de altíssima qualidade, otimizado para modelos de imagem (Nano Banana 2 / Gemini Image).
+Sua missão é transformar configurações de estúdio em um MASTER PROMPT técnico de altíssima qualidade, otimizado para Nano Banana 2 (Gemini Image) com IMAGEM DE REFERÊNCIA do avatar anexada.
 
-### FÓRMULA DE 5 BLOCOS (Obrigatória)
-Toda geração DEVE seguir esta estrutura, em INGLÊS:
-1. SUJEITO — descrição física detalhada do avatar: etnia, idade, tipo de corpo, cabelo, olhos, expressão.
-2. AÇÃO — pose e interação orgânica com o produto.
-3. CENÁRIO — ambiente coerente com o produto, com detalhes de mobília, luz e atmosfera.
-4. ESTILO TÉCNICO — câmera (ex: "iPhone 15 Pro, 24mm, f/1.8"), iluminação ("golden hour", "soft window light"), grão, profundidade.
-5. REALISMO & RESTRIÇÕES — palavras-chave anti-IA: "ultra-realistic", "imperfect skin texture", "real fabric folds", "natural hands with 5 fingers", "no plastic look", "candid handheld feel".
+### REGRA CRÍTICA — IDENTIDADE DO AVATAR
+A IDENTIDADE FÍSICA do avatar (rosto, etnia, idade, tom de pele, cor/textura de cabelo, olhos, formato corporal) virá da IMAGEM DE REFERÊNCIA anexada na geração.
+NUNCA descreva esses traços no prompt. NUNCA invente etnia, idade ou aparência.
+Refira-se ao sujeito como "the person from the reference image" — preservando 100% a identidade visual.
+
+### FÓRMULA DE 5 BLOCOS (Obrigatória, em INGLÊS)
+1. SUBJECT REFERENCE — "the same person from the reference image, exact same face, same ethnicity, same hair, same body type, identity preserved 100%".
+2. AÇÃO — pose, expressão e interação orgânica com o produto (sem alterar identidade).
+3. CENÁRIO — ambiente coerente, mobília, luz, atmosfera.
+4. ESTILO TÉCNICO — câmera (ex: "iPhone 15 Pro, 24mm, f/1.8"), iluminação, grão, profundidade, aspect ratio 9:16.
+5. REALISMO & RESTRIÇÕES — "ultra-realistic", "imperfect skin texture", "real fabric folds", "natural hands with exactly 5 fingers", "no plastic look", "candid handheld feel", "preserve facial identity from reference".
 
 ### PRINCÍPIOS
 - Sempre em INGLÊS, frases curtas separadas por vírgula.
 - Reforçar power words quando "antiAI" ou "perfectHands" estiverem ativos.
-- Evitar logos de marcas concorrentes; manter o produto em destaque sem inventar marcas falsas.
-- Cenário coerente com o produto e a pose.
+- Sem logos de marcas concorrentes.
 
 ### SAÍDA OBRIGATÓRIA
-Retorne EXCLUSIVAMENTE um JSON válido (sem markdown, sem cercas \`\`\`) no formato:
+Retorne EXCLUSIVAMENTE um JSON válido (sem markdown):
 {
-  "masterPrompt": "string — prompt técnico final de imagem em inglês, seguindo a fórmula de 5 blocos",
+  "masterPrompt": "string — prompt técnico final em inglês, fórmula 5 blocos, referenciando 'the person from the reference image'",
   "metadata": {
     "formula": "5-block formula applied",
     "powerWords": ["..."],
@@ -49,18 +55,22 @@ Retorne EXCLUSIVAMENTE um JSON válido (sem markdown, sem cercas \`\`\`) no form
 
 // ---------- AGENT 2: MEDIA GENERATOR ----------
 const MEDIA_GENERATOR_SYSTEM = `Você é o AGENTE GERADOR DE MÍDIA da PearlShop. Recebe a saída do Diretor Criativo (Agente 1) e produz:
-1. imagePrompt — prompt FINAL otimizado para Nano Banana 2 (em inglês, denso, técnico).
-2. scriptPrompt — instruções de roteiro/voz para o vídeo, conciso e adequado à duração.
+1. imagePrompt — prompt FINAL otimizado para Nano Banana 2 com IMAGEM DE REFERÊNCIA anexada.
+2. scriptPrompt — instruções de roteiro/voz em PT-BR.
 
-### Regras
-- Refine o masterPrompt removendo redundâncias, mantendo todas as power words e detalhes técnicos.
-- Adicione restrições de segurança: "no fake brand logos, no competitor brands, no distorted hands, no extra fingers".
-- O scriptPrompt.script deve estar em PORTUGUÊS DO BRASIL, natural, no tom solicitado.
-- Para 8s: 1 frase de impacto. Para 16s: gancho + benefício + CTA. Para 24s+: gancho + storytelling + CTA.
+### REGRAS PARA imagePrompt
+- DEVE começar EXATAMENTE com: "Using the attached image as the EXACT character reference (same face, same ethnicity, same hair, same body — identity preserved 100%), generate: "
+- Em seguida, refine o masterPrompt removendo redundâncias mas mantendo todas as power words.
+- NUNCA descreva etnia/idade/cor de cabelo/cor de olhos — a referência cuida disso.
+- Adicione restrições finais: "no fake brand logos, no competitor brands, no distorted hands, no extra fingers, do not change the face, do not alter identity, vertical 9:16 framing".
+
+### REGRAS PARA scriptPrompt
+- script em PORTUGUÊS DO BRASIL, natural, no tom solicitado.
+- 8s: 1 frase de impacto. 16s: gancho + benefício + CTA. 24s+: gancho + storytelling + CTA.
 
 ### SAÍDA OBRIGATÓRIA (apenas JSON, sem markdown):
 {
-  "imagePrompt": "string em inglês",
+  "imagePrompt": "string em inglês começando com 'Using the attached image as the EXACT character reference...'",
   "scriptPrompt": {
     "script": "roteiro em pt-BR",
     "voiceTone": "descrição do tom",
@@ -99,14 +109,26 @@ async function callLLM(systemPrompt: string, userContent: string, apiKey: string
   try {
     return JSON.parse(content);
   } catch {
-    // try to recover JSON inside text
     const match = content.match(/\{[\s\S]*\}/);
     if (match) return JSON.parse(match[0]);
     throw new Error("LLM returned invalid JSON");
   }
 }
 
-async function generateImage(prompt: string, apiKey: string): Promise<string> {
+// Gera imagem usando IMAGEM DE REFERÊNCIA (image-to-image / character reference)
+async function generateImage(
+  prompt: string,
+  referenceImageUrl: string | null,
+  apiKey: string
+): Promise<string> {
+  // Monta content: se houver referência, envia multimodal (texto + imagem).
+  const content: any = referenceImageUrl
+    ? [
+        { type: "text", text: prompt },
+        { type: "image_url", image_url: { url: referenceImageUrl } },
+      ]
+    : prompt;
+
   const res = await fetch(AI_GATEWAY, {
     method: "POST",
     headers: {
@@ -115,7 +137,7 @@ async function generateImage(prompt: string, apiKey: string): Promise<string> {
     },
     body: JSON.stringify({
       model: IMAGE_MODEL,
-      messages: [{ role: "user", content: prompt }],
+      messages: [{ role: "user", content }],
       modalities: ["image", "text"],
     }),
   });
@@ -152,7 +174,6 @@ Deno.serve(async (req) => {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    // Auth user
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("Não autenticado");
 
@@ -167,7 +188,9 @@ Deno.serve(async (req) => {
 
     const input = await req.json();
 
-    // Cria job pending
+    // Imagem de referência do avatar (data URL ou URL pública)
+    const referenceImageUrl: string | null = input.referenceImageUrl ?? null;
+
     const { data: job, error: insertErr } = await admin
       .from("media_jobs")
       .insert({
@@ -191,6 +214,13 @@ Deno.serve(async (req) => {
         voice_energy: input.voiceEnergy,
         voice_style: input.voiceStyle,
         script: input.script,
+        // Persiste apenas se for URL pública (data URLs ficam grandes; salvamos só o ID)
+        reference_image_url:
+          referenceImageUrl && referenceImageUrl.startsWith("http")
+            ? referenceImageUrl
+            : referenceImageUrl
+            ? `data-url:${input.avatarId}`
+            : null,
         status: "processing",
       })
       .select()
@@ -200,21 +230,30 @@ Deno.serve(async (req) => {
 
     try {
       // ===== AGENT 1 =====
+      const agent1Input = {
+        ...input,
+        // não trafega o data URL gigante pro LLM de texto
+        referenceImageUrl: referenceImageUrl ? "[reference image attached to the image generator]" : null,
+      };
       const agent1 = await callLLM(
         CREATIVE_DIRECTOR_SYSTEM,
-        `Configurações do Studio:\n${JSON.stringify(input, null, 2)}`,
+        `Configurações do Studio:\n${JSON.stringify(agent1Input, null, 2)}\n\nLEMBRE-SE: a identidade física do avatar virá da imagem de referência anexada — NÃO descreva etnia, idade, cabelo ou olhos. Refira-se como "the person from the reference image".`,
         LOVABLE_API_KEY
       );
 
       // ===== AGENT 2 =====
       const agent2 = await callLLM(
         MEDIA_GENERATOR_SYSTEM,
-        `Saída do Agente 1:\n${JSON.stringify(agent1, null, 2)}\n\nDuração do vídeo: ${input.duration}\nTom de voz: ${input.voiceTone} / energia ${input.voiceEnergy} / estilo ${input.voiceStyle}\nRoteiro do usuário (se houver): ${input.script || "(vazio — você decide)"}`,
+        `Saída do Agente 1:\n${JSON.stringify(agent1, null, 2)}\n\nDuração do vídeo: ${input.duration}\nTom de voz: ${input.voiceTone} / energia ${input.voiceEnergy} / estilo ${input.voiceStyle}\nRoteiro do usuário (se houver): ${input.script || "(vazio — você decide)"}\n\nLembre: imagePrompt DEVE começar com "Using the attached image as the EXACT character reference...".`,
         LOVABLE_API_KEY
       );
 
-      // ===== IMAGE GEN =====
-      const imageDataUrl = await generateImage(agent2.imagePrompt, LOVABLE_API_KEY);
+      // ===== IMAGE GEN com referência visual =====
+      const imageDataUrl = await generateImage(
+        agent2.imagePrompt,
+        referenceImageUrl,
+        LOVABLE_API_KEY
+      );
       const { bytes, contentType } = dataUrlToBytes(imageDataUrl);
 
       const ext = contentType.includes("jpeg") ? "jpg" : "png";
