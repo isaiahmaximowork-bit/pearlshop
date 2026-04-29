@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,8 +45,42 @@ export function AppHeader() {
 
   const avatarSrc = avatarMap[profile?.avatar_id || 'strawberry'] || strawberry;
 
+  // Hide-on-scroll-down / show-on-scroll-up behavior
+  const [hidden, setHidden] = useState(false);
+  const lastY = useRef(0);
+  const hasPassedThreshold = useRef(false);
+
+  useEffect(() => {
+    const headerHeight = () => (window.innerWidth >= 768 ? 80 : 64);
+    const onScroll = () => {
+      const y = window.scrollY;
+      const delta = y - lastY.current;
+      const h = headerHeight();
+
+      if (!hasPassedThreshold.current) {
+        // First-time hide only after scrolling past header height
+        if (y > h && delta > 0) {
+          hasPassedThreshold.current = true;
+          setHidden(true);
+        }
+      } else {
+        if (delta > 4) setHidden(true);
+        else if (delta < -4) setHidden(false);
+      }
+
+      if (y <= 0) setHidden(false);
+      lastY.current = y;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <header className="h-16 md:h-20 bg-card/80 backdrop-blur-md border-b border-border sticky top-0 z-40 px-4 md:px-8 flex items-center justify-between md:justify-end gap-4 md:gap-6">
+    <header
+      className={`h-16 md:h-20 bg-card/80 backdrop-blur-md border-b border-border sticky top-0 z-40 px-4 md:px-8 flex items-center justify-between md:justify-end gap-4 md:gap-6 transition-transform duration-300 ease-out ${
+        hidden ? "-translate-y-full" : "translate-y-0"
+      }`}
+    >
       {/* Mobile hamburger */}
       <MobileSidebar />
 

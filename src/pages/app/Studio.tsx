@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Package, Settings2, Wand2, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { StudioStepProduct } from "@/components/studio/StudioStepProduct";
@@ -54,6 +54,10 @@ const Studio = () => {
   const [state, setState] = useState<StudioState>(initialState);
 
   const updateState = (patch: Partial<StudioState>) => setState((s) => ({ ...s, ...patch }));
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentStep]);
 
   const canContinue = () => {
     if (currentStep === 1) return !!state.productId;
