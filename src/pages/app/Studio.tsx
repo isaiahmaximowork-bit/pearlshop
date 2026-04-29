@@ -92,7 +92,7 @@ const Studio = () => {
       {/* Progress */}
       <div className="relative sticky top-0 z-30 backdrop-blur-xl bg-background/70 border-b border-border/50">
         <div className="max-w-6xl mx-auto px-6 py-5">
-          <StudioProgressBar steps={steps} currentStep={currentStep} />
+          <StudioProgressBar steps={steps} currentStep={currentStep} onStepClick={(id) => setCurrentStep(id)} />
         </div>
       </div>
 
