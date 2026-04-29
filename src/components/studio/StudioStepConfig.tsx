@@ -32,23 +32,6 @@ const videoStyles = [
 
 const scenarioOptions = ["Quarto", "Estúdio", "Cozinha", "Banheiro", "Sala", "Externo", "Academia", "Carro"];
 
-const avatars: Record<"mulheres" | "homens" | "ia", { id: string; name: string; img?: string }[]> = {
-  mulheres: [
-    { id: "f-sophia", name: "Sophia", img: av23 },
-    { id: "f-amanda", name: "Amanda", img: av24 },
-    { id: "f-isabela", name: "Isabela", img: av25 },
-    { id: "f-helena", name: "Helena", img: av26 },
-    { id: "f-camila", name: "Camila", img: av27 },
-    { id: "f-julia", name: "Júlia", img: av30 },
-    { id: "f-larissa", name: "Larissa", img: av31 },
-  ],
-  homens: [
-    { id: "m-lucas", name: "Lucas", img: av28 },
-    { id: "m-rafael", name: "Rafael", img: av29 },
-  ],
-  ia: [],
-};
-
 function Section({
   title,
   description,
