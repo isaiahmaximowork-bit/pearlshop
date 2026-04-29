@@ -141,59 +141,12 @@ export function StudioStepFinal({ state, updateState }: Props) {
         <p className="text-muted-foreground">Mescle, configure a voz e gere seu vídeo com IA.</p>
       </div>
 
-      {/* Reference image */}
+      {/* Mesclagem com IA — config */}
       <div className={`${glassCard} p-6`}>
-        <h3 className="font-bold tracking-tight mb-1">Imagem de Referência</h3>
-        <p className="text-xs text-muted-foreground mb-5">Mesclagem com IA do avatar + produto + cenário.</p>
+        <h3 className="font-bold tracking-tight mb-1">Mesclar com IA</h3>
+        <p className="text-xs text-muted-foreground mb-5">Avatar + Produto + Cenário → foto realista</p>
 
-        <div className="aspect-video rounded-2xl bg-gradient-to-br from-primary/10 via-purple-500/10 to-background border border-border/60 flex items-center justify-center mb-4 overflow-hidden relative">
-          {merging ? (
-            <div className="flex flex-col items-center gap-3 text-primary z-10">
-              <Loader2 size={36} className="animate-spin" />
-              <p className="text-sm font-bold">Mesclando com IA...</p>
-            </div>
-          ) : merged && avatar?.img ? (
-            <motion.img
-              key={avatar.id}
-              src={avatar.img}
-              alt={avatar.name}
-              initial={{ opacity: 0, scale: 1.05 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
-              className="w-full h-full object-cover"
-            />
-          ) : merged ? (
-            <div className="flex flex-col items-center gap-3 text-primary">
-              <Sparkles size={36} />
-              <p className="text-sm font-bold">Imagem gerada com sucesso</p>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-3 text-muted-foreground">
-              <ImageIcon size={36} />
-              <p className="text-sm">Clique em "Mesclar com IA" para gerar</p>
-            </div>
-          )}
-          {merged && (
-            <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-background/70 backdrop-blur-md border border-border/60 text-[10px] font-bold flex items-center gap-1.5">
-              <Sparkles size={10} className="text-primary" /> Avatar mesclado
-            </div>
-          )}
-        </div>
-
-        <Button
-          onClick={handleMerge}
-          disabled={merging}
-          className="w-full rounded-xl bg-gradient-to-r from-primary to-purple-600 shadow-lg shadow-primary/30 gap-2"
-        >
-          {merging ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />}
-          {merging ? "Gerando..." : merged ? "Regerar imagem" : "Mesclar com IA"}
-        </Button>
-
-        <p className="text-[11px] text-muted-foreground text-center mt-3">
-          Avatar + Produto + Cenário → foto realista
-        </p>
-
-        <div className="space-y-5 mt-6">
+        <div className="space-y-5">
           <PillGroup
             label="Modo de interação"
             options={interactionModes}
@@ -236,6 +189,62 @@ export function StudioStepFinal({ state, updateState }: Props) {
               })}
             </div>
           </div>
+
+          {/* Gerar Imagem button — animated gradient */}
+          <div className="pt-2">
+            <button
+              onClick={handleMerge}
+              disabled={merging}
+              className="group relative w-full h-12 rounded-xl overflow-hidden font-bold text-base text-white shadow-lg shadow-primary/40 disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              <span className="absolute inset-0 bg-[linear-gradient(110deg,hsl(var(--primary)),#9333ea,#c084fc,#9333ea,hsl(var(--primary)))] bg-[length:300%_100%] animate-[shimmer_3s_linear_infinite]" />
+              <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" />
+              <span className="relative flex items-center justify-center gap-2">
+                {merging ? <Loader2 size={18} className="animate-spin" /> : <ImageIcon size={18} />}
+                {merging ? "Gerando imagem..." : merged ? "Regerar imagem" : "Gerar Imagem"}
+              </span>
+            </button>
+          </div>
+
+          {/* Reduced-scale preview */}
+          <AnimatePresence>
+            {(merging || merged) && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="flex justify-center pt-2"
+              >
+                <div className="relative w-48 sm:w-56 rounded-2xl overflow-hidden border border-border/60 bg-gradient-to-br from-primary/10 via-purple-500/10 to-background shadow-[0_12px_40px_hsl(var(--primary)/0.25)]">
+                  {merging ? (
+                    <div className="aspect-square flex flex-col items-center justify-center gap-2 text-primary">
+                      <Loader2 size={28} className="animate-spin" />
+                      <p className="text-xs font-bold">Mesclando...</p>
+                    </div>
+                  ) : avatar?.img ? (
+                    <motion.img
+                      key={avatar.id}
+                      src={avatar.img}
+                      alt={avatar.name}
+                      initial={{ opacity: 0, scale: 1.05 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.5 }}
+                      className="w-full h-auto object-contain"
+                    />
+                  ) : (
+                    <div className="aspect-square flex items-center justify-center text-primary">
+                      <Sparkles size={28} />
+                    </div>
+                  )}
+                  {merged && (
+                    <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-background/70 backdrop-blur-md border border-border/60 text-[9px] font-bold flex items-center gap-1">
+                      <Sparkles size={9} className="text-primary" /> Mesclado
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
