@@ -55,6 +55,10 @@ const Studio = () => {
 
   const updateState = (patch: Partial<StudioState>) => setState((s) => ({ ...s, ...patch }));
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentStep]);
+
   const canContinue = () => {
     if (currentStep === 1) return !!state.productId;
     if (currentStep === 2) return !!state.avatarId;
