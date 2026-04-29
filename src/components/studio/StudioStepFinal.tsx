@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Wand2, Copy, ChevronDown, ExternalLink, Sparkles, Image as ImageIcon, Loader2, Download, X, Rocket } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Wand2, Copy, ChevronDown, ExternalLink, Sparkles, Image as ImageIcon, Loader2, Download, X, Rocket, History } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import { glassCard, glassSelectable } from "./glass";
@@ -7,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import type { StudioState } from "@/pages/app/Studio";
 import { findAvatar } from "./avatars";
 
