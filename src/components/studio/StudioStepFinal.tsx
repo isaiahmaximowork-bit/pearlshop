@@ -485,12 +485,16 @@ export function StudioStepFinal({ state, updateState }: Props) {
               >
                 <Sparkles size={28} className="text-white" />
               </motion.div>
-              <h3 className="text-2xl font-black tracking-tight mb-1">Você criou seu prompt! 🎉</h3>
+              <h3 className="text-2xl font-black tracking-tight mb-1">Seu UGC está pronto! 🎉</h3>
               <p className="text-sm text-muted-foreground mb-6">
-                Agora copie a imagem do avatar, cole no Flow junto com o prompt e gere seu vídeo.
+                A IA gerou a imagem ultra-realista, o roteiro e os prompts. Tudo salvo no seu histórico.
               </p>
 
-              {avatar?.img && (
+              {generatedJob?.image_url ? (
+                <div className="w-40 aspect-[9/16] mx-auto rounded-2xl overflow-hidden ring-2 ring-primary/40 shadow-lg shadow-primary/30 mb-5">
+                  <img src={generatedJob.image_url} alt="UGC gerado" className="w-full h-full object-cover" />
+                </div>
+              ) : avatar?.img && (
                 <div className="w-24 h-24 mx-auto rounded-2xl overflow-hidden ring-2 ring-primary/40 shadow-lg shadow-primary/30 mb-5">
                   <img src={avatar.img} alt={avatar.name} className="w-full h-full object-cover" />
                 </div>
@@ -499,28 +503,54 @@ export function StudioStepFinal({ state, updateState }: Props) {
               <div className="grid grid-cols-2 gap-2 mb-3">
                 <Button
                   variant="outline"
-                  onClick={handleCopyAvatarImage}
+                  onClick={() => {
+                    if (generatedJob?.image_url) {
+                      const a = document.createElement("a");
+                      a.href = generatedJob.image_url;
+                      a.download = `ugc-${generatedJob.id}.png`;
+                      a.target = "_blank";
+                      a.click();
+                    } else {
+                      handleCopyAvatarImage();
+                    }
+                  }}
                   className="rounded-xl gap-2 h-11"
                 >
-                  <Download size={14} /> Copiar imagem
+                  <Download size={14} /> Baixar imagem
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={handleCopyPromptOnly}
+                  onClick={() => {
+                    const text = generatedJob?.image_prompt || generatePrompt();
+                    navigator.clipboard.writeText(text);
+                    toast.success("Prompt copiado!");
+                  }}
                   className="rounded-xl gap-2 h-11"
                 >
                   <Copy size={14} /> Copiar prompt
                 </Button>
               </div>
 
-              <Button
-                asChild
-                className="w-full h-14 rounded-xl bg-gradient-to-r from-primary to-purple-600 shadow-lg shadow-primary/40 gap-2 text-base font-bold"
-              >
-                <a href="https://labs.google/flow" target="_blank" rel="noreferrer">
-                  <Rocket size={20} /> Abrir Flow agora
-                </a>
-              </Button>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSuccessOpen(false);
+                    navigate("/app/historico");
+                  }}
+                  className="rounded-xl gap-2 h-12"
+                >
+                  <History size={16} /> Histórico
+                </Button>
+                <Button
+                  asChild
+                  className="h-12 rounded-xl bg-gradient-to-r from-primary to-purple-600 shadow-lg shadow-primary/40 gap-2 font-bold"
+                >
+                  <a href="https://labs.google/flow" target="_blank" rel="noreferrer">
+                    <Rocket size={16} /> Abrir Flow
+                  </a>
+                </Button>
+              </div>
             </div>
           </div>
         </DialogContent>
