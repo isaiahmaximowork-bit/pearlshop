@@ -17,6 +17,9 @@ import av28 from "@/assets/avatars/28.webp";
 import av29 from "@/assets/avatars/29.webp";
 import av30 from "@/assets/avatars/30.webp";
 import av31 from "@/assets/avatars/31.webp";
+import camFrente from "@/assets/camera/frente.webp";
+import camPov from "@/assets/camera/pov.webp";
+import camDemo from "@/assets/camera/demo.webp";
 
 interface Props {
   state: StudioState;
@@ -24,9 +27,9 @@ interface Props {
 }
 
 const cameraStyles = [
-  { id: "frente", label: "De Frente", desc: "Avatar olhando para câmera", icon: User },
-  { id: "pov", label: "Mãos (POV)", desc: "Vista em primeira pessoa", icon: Hand },
-  { id: "demo", label: "Demonstração", desc: "Foco no produto em uso", icon: Box },
+  { id: "frente", label: "De Frente", desc: "Avatar olhando para câmera", img: camFrente },
+  { id: "pov", label: "Mãos (POV)", desc: "Vista em primeira pessoa", img: camPov },
+  { id: "demo", label: "Demonstração", desc: "Foco no produto em uso", img: camDemo },
 ];
 
 const videoStyles = [
@@ -51,7 +54,7 @@ const avatars: Record<"mulheres" | "homens" | "ia", { id: string; name: string; 
     { id: "m-lucas", name: "Lucas", img: av28 },
     { id: "m-rafael", name: "Rafael", img: av29 },
   ],
-  ia: Array.from({ length: 6 }, (_, i) => ({ id: `ai-${i}`, name: `IA ${i + 1}` })),
+  ia: [],
 };
 
 function Section({
@@ -115,20 +118,28 @@ export function StudioStepConfig({ state, updateState }: Props) {
       <Section title="Estilo de Câmera" description="Escolha o ângulo principal">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {cameraStyles.map((c) => {
-            const Icon = c.icon;
             const sel = state.cameraStyle === c.id;
             return (
               <div
                 key={c.id}
                 onClick={() => updateState({ cameraStyle: c.id })}
-                className={`${glassSelectable(sel)} p-5 text-center`}
+                className={`${glassSelectable(sel)} p-3 text-center`}
               >
                 <div
-                  className={`w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-3 ${
-                    sel ? "bg-gradient-to-br from-primary to-purple-600 text-white" : "bg-accent text-foreground"
+                  className={`relative aspect-square w-full rounded-xl overflow-hidden mb-3 ring-2 transition-all ${
+                    sel ? "ring-primary shadow-lg shadow-primary/30" : "ring-transparent"
                   }`}
                 >
-                  <Icon size={22} />
+                  <img
+                    src={c.img}
+                    alt={c.label}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover"
+                  />
+                  {sel && (
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary/40 via-transparent to-transparent" />
+                  )}
                 </div>
                 <p className="font-bold text-sm">{c.label}</p>
                 <p className="text-[11px] text-muted-foreground mt-1">{c.desc}</p>
