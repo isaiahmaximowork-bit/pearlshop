@@ -1,4 +1,4 @@
-import { Home, Package, ShoppingBag, Settings, Link, LayoutTemplate, Sparkles, Video, Zap, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { Home, Package, ShoppingBag, Settings, Link, LayoutTemplate, Sparkles, Video, Zap, PanelLeftClose, PanelLeftOpen, History } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { NavLink as RouterNavLink, useLocation } from "react-router-dom";
 import { useSidebar } from "@/contexts/SidebarContext";
@@ -12,6 +12,7 @@ const mainItems = [
 const studioItems = [
   { title: "Studio", url: "/app/studio", icon: Sparkles },
   { title: "UGC Avatar Gen", url: "/app/ugc-builder", icon: Video },
+  { title: "Histórico", url: "/app/historico", icon: History },
   { title: "Turbinar", url: "/app/turbinar", icon: Zap },
 ];
 

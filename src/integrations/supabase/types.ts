@@ -86,6 +86,111 @@ export type Database = {
         }
         Relationships: []
       }
+      media_jobs: {
+        Row: {
+          agent1_metadata: Json | null
+          avatar_id: string | null
+          avatar_name: string | null
+          camera_style: string | null
+          created_at: string
+          duration: string | null
+          energy: number | null
+          enhancements: string[] | null
+          error_message: string | null
+          id: string
+          image_prompt: string | null
+          image_storage_key: string | null
+          image_url: string | null
+          interaction: string | null
+          master_prompt: string | null
+          pose: string | null
+          product_id: string | null
+          product_name: string | null
+          proximity: number | null
+          scenario_tags: string[] | null
+          scenario_text: string | null
+          script: string | null
+          script_prompt: Json | null
+          status: string
+          updated_at: string
+          user_id: string
+          video_style: string | null
+          voice_energy: string | null
+          voice_gender: string | null
+          voice_style: string | null
+          voice_tone: string | null
+          warnings: Json | null
+        }
+        Insert: {
+          agent1_metadata?: Json | null
+          avatar_id?: string | null
+          avatar_name?: string | null
+          camera_style?: string | null
+          created_at?: string
+          duration?: string | null
+          energy?: number | null
+          enhancements?: string[] | null
+          error_message?: string | null
+          id?: string
+          image_prompt?: string | null
+          image_storage_key?: string | null
+          image_url?: string | null
+          interaction?: string | null
+          master_prompt?: string | null
+          pose?: string | null
+          product_id?: string | null
+          product_name?: string | null
+          proximity?: number | null
+          scenario_tags?: string[] | null
+          scenario_text?: string | null
+          script?: string | null
+          script_prompt?: Json | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          video_style?: string | null
+          voice_energy?: string | null
+          voice_gender?: string | null
+          voice_style?: string | null
+          voice_tone?: string | null
+          warnings?: Json | null
+        }
+        Update: {
+          agent1_metadata?: Json | null
+          avatar_id?: string | null
+          avatar_name?: string | null
+          camera_style?: string | null
+          created_at?: string
+          duration?: string | null
+          energy?: number | null
+          enhancements?: string[] | null
+          error_message?: string | null
+          id?: string
+          image_prompt?: string | null
+          image_storage_key?: string | null
+          image_url?: string | null
+          interaction?: string | null
+          master_prompt?: string | null
+          pose?: string | null
+          product_id?: string | null
+          product_name?: string | null
+          proximity?: number | null
+          scenario_tags?: string[] | null
+          scenario_text?: string | null
+          script?: string | null
+          script_prompt?: Json | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          video_style?: string | null
+          voice_energy?: string | null
+          voice_gender?: string | null
+          voice_style?: string | null
+          voice_tone?: string | null
+          warnings?: Json | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_id: string

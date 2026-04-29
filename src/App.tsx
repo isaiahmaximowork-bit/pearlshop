@@ -20,6 +20,7 @@ import Builder from "./pages/app/Builder.tsx";
 import StoreSettings from "./pages/app/StoreSettings.tsx";
 import EditarPerfil from "./pages/app/EditarPerfil.tsx";
 import Studio from "./pages/app/Studio.tsx";
+import Historico from "./pages/app/Historico.tsx";
 import StorePage from "./pages/StorePage.tsx";
 import AvisoLegal from "./pages/AvisoLegal.tsx";
 const queryClient = new QueryClient();
@@ -49,6 +50,7 @@ const App = () => (
               <Route path="minha-loja" element={<StoreSettings />} />
               <Route path="perfil" element={<EditarPerfil />} />
               <Route path="studio" element={<Studio />} />
+              <Route path="historico" element={<Historico />} />
             </Route>
             <Route path="/app/builder" element={<ProtectedRoute><Builder /></ProtectedRoute>} />
 

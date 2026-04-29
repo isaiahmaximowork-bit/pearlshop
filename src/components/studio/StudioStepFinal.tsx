@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Wand2, Copy, ChevronDown, ExternalLink, Sparkles, Image as ImageIcon, Loader2, Download, X, Rocket } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Wand2, Copy, ChevronDown, ExternalLink, Sparkles, Image as ImageIcon, Loader2, Download, X, Rocket, History } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import { glassCard, glassSelectable } from "./glass";
@@ -7,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import type { StudioState } from "@/pages/app/Studio";
 import { findAvatar } from "./avatars";
 
@@ -49,6 +51,7 @@ const enhancements = [
 ];
 
 export function StudioStepFinal({ state, updateState }: Props) {
+  const navigate = useNavigate();
   const [merging, setMerging] = useState(false);
   const [merged, setMerged] = useState(false);
   const [interaction, setInteraction] = useState(interactionModes[0]);
@@ -58,6 +61,8 @@ export function StudioStepFinal({ state, updateState }: Props) {
   const [manualOpen, setManualOpen] = useState(false);
   const [promptGenerated, setPromptGenerated] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [generatedJob, setGeneratedJob] = useState<any>(null);
 
   const avatar = findAvatar(state.avatarId);
 
@@ -74,12 +79,61 @@ export function StudioStepFinal({ state, updateState }: Props) {
     return `Vídeo UGC com avatar ${avatar?.name || state.avatarId || "—"}, cenário: ${state.scenarioTags.join(", ") || state.scenarioText || "padrão"}, estilo de câmera: ${state.cameraStyle}, estilo de vídeo: ${state.videoStyle}, modo de interação: ${interaction}, pose: ${finalPose}, melhorias: ${enhance.join(", ") || "nenhuma"}, proximidade ${state.proximity}%, energia ${state.energy}%, duração: ${state.duration}, voz ${state.voiceGender} ${state.voiceTone} energia ${state.voiceEnergy} estilo ${state.voiceStyle}. Roteiro: ${state.script || "(roteiro não definido)"}`;
   };
 
-  const handleGeneratePrompt = () => {
-    setPromptGenerated(true);
-    setManualOpen(true);
-    setTimeout(() => {
-      document.getElementById("manual-prompt")?.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 100);
+  const handleGenerateUGC = async () => {
+    if (!state.productId) {
+      toast.error("Selecione um produto antes");
+      return;
+    }
+    if (!state.avatarId) {
+      toast.error("Selecione um avatar antes");
+      return;
+    }
+    setGenerating(true);
+    try {
+      const finalPose = pose === "Personalizado" && customPose ? customPose : pose;
+      const { data, error } = await supabase.functions.invoke("generate-ugc", {
+        body: {
+          productId: state.productId,
+          productName: state.productId,
+          avatarId: state.avatarId,
+          avatarName: avatar?.name || state.avatarId,
+          pose: finalPose,
+          interaction,
+          scenarioTags: state.scenarioTags,
+          scenarioText: state.scenarioText,
+          cameraStyle: state.cameraStyle,
+          videoStyle: state.videoStyle,
+          enhancements: enhance,
+          proximity: state.proximity,
+          energy: state.energy,
+          duration: state.duration,
+          voiceGender: state.voiceGender,
+          voiceTone: state.voiceTone,
+          voiceEnergy: state.voiceEnergy,
+          voiceStyle: state.voiceStyle,
+          script: state.script,
+        },
+      });
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Falha na geração");
+
+      setGeneratedJob(data.job);
+      setPromptGenerated(true);
+      setManualOpen(true);
+      fireConfetti();
+      setSuccessOpen(true);
+    } catch (err: any) {
+      const msg = err?.message || "Erro ao gerar UGC";
+      if (msg.includes("Rate") || msg.includes("429")) {
+        toast.error("Muitas requisições. Aguarde alguns segundos.");
+      } else if (msg.includes("Payment") || msg.includes("402")) {
+        toast.error("Créditos de IA esgotados. Adicione créditos no workspace.");
+      } else {
+        toast.error(msg);
+      }
+    } finally {
+      setGenerating(false);
+    }
   };
 
   const fireConfetti = () => {
@@ -324,33 +378,35 @@ export function StudioStepFinal({ state, updateState }: Props) {
         <p className="text-[10px] text-muted-foreground text-right mt-2">{wordCount} palavras</p>
       </div>
 
-      {/* Gerar Vídeo (Prompt) */}
+      {/* Gerar UGC */}
       <div className={`${glassCard} p-6 relative overflow-hidden`}>
         <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-primary/20 blur-[80px] pointer-events-none" />
         <div className="relative">
           <h3 className="font-bold tracking-tight mb-1">Pronto para gerar?</h3>
           <p className="text-xs text-muted-foreground mb-4">
-            Vamos montar o prompt definitivo para você usar no seu gerador de vídeo favorito.
+            Nossa IA criará um prompt técnico e gerará a imagem UGC ultra-realista para você.
           </p>
           <button
-            onClick={handleGeneratePrompt}
-            className="group relative w-full h-14 rounded-xl overflow-hidden font-bold text-base text-white shadow-lg shadow-primary/40"
+            onClick={handleGenerateUGC}
+            disabled={generating}
+            className="group relative w-full h-14 rounded-xl overflow-hidden font-bold text-base text-white shadow-lg shadow-primary/40 disabled:opacity-70 disabled:cursor-not-allowed"
           >
             <span className="absolute inset-0 bg-[linear-gradient(110deg,hsl(var(--primary)),#9333ea,#c084fc,#9333ea,hsl(var(--primary)))] bg-[length:300%_100%] animate-[shimmer_3s_linear_infinite]" />
             <span className="absolute -inset-1 rounded-xl bg-primary/40 blur-xl opacity-60 group-hover:opacity-90 transition-opacity pointer-events-none" />
             <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" />
             <span className="relative flex items-center justify-center gap-2">
-              <Sparkles size={18} /> Gerar UGC
+              {generating ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
+              {generating ? "Gerando UGC com IA..." : "Gerar UGC"}
             </span>
           </button>
           <AnimatePresence>
-            {promptGenerated && (
+            {promptGenerated && !generating && (
               <motion.p
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="text-[11px] text-primary text-center mt-3 font-semibold flex items-center justify-center gap-1.5"
               >
-                <Sparkles size={12} /> Prompt gerado — confira abaixo
+                <Sparkles size={12} /> UGC gerado! Confira abaixo ou no histórico.
               </motion.p>
             )}
           </AnimatePresence>
@@ -429,12 +485,16 @@ export function StudioStepFinal({ state, updateState }: Props) {
               >
                 <Sparkles size={28} className="text-white" />
               </motion.div>
-              <h3 className="text-2xl font-black tracking-tight mb-1">Você criou seu prompt! 🎉</h3>
+              <h3 className="text-2xl font-black tracking-tight mb-1">Seu UGC está pronto! 🎉</h3>
               <p className="text-sm text-muted-foreground mb-6">
-                Agora copie a imagem do avatar, cole no Flow junto com o prompt e gere seu vídeo.
+                A IA gerou a imagem ultra-realista, o roteiro e os prompts. Tudo salvo no seu histórico.
               </p>
 
-              {avatar?.img && (
+              {generatedJob?.image_url ? (
+                <div className="w-40 aspect-[9/16] mx-auto rounded-2xl overflow-hidden ring-2 ring-primary/40 shadow-lg shadow-primary/30 mb-5">
+                  <img src={generatedJob.image_url} alt="UGC gerado" className="w-full h-full object-cover" />
+                </div>
+              ) : avatar?.img && (
                 <div className="w-24 h-24 mx-auto rounded-2xl overflow-hidden ring-2 ring-primary/40 shadow-lg shadow-primary/30 mb-5">
                   <img src={avatar.img} alt={avatar.name} className="w-full h-full object-cover" />
                 </div>
@@ -443,28 +503,54 @@ export function StudioStepFinal({ state, updateState }: Props) {
               <div className="grid grid-cols-2 gap-2 mb-3">
                 <Button
                   variant="outline"
-                  onClick={handleCopyAvatarImage}
+                  onClick={() => {
+                    if (generatedJob?.image_url) {
+                      const a = document.createElement("a");
+                      a.href = generatedJob.image_url;
+                      a.download = `ugc-${generatedJob.id}.png`;
+                      a.target = "_blank";
+                      a.click();
+                    } else {
+                      handleCopyAvatarImage();
+                    }
+                  }}
                   className="rounded-xl gap-2 h-11"
                 >
-                  <Download size={14} /> Copiar imagem
+                  <Download size={14} /> Baixar imagem
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={handleCopyPromptOnly}
+                  onClick={() => {
+                    const text = generatedJob?.image_prompt || generatePrompt();
+                    navigator.clipboard.writeText(text);
+                    toast.success("Prompt copiado!");
+                  }}
                   className="rounded-xl gap-2 h-11"
                 >
                   <Copy size={14} /> Copiar prompt
                 </Button>
               </div>
 
-              <Button
-                asChild
-                className="w-full h-14 rounded-xl bg-gradient-to-r from-primary to-purple-600 shadow-lg shadow-primary/40 gap-2 text-base font-bold"
-              >
-                <a href="https://labs.google/flow" target="_blank" rel="noreferrer">
-                  <Rocket size={20} /> Abrir Flow agora
-                </a>
-              </Button>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSuccessOpen(false);
+                    navigate("/app/historico");
+                  }}
+                  className="rounded-xl gap-2 h-12"
+                >
+                  <History size={16} /> Histórico
+                </Button>
+                <Button
+                  asChild
+                  className="h-12 rounded-xl bg-gradient-to-r from-primary to-purple-600 shadow-lg shadow-primary/40 gap-2 font-bold"
+                >
+                  <a href="https://labs.google/flow" target="_blank" rel="noreferrer">
+                    <Rocket size={16} /> Abrir Flow
+                  </a>
+                </Button>
+              </div>
             </div>
           </div>
         </DialogContent>
