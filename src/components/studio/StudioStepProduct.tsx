@@ -12,9 +12,10 @@ import type { StudioState } from "@/pages/app/Studio";
 interface Props {
   state: StudioState;
   updateState: (patch: Partial<StudioState>) => void;
+  onAdvance?: () => void;
 }
 
-export function StudioStepProduct({ state, updateState }: Props) {
+export function StudioStepProduct({ state, updateState, onAdvance }: Props) {
   const { user } = useAuth();
   const [search, setSearch] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
@@ -60,6 +61,7 @@ export function StudioStepProduct({ state, updateState }: Props) {
 
   const handleSelect = (id: string) => {
     updateState({ productId: id });
+    onAdvance?.();
   };
 
   return (

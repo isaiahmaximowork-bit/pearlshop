@@ -102,7 +102,7 @@ const Studio = () => {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
           >
-            {currentStep === 1 && <StudioStepProduct state={state} updateState={updateState} />}
+            {currentStep === 1 && <StudioStepProduct state={state} updateState={updateState} onAdvance={next} />}
             {currentStep === 2 && <StudioStepConfig state={state} updateState={updateState} />}
             {currentStep === 3 && <StudioStepFinal state={state} updateState={updateState} />}
           </motion.div>
