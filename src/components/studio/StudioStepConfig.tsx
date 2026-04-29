@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import type { StudioState } from "@/pages/app/Studio";
+import { handleSelectAndScroll } from "./useAutoScrollNext";
 
 import { avatarsByCategory as avatars } from "./avatars";
 import camFrente from "@/assets/camera/frente.webp";
