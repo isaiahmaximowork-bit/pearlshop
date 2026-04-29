@@ -17,6 +17,9 @@ import av28 from "@/assets/avatars/28.webp";
 import av29 from "@/assets/avatars/29.webp";
 import av30 from "@/assets/avatars/30.webp";
 import av31 from "@/assets/avatars/31.webp";
+import camFrente from "@/assets/camera/frente.webp";
+import camPov from "@/assets/camera/pov.webp";
+import camDemo from "@/assets/camera/demo.webp";
 
 interface Props {
   state: StudioState;
@@ -24,9 +27,9 @@ interface Props {
 }
 
 const cameraStyles = [
-  { id: "frente", label: "De Frente", desc: "Avatar olhando para câmera", icon: User },
-  { id: "pov", label: "Mãos (POV)", desc: "Vista em primeira pessoa", icon: Hand },
-  { id: "demo", label: "Demonstração", desc: "Foco no produto em uso", icon: Box },
+  { id: "frente", label: "De Frente", desc: "Avatar olhando para câmera", img: camFrente },
+  { id: "pov", label: "Mãos (POV)", desc: "Vista em primeira pessoa", img: camPov },
+  { id: "demo", label: "Demonstração", desc: "Foco no produto em uso", img: camDemo },
 ];
 
 const videoStyles = [
@@ -51,7 +54,7 @@ const avatars: Record<"mulheres" | "homens" | "ia", { id: string; name: string; 
     { id: "m-lucas", name: "Lucas", img: av28 },
     { id: "m-rafael", name: "Rafael", img: av29 },
   ],
-  ia: Array.from({ length: 6 }, (_, i) => ({ id: `ai-${i}`, name: `IA ${i + 1}` })),
+  ia: [],
 };
 
 function Section({
@@ -115,20 +118,28 @@ export function StudioStepConfig({ state, updateState }: Props) {
       <Section title="Estilo de Câmera" description="Escolha o ângulo principal">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {cameraStyles.map((c) => {
-            const Icon = c.icon;
             const sel = state.cameraStyle === c.id;
             return (
               <div
                 key={c.id}
                 onClick={() => updateState({ cameraStyle: c.id })}
-                className={`${glassSelectable(sel)} p-5 text-center`}
+                className={`${glassSelectable(sel)} p-3 text-center`}
               >
                 <div
-                  className={`w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-3 ${
-                    sel ? "bg-gradient-to-br from-primary to-purple-600 text-white" : "bg-accent text-foreground"
+                  className={`relative aspect-square w-full rounded-xl overflow-hidden mb-3 ring-2 transition-all ${
+                    sel ? "ring-primary shadow-lg shadow-primary/30" : "ring-transparent"
                   }`}
                 >
-                  <Icon size={22} />
+                  <img
+                    src={c.img}
+                    alt={c.label}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover"
+                  />
+                  {sel && (
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary/40 via-transparent to-transparent" />
+                  )}
                 </div>
                 <p className="font-bold text-sm">{c.label}</p>
                 <p className="text-[11px] text-muted-foreground mt-1">{c.desc}</p>
@@ -151,43 +162,58 @@ export function StudioStepConfig({ state, updateState }: Props) {
                   : "bg-card/60 backdrop-blur-md border border-border/60 text-muted-foreground hover:text-foreground"
               }`}
             >
-              {cat === "ia" ? "Modelos IA" : cat}
+              {cat === "ia" ? "Meus Avatares" : cat}
             </button>
           ))}
         </div>
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-          {avatars[state.avatarCategory].map((a) => {
-            const sel = state.avatarId === a.id;
-            return (
-              <div
-                key={a.id}
-                onClick={() => updateState({ avatarId: a.id })}
-                className={`${glassSelectable(sel)} p-2`}
-              >
-                <div className="aspect-square rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center overflow-hidden">
-                  {a.img ? (
-                    <img
-                      src={a.img}
-                      alt={a.name}
-                      loading="lazy"
-                      decoding="async"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <User size={28} className="text-primary/60" />
-                  )}
-                </div>
-                <p className="text-[10px] font-semibold text-center mt-2 truncate">{a.name}</p>
-              </div>
-            );
-          })}
-          <div className="p-2 rounded-2xl border border-dashed border-border/60 hover:border-primary/60 cursor-pointer transition-colors flex flex-col items-center justify-center text-center">
-            <div className="aspect-square w-full rounded-xl bg-accent/40 flex items-center justify-center">
+        {state.avatarCategory === "ia" && avatars.ia.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-border/60 p-10 text-center">
+            <div className="w-12 h-12 mx-auto rounded-xl bg-accent/40 flex items-center justify-center mb-3">
               <Upload size={22} className="text-muted-foreground" />
             </div>
-            <p className="text-[10px] font-semibold text-muted-foreground mt-2">Personalizado</p>
+            <p className="text-sm font-bold mb-1">Você ainda não tem avatares personalizados</p>
+            <p className="text-xs text-muted-foreground mb-4">
+              Crie um avatar com seu rosto ou de alguém autorizado para usar nos seus vídeos.
+            </p>
+            <Button className="rounded-xl gap-2 bg-gradient-to-r from-primary to-purple-600">
+              <Upload size={16} /> Criar meu avatar
+            </Button>
           </div>
-        </div>
+        ) : (
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+            {avatars[state.avatarCategory].map((a) => {
+              const sel = state.avatarId === a.id;
+              return (
+                <div
+                  key={a.id}
+                  onClick={() => updateState({ avatarId: a.id })}
+                  className={`${glassSelectable(sel)} p-2`}
+                >
+                  <div className="aspect-square rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center overflow-hidden">
+                    {a.img ? (
+                      <img
+                        src={a.img}
+                        alt={a.name}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User size={28} className="text-primary/60" />
+                    )}
+                  </div>
+                  <p className="text-[10px] font-semibold text-center mt-2 truncate">{a.name}</p>
+                </div>
+              );
+            })}
+            <div className="p-2 rounded-2xl border border-dashed border-border/60 hover:border-primary/60 cursor-pointer transition-colors flex flex-col items-center justify-center text-center">
+              <div className="aspect-square w-full rounded-xl bg-accent/40 flex items-center justify-center">
+                <Upload size={22} className="text-muted-foreground" />
+              </div>
+              <p className="text-[10px] font-semibold text-muted-foreground mt-2">Personalizado</p>
+            </div>
+          </div>
+        )}
       </Section>
 
       {/* Cenário */}
