@@ -42,7 +42,7 @@ export function StudioStepProduct({ state, updateState }: Props) {
   }, [products.length, state.productId]);
 
   const filtered = products.filter((p: any) =>
-    (p.catalog_products?.name || "").toLowerCase().includes(search.toLowerCase())
+    (p.catalog_products?.product_name || "").toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -72,10 +72,10 @@ export function StudioStepProduct({ state, updateState }: Props) {
             </div>
             <div className="flex-1 text-center md:text-left">
               <p className="text-xs font-bold uppercase tracking-widest text-primary mb-2">
-                {selected.catalog_products?.category || "Produto"}
+                {selected.category || "Produto"}
               </p>
               <h3 className="text-2xl font-bold tracking-tight mb-4">
-                {selected.catalog_products?.name}
+                {selected.catalog_products?.product_name}
               </h3>
               <div className="flex flex-wrap gap-2 justify-center md:justify-start">
                 <Button
@@ -182,7 +182,7 @@ export function StudioStepProduct({ state, updateState }: Props) {
                       />
                     )}
                   </div>
-                  <p className="text-xs font-semibold line-clamp-2">{p.catalog_products?.name}</p>
+                  <p className="text-xs font-semibold line-clamp-2">{p.catalog_products?.product_name}</p>
                 </div>
               ))}
             </div>
