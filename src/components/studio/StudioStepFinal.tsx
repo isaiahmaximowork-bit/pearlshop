@@ -26,15 +26,31 @@ const voiceOptions = {
   voiceStyle: { label: "Estilo", options: ["conversacional", "narrativo", "publicitario"] },
 };
 
-const interactionModes = ["Segurando produto", "Apontando", "Aplicando", "Demonstrando"];
-const avatarPoses = ["Em pé", "Sentado", "Caminhando", "Closeup"];
-const enhancements = ["Remover fundo", "Iluminação cinematográfica", "Cores vibrantes"];
+const interactionModes = [
+  "Vestindo o produto",
+  "Segurando o produto",
+  "Selfie no espelho",
+  "Selfie",
+];
+const avatarPoses = ["De frente", "De lado", "3/4", "Sentado(a)", "Andando", "Personalizado"];
+const enhancements = [
+  "Luz natural",
+  "Ultra-nitidez 8K",
+  "Mãos perfeitas",
+  "Brilho natural",
+  "Tecido real",
+  "Cabelo real",
+  "Anti-IA",
+  "Profundidade",
+  "Grão foto",
+];
 
 export function StudioStepFinal({ state, updateState }: Props) {
   const [merging, setMerging] = useState(false);
   const [merged, setMerged] = useState(false);
   const [interaction, setInteraction] = useState(interactionModes[0]);
   const [pose, setPose] = useState(avatarPoses[0]);
+  const [customPose, setCustomPose] = useState("");
   const [enhance, setEnhance] = useState<string[]>([]);
   const [manualOpen, setManualOpen] = useState(false);
 
@@ -92,11 +108,34 @@ export function StudioStepFinal({ state, updateState }: Props) {
           {merging ? "Gerando..." : merged ? "Regerar imagem" : "Mesclar com IA"}
         </Button>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5">
-          <SelectControl label="Modo de Interação" value={interaction} onChange={setInteraction} options={interactionModes} />
-          <SelectControl label="Pose do Avatar" value={pose} onChange={setPose} options={avatarPoses} />
+        <p className="text-[11px] text-muted-foreground text-center mt-3">
+          Avatar + Produto + Cenário → foto realista
+        </p>
+
+        <div className="space-y-5 mt-6">
+          <PillGroup
+            label="Modo de interação"
+            options={interactionModes}
+            value={interaction}
+            onChange={setInteraction}
+          />
+
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Melhorias</p>
+            <PillGroup label="Pose do avatar" options={avatarPoses} value={pose} onChange={setPose} />
+            {pose === "Personalizado" && (
+              <input
+                value={customPose}
+                onChange={(e) => setCustomPose(e.target.value)}
+                placeholder="Descreva a pose desejada..."
+                className="w-full mt-3 h-10 rounded-xl bg-card/60 backdrop-blur-md border border-border/60 px-3 text-sm focus:outline-none focus:border-primary"
+              />
+            )}
+          </div>
+
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">
+              Melhorias opcionais
+            </p>
             <div className="flex flex-wrap gap-1.5">
               {enhancements.map((e) => {
                 const sel = enhance.includes(e);
@@ -104,10 +143,10 @@ export function StudioStepFinal({ state, updateState }: Props) {
                   <button
                     key={e}
                     onClick={() => setEnhance(sel ? enhance.filter((x) => x !== e) : [...enhance, e])}
-                    className={`px-2.5 py-1 rounded-full text-[10px] font-bold transition-all ${
+                    className={`px-3 py-1.5 rounded-full text-[11px] font-bold transition-all ${
                       sel
-                        ? "bg-primary/20 border border-primary text-primary"
-                        : "bg-card/60 border border-border/60 text-muted-foreground"
+                        ? "bg-primary/20 border border-primary text-primary shadow-[0_4px_16px_hsl(var(--primary)/0.25)]"
+                        : "bg-card/60 border border-border/60 text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     {e}
@@ -249,6 +288,42 @@ export function StudioStepFinal({ state, updateState }: Props) {
             </motion.div>
           )}
         </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
+function PillGroup({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  options: string[];
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div>
+      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">{label}</p>
+      <div className="flex flex-wrap gap-1.5">
+        {options.map((opt) => {
+          const sel = value === opt;
+          return (
+            <button
+              key={opt}
+              onClick={() => onChange(opt)}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                sel
+                  ? "bg-gradient-to-r from-primary to-purple-600 text-white shadow-md shadow-primary/30"
+                  : "bg-card/60 border border-border/60 text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {opt}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
