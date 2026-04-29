@@ -1,0 +1,1 @@
+ALTER TABLE public.media_jobs ADD COLUMN IF NOT EXISTS reference_image_url text;
