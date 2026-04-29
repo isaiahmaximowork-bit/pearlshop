@@ -234,7 +234,7 @@ export function StudioStepConfig({ state, updateState }: Props) {
             return (
               <div
                 key={v.id}
-                onClick={() => updateState({ videoStyle: v.id })}
+                onClick={(e) => { updateState({ videoStyle: v.id }); handleSelectAndScroll(e); }}
                 className={`${glassSelectable(sel)} p-5`}
               >
                 <div
