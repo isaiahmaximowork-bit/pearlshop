@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import type { StudioState } from "@/pages/app/Studio";
+import { handleSelectAndScroll } from "./useAutoScrollNext";
 
 import { avatarsByCategory as avatars } from "./avatars";
 import camFrente from "@/assets/camera/frente.webp";
@@ -45,7 +46,7 @@ function Section({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className={`${glassCard} overflow-hidden`}>
+    <div data-studio-section className={`${glassCard} overflow-hidden`}>
       <button
         onClick={() => setOpen((o) => !o)}
         className="w-full flex items-center justify-between p-5 text-left hover:bg-accent/30 transition-colors"
@@ -97,7 +98,7 @@ export function StudioStepConfig({ state, updateState }: Props) {
             return (
               <div
                 key={c.id}
-                onClick={() => updateState({ cameraStyle: c.id })}
+                onClick={(e) => { updateState({ cameraStyle: c.id }); handleSelectAndScroll(e); }}
                 className={`${glassSelectable(sel)} p-3 text-center`}
               >
                 <div
@@ -161,7 +162,7 @@ export function StudioStepConfig({ state, updateState }: Props) {
               return (
                 <div
                   key={a.id}
-                  onClick={() => updateState({ avatarId: a.id })}
+                  onClick={(e) => { updateState({ avatarId: a.id }); handleSelectAndScroll(e); }}
                   className={`${glassSelectable(sel)} p-2`}
                 >
                   <div className="aspect-square rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center overflow-hidden">
@@ -233,7 +234,7 @@ export function StudioStepConfig({ state, updateState }: Props) {
             return (
               <div
                 key={v.id}
-                onClick={() => updateState({ videoStyle: v.id })}
+                onClick={(e) => { updateState({ videoStyle: v.id }); handleSelectAndScroll(e); }}
                 className={`${glassSelectable(sel)} p-5`}
               >
                 <div
