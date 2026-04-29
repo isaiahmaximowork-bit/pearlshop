@@ -132,11 +132,9 @@ const Studio = () => {
               Continuar <ChevronRight size={18} />
             </Button>
           ) : (
-            <Button
-              className="gap-2 rounded-xl bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 shadow-lg shadow-primary/30 px-6"
-            >
-              <Sparkles size={18} /> Gerar Vídeo
-            </Button>
+            <span className="text-xs text-muted-foreground hidden sm:block">
+              Use o botão "Gerar vídeo" acima
+            </span>
           )}
         </div>
       </div>
