@@ -162,7 +162,7 @@ export function StudioStepConfig({ state, updateState }: Props) {
                   : "bg-card/60 backdrop-blur-md border border-border/60 text-muted-foreground hover:text-foreground"
               }`}
             >
-              {cat === "ia" ? "Modelos IA" : cat}
+              {cat === "ia" ? "Meus Avatares" : cat}
             </button>
           ))}
         </div>
