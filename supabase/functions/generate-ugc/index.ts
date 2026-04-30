@@ -1,7 +1,10 @@
 // Edge Function: generate-ugc
-// Orquestra dois agentes de IA encadeados (Diretor Criativo + Gerador de Mídia)
-// + geração de imagem com Nano Banana 2 USANDO a foto do avatar como REFERÊNCIA VISUAL
-// + upload para Supabase Storage + persistência em media_jobs.
+// Pipeline:
+// 1) Enriquecer dados do produto (consultando catalog_products via JOIN se necessário)
+// 2) Agente 1 — Diretor Criativo (com obrigatoriedade de produto + framing por interação)
+// 3) Agente 2 — Gerador de Mídia (imagePrompt dual-reference)
+// 4) Nano Banana 2 — geração com 2 imagens de referência (avatar + produto)
+// 5) Upload e persistência em media_jobs
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -13,41 +16,51 @@ const corsHeaders = {
 
 const AI_GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
 const TEXT_MODEL = "google/gemini-3-flash-preview";
-// Nano Banana 2 — fast image generation with pro-level quality + image-to-image
-const IMAGE_MODEL = "google/gemini-3.1-flash-image-preview";
+const IMAGE_MODEL = "google/gemini-3.1-flash-image-preview"; // Nano Banana 2
 
 // ---------- AGENT 1: CREATIVE DIRECTOR ----------
-// IMPORTANTE: NÃO descrever etnia/idade/cabelo/olhos do avatar — esses traços vêm
-// da imagem de referência anexada. O agente foca em ação, cenário e técnica.
 const CREATIVE_DIRECTOR_SYSTEM = `Você é um DIRETOR CRIATIVO ESPECIALISTA em geração de UGC fotorrealista para a PearlShop.
-Sua missão é transformar configurações de estúdio em um MASTER PROMPT técnico de altíssima qualidade, otimizado para Nano Banana 2 (Gemini Image) com IMAGEM DE REFERÊNCIA do avatar anexada.
+Transforma configurações de estúdio em um MASTER PROMPT técnico em INGLÊS, otimizado para Nano Banana 2 (Gemini Image) com DUAS IMAGENS DE REFERÊNCIA anexadas: a primeira é o AVATAR (identidade), a segunda é o PRODUTO (forma, cor, textura).
 
-### REGRA CRÍTICA — IDENTIDADE DO AVATAR
-A IDENTIDADE FÍSICA do avatar (rosto, etnia, idade, tom de pele, cor/textura de cabelo, olhos, formato corporal) virá da IMAGEM DE REFERÊNCIA anexada na geração.
-NUNCA descreva esses traços no prompt. NUNCA invente etnia, idade ou aparência.
-Refira-se ao sujeito como "the person from the reference image" — preservando 100% a identidade visual.
+### REGRA #1 — IDENTIDADE DO AVATAR (PRIMEIRA IMAGEM)
+A IDENTIDADE FÍSICA (rosto, etnia, idade, tom de pele, cabelo, olhos, formato corporal) vem da PRIMEIRA imagem.
+NUNCA descreva esses traços. Refira-se ao sujeito como "the person from the first reference image".
+
+### REGRA #2 — MANDATORY PRODUCT INCLUSION (SEGUNDA IMAGEM)
+O PRODUTO real (com seu nome, cor, material, categoria) DEVE aparecer de forma orgânica, claramente identificável e em foco.
+- SEMPRE cite o productName explicitamente no masterPrompt.
+- Descreva características reais: cor, material, formato, categoria.
+- O produto NÃO pode estar escondido, fora de foco ou ausente.
+- Refira-se à imagem do produto como "the product from the second reference image".
+
+### REGRA #3 — FRAMING POR INTERAÇÃO
+Mapeie a "interaction" recebida para um framing obrigatório:
+- "Vestindo o produto" / "wearing" → FULL-BODY shot (head-to-toe). A roupa COMPLETA deve estar visível: tipo, cor, fit, material. Calçado visível. Ex: "wearing a fitted white cotton t-shirt and light blue denim jeans, full-body shot, head-to-toe framing".
+- "Segurando o produto" / "holding" → MEDIUM SHOT. Mãos com 5 dedos exatos, produto em foco nas mãos.
+- "Selfie no espelho" / "Selfie" → MEDIUM CLOSE-UP, produto visível.
+- "Unboxing" → CLOSE-UP, embalagem visível.
+- Outros → MEDIUM SHOT, produto bem visível.
 
 ### FÓRMULA DE 5 BLOCOS (Obrigatória, em INGLÊS)
-1. SUBJECT REFERENCE — "the same person from the reference image, exact same face, same ethnicity, same hair, same body type, identity preserved 100%".
-2. AÇÃO — pose, expressão e interação orgânica com o produto (sem alterar identidade).
+1. SUBJECT REFERENCE — "the person from the first reference image, identity preserved 100%, exact same face, same ethnicity, same hair, same body".
+2. AÇÃO + PRODUTO — pose, expressão, interação ORGÂNICA com o produto pelo nome (ex: "holding the {productName} in her right hand, looking at it with a soft smile"). Inclua descrição da roupa quando interaction = wearing.
 3. CENÁRIO — ambiente coerente, mobília, luz, atmosfera.
-4. ESTILO TÉCNICO — câmera (ex: "iPhone 15 Pro, 24mm, f/1.8"), iluminação, grão, profundidade, aspect ratio 9:16.
-5. REALISMO & RESTRIÇÕES — "ultra-realistic", "imperfect skin texture", "real fabric folds", "natural hands with exactly 5 fingers", "no plastic look", "candid handheld feel", "preserve facial identity from reference".
+4. ESTILO TÉCNICO — câmera (ex: "iPhone 15 Pro, 24mm, f/1.8"), iluminação, profundidade, FRAMING explícito (full-body | medium-shot | close-up | extreme-close-up), aspect ratio 9:16.
+5. REALISMO & RESTRIÇÕES — "ultra-realistic, hyper-detailed skin pores, photorealistic fabric texture, natural catchlights, real fabric folds, natural hands with exactly 5 fingers, no plastic look, candid handheld feel, preserve facial identity from first reference, preserve product shape/color/material from second reference, no fake brand logos, no competitor brands".
 
-### PRINCÍPIOS
-- Sempre em INGLÊS, frases curtas separadas por vírgula.
-- Reforçar power words quando "antiAI" ou "perfectHands" estiverem ativos.
-- Sem logos de marcas concorrentes.
-
-### SAÍDA OBRIGATÓRIA
-Retorne EXCLUSIVAMENTE um JSON válido (sem markdown):
+### SAÍDA OBRIGATÓRIA — JSON válido (sem markdown):
 {
-  "masterPrompt": "string — prompt técnico final em inglês, fórmula 5 blocos, referenciando 'the person from the reference image'",
+  "masterPrompt": "string — prompt técnico em inglês, fórmula 5 blocos, citando productName e referenciando ambas as imagens",
+  "productMention": "string — trecho exato em inglês onde o produto é citado (mínimo 5 chars)",
+  "clothingDescription": "string — descrição completa da roupa quando aplicável, ou '' caso contrário",
+  "framingType": "full-body | close-up | medium-shot | extreme-close-up",
   "metadata": {
     "formula": "5-block formula applied",
     "powerWords": ["..."],
     "cameraSettings": "string",
     "lightingType": "string",
+    "productIncluded": true,
+    "clothingComplete": true,
     "estimatedRenderTime": "8-15 seconds"
   },
   "warnings": []
@@ -55,14 +68,15 @@ Retorne EXCLUSIVAMENTE um JSON válido (sem markdown):
 
 // ---------- AGENT 2: MEDIA GENERATOR ----------
 const MEDIA_GENERATOR_SYSTEM = `Você é o AGENTE GERADOR DE MÍDIA da PearlShop. Recebe a saída do Diretor Criativo (Agente 1) e produz:
-1. imagePrompt — prompt FINAL otimizado para Nano Banana 2 com IMAGEM DE REFERÊNCIA anexada.
+1. imagePrompt — prompt FINAL para Nano Banana 2 com DUAS imagens de referência anexadas (avatar + produto).
 2. scriptPrompt — instruções de roteiro/voz em PT-BR.
 
 ### REGRAS PARA imagePrompt
-- DEVE começar EXATAMENTE com: "Using the attached image as the EXACT character reference (same face, same ethnicity, same hair, same body — identity preserved 100%), generate: "
-- Em seguida, refine o masterPrompt removendo redundâncias mas mantendo todas as power words.
-- NUNCA descreva etnia/idade/cor de cabelo/cor de olhos — a referência cuida disso.
-- Adicione restrições finais: "no fake brand logos, no competitor brands, no distorted hands, no extra fingers, do not change the face, do not alter identity, vertical 9:16 framing".
+- DEVE começar EXATAMENTE com:
+"Using the FIRST attached image as the EXACT character reference (same face, same ethnicity, same hair, same body — identity preserved 100%), and the SECOND attached image as the EXACT product reference (same shape, same color, same material, same category — product fidelity preserved 100%), generate: "
+- Em seguida, refine o masterPrompt do Agente 1 mantendo: productMention, clothingDescription (se houver), framingType e todas as power words.
+- NUNCA descreva etnia/idade/cor de cabelo/cor de olhos.
+- Termine com: "no fake brand logos, no competitor brands, no distorted hands, no extra fingers, do not change the face, do not alter identity, do not change the product shape or color, vertical 9:16 framing".
 
 ### REGRAS PARA scriptPrompt
 - script em PORTUGUÊS DO BRASIL, natural, no tom solicitado.
@@ -70,7 +84,7 @@ const MEDIA_GENERATOR_SYSTEM = `Você é o AGENTE GERADOR DE MÍDIA da PearlShop
 
 ### SAÍDA OBRIGATÓRIA (apenas JSON, sem markdown):
 {
-  "imagePrompt": "string em inglês começando com 'Using the attached image as the EXACT character reference...'",
+  "imagePrompt": "string em inglês começando exatamente com 'Using the FIRST attached image as the EXACT character reference...'",
   "scriptPrompt": {
     "script": "roteiro em pt-BR",
     "voiceTone": "descrição do tom",
@@ -82,10 +96,7 @@ const MEDIA_GENERATOR_SYSTEM = `Você é o AGENTE GERADOR DE MÍDIA da PearlShop
 async function callLLM(systemPrompt: string, userContent: string, apiKey: string) {
   const res = await fetch(AI_GATEWAY, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       model: TEXT_MODEL,
       messages: [
@@ -115,26 +126,22 @@ async function callLLM(systemPrompt: string, userContent: string, apiKey: string
   }
 }
 
-// Gera imagem usando IMAGEM DE REFERÊNCIA (image-to-image / character reference)
+// Gera imagem com até 2 imagens de referência (avatar + produto)
 async function generateImage(
   prompt: string,
-  referenceImageUrl: string | null,
+  avatarImageUrl: string | null,
+  productImageUrl: string | null,
   apiKey: string
 ): Promise<string> {
-  // Monta content: se houver referência, envia multimodal (texto + imagem).
-  const content: any = referenceImageUrl
-    ? [
-        { type: "text", text: prompt },
-        { type: "image_url", image_url: { url: referenceImageUrl } },
-      ]
-    : prompt;
+  const parts: any[] = [{ type: "text", text: prompt }];
+  if (avatarImageUrl) parts.push({ type: "image_url", image_url: { url: avatarImageUrl } });
+  if (productImageUrl) parts.push({ type: "image_url", image_url: { url: productImageUrl } });
+
+  const content = parts.length === 1 ? prompt : parts;
 
   const res = await fetch(AI_GATEWAY, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       model: IMAGE_MODEL,
       messages: [{ role: "user", content }],
@@ -152,7 +159,7 @@ async function generateImage(
   const data = await res.json();
   const url = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
   if (!url) throw new Error("Image gen returned no image");
-  return url; // data:image/png;base64,...
+  return url;
 }
 
 function dataUrlToBytes(dataUrl: string): { bytes: Uint8Array; contentType: string } {
@@ -162,6 +169,64 @@ function dataUrlToBytes(dataUrl: string): { bytes: Uint8Array; contentType: stri
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
   return { bytes, contentType };
+}
+
+type EnrichedProduct = {
+  productId: string | null;
+  productName: string | null;
+  productDescription: string | null;
+  productCategory: string | null;
+  productImageUrl: string | null;
+  productImages: string[];
+};
+
+// Se o frontend já enviou os dados, usa direto. Senão consulta catalog_products via user_products.
+async function enrichProductData(input: any, admin: any): Promise<EnrichedProduct> {
+  const fromInput: EnrichedProduct = {
+    productId: input.productId ?? null,
+    productName: input.productName ?? null,
+    productDescription: input.productDescription ?? null,
+    productCategory: input.productCategory ?? null,
+    productImageUrl: input.productImageUrl ?? null,
+    productImages: Array.isArray(input.productImages) ? input.productImages : [],
+  };
+
+  const looksLikeUuid =
+    fromInput.productName &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(fromInput.productName);
+
+  if (fromInput.productName && !looksLikeUuid && fromInput.productImageUrl) {
+    return fromInput;
+  }
+
+  // Fallback: buscar via JOIN user_products → catalog_products
+  if (input.productId) {
+    const { data, error } = await admin
+      .from("user_products")
+      .select("id, category, catalog_products(*)")
+      .eq("id", input.productId)
+      .maybeSingle();
+
+    if (!error && data?.catalog_products) {
+      const cp = data.catalog_products;
+      const images: string[] =
+        Array.isArray(cp.images) && cp.images.length > 0
+          ? cp.images
+          : cp.image_url
+          ? [cp.image_url]
+          : [];
+      return {
+        productId: input.productId,
+        productName: cp.product_name ?? fromInput.productName,
+        productDescription: cp.description ?? fromInput.productDescription,
+        productCategory: data.category ?? fromInput.productCategory,
+        productImageUrl: cp.image_url ?? images[0] ?? fromInput.productImageUrl,
+        productImages: images.length ? images : fromInput.productImages,
+      };
+    }
+  }
+
+  return fromInput;
 }
 
 Deno.serve(async (req) => {
@@ -188,15 +253,26 @@ Deno.serve(async (req) => {
 
     const input = await req.json();
 
-    // Imagem de referência do avatar (data URL ou URL pública)
+    // Avatar (identidade)
     const referenceImageUrl: string | null = input.referenceImageUrl ?? null;
+
+    // Enrichment do produto
+    const product = await enrichProductData(input, admin);
+
+    const warnings: string[] = [];
+    if (!product.productName) warnings.push("Produto sem nome — geração pode ficar genérica.");
+    if (!product.productImageUrl)
+      warnings.push("Sem imagem do produto — geração será feita apenas com referência do avatar.");
 
     const { data: job, error: insertErr } = await admin
       .from("media_jobs")
       .insert({
         user_id: user.id,
-        product_id: input.productId,
-        product_name: input.productName,
+        product_id: product.productId,
+        product_name: product.productName,
+        product_description: product.productDescription,
+        product_category: product.productCategory,
+        product_image_url: product.productImageUrl,
         avatar_id: input.avatarId,
         avatar_name: input.avatarName,
         pose: input.pose,
@@ -214,7 +290,6 @@ Deno.serve(async (req) => {
         voice_energy: input.voiceEnergy,
         voice_style: input.voiceStyle,
         script: input.script,
-        // Persiste apenas se for URL pública (data URLs ficam grandes; salvamos só o ID)
         reference_image_url:
           referenceImageUrl && referenceImageUrl.startsWith("http")
             ? referenceImageUrl
@@ -231,27 +306,50 @@ Deno.serve(async (req) => {
     try {
       // ===== AGENT 1 =====
       const agent1Input = {
-        ...input,
-        // não trafega o data URL gigante pro LLM de texto
-        referenceImageUrl: referenceImageUrl ? "[reference image attached to the image generator]" : null,
+        product: {
+          name: product.productName,
+          description: product.productDescription,
+          category: product.productCategory,
+          hasProductImageReference: !!product.productImageUrl,
+        },
+        avatarName: input.avatarName,
+        hasAvatarReference: !!referenceImageUrl,
+        pose: input.pose,
+        interaction: input.interaction,
+        scenarioTags: input.scenarioTags ?? [],
+        scenarioText: input.scenarioText,
+        cameraStyle: input.cameraStyle,
+        videoStyle: input.videoStyle,
+        enhancements: input.enhancements ?? [],
+        proximity: input.proximity,
+        energy: input.energy,
+        duration: input.duration,
       };
+
       const agent1 = await callLLM(
         CREATIVE_DIRECTOR_SYSTEM,
-        `Configurações do Studio:\n${JSON.stringify(agent1Input, null, 2)}\n\nLEMBRE-SE: a identidade física do avatar virá da imagem de referência anexada — NÃO descreva etnia, idade, cabelo ou olhos. Refira-se como "the person from the reference image".`,
+        `Configurações do Studio:\n${JSON.stringify(agent1Input, null, 2)}\n\nLEMBRE-SE:\n- A identidade física do avatar virá da PRIMEIRA imagem anexada — NÃO descreva etnia/idade/cabelo/olhos.\n- O PRODUTO "${product.productName ?? "(sem nome)"}" DEVE aparecer organicamente e ser citado pelo nome no masterPrompt.\n- Aplique o framing correto baseado em interaction="${input.interaction}".`,
         LOVABLE_API_KEY
       );
+
+      // Validar produto mencionado
+      const productMention: string = (agent1.productMention ?? "").toString().trim();
+      if (product.productName && productMention.length < 5) {
+        throw new Error(`Agente 1 não citou o produto no masterPrompt (productMention="${productMention}")`);
+      }
 
       // ===== AGENT 2 =====
       const agent2 = await callLLM(
         MEDIA_GENERATOR_SYSTEM,
-        `Saída do Agente 1:\n${JSON.stringify(agent1, null, 2)}\n\nDuração do vídeo: ${input.duration}\nTom de voz: ${input.voiceTone} / energia ${input.voiceEnergy} / estilo ${input.voiceStyle}\nRoteiro do usuário (se houver): ${input.script || "(vazio — você decide)"}\n\nLembre: imagePrompt DEVE começar com "Using the attached image as the EXACT character reference...".`,
+        `Saída do Agente 1:\n${JSON.stringify(agent1, null, 2)}\n\nDuração do vídeo: ${input.duration}\nTom de voz: ${input.voiceTone} / energia ${input.voiceEnergy} / estilo ${input.voiceStyle}\nRoteiro do usuário (se houver): ${input.script || "(vazio — você decide)"}\n\nLembre: imagePrompt DEVE começar EXATAMENTE com "Using the FIRST attached image as the EXACT character reference..." e citar o produto "${product.productName ?? ""}".`,
         LOVABLE_API_KEY
       );
 
-      // ===== IMAGE GEN com referência visual =====
+      // ===== IMAGE GEN com 2 referências =====
       const imageDataUrl = await generateImage(
         agent2.imagePrompt,
         referenceImageUrl,
+        product.productImageUrl,
         LOVABLE_API_KEY
       );
       const { bytes, contentType } = dataUrlToBytes(imageDataUrl);
@@ -266,13 +364,21 @@ Deno.serve(async (req) => {
 
       const { data: pub } = admin.storage.from("ugc-media").getPublicUrl(storageKey);
 
+      const allWarnings = [
+        ...warnings,
+        ...(Array.isArray(agent1.warnings) ? agent1.warnings : []),
+      ];
+
       const { data: updated, error: updateErr } = await admin
         .from("media_jobs")
         .update({
           status: "completed",
           master_prompt: agent1.masterPrompt,
+          product_mention: productMention || null,
+          clothing_description: agent1.clothingDescription || null,
+          framing_type: agent1.framingType || null,
           agent1_metadata: agent1.metadata ?? null,
-          warnings: agent1.warnings ?? [],
+          warnings: allWarnings,
           image_prompt: agent2.imagePrompt,
           script_prompt: agent2.scriptPrompt ?? null,
           image_url: pub.publicUrl,
