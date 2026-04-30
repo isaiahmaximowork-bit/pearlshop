@@ -376,7 +376,7 @@ Deno.serve(async (req) => {
       const agent1 = await callLLM(
         CREATIVE_DIRECTOR_SYSTEM,
         `Configurações do Studio:\n${JSON.stringify(agent1Input, null, 2)}\n\nLEMBRE-SE:\n- A identidade física do avatar virá da PRIMEIRA imagem anexada — NÃO descreva etnia/idade/cabelo/olhos.\n- O PRODUTO "${product.productName ?? "(sem nome)"}" DEVE aparecer organicamente e ser citado pelo nome no masterPrompt.\n- Aplique o framing correto baseado em interaction="${input.interaction}".`,
-        LOVABLE_API_KEY
+        GEMINI_API_KEY
       );
 
       // Validar produto mencionado
@@ -389,7 +389,7 @@ Deno.serve(async (req) => {
       const agent2 = await callLLM(
         MEDIA_GENERATOR_SYSTEM,
         `Saída do Agente 1:\n${JSON.stringify(agent1, null, 2)}\n\nDuração do vídeo: ${input.duration}\nTom de voz: ${input.voiceTone} / energia ${input.voiceEnergy} / estilo ${input.voiceStyle}\nRoteiro do usuário (se houver): ${input.script || "(vazio — você decide)"}\n\nLembre: imagePrompt DEVE começar EXATAMENTE com "Using the FIRST attached image as the EXACT character reference..." e citar o produto "${product.productName ?? ""}".`,
-        LOVABLE_API_KEY
+        GEMINI_API_KEY
       );
 
       // ===== IMAGE GEN com 2 referências =====
@@ -397,7 +397,7 @@ Deno.serve(async (req) => {
         agent2.imagePrompt,
         referenceImageUrl,
         product.productImageUrl,
-        LOVABLE_API_KEY
+        GEMINI_API_KEY
       );
       const { bytes, contentType } = dataUrlToBytes(imageDataUrl);
 
