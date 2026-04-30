@@ -329,7 +329,7 @@ export function StudioStepFinal({ state, updateState }: Props) {
 
           {/* Reduced-scale preview */}
           <AnimatePresence>
-            {(merging || merged) && (
+            {(generating || generatedJob?.image_url) && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
@@ -337,29 +337,25 @@ export function StudioStepFinal({ state, updateState }: Props) {
                 className="flex justify-center pt-2"
               >
                 <div className="relative w-56 aspect-[9/16] rounded-2xl overflow-hidden border border-border/60 shadow-[0_12px_40px_hsl(var(--primary)/0.25)] bg-gradient-to-br from-primary/10 via-purple-500/10 to-background">
-                  {merging ? (
+                  {generating ? (
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-primary">
                       <Loader2 size={28} className="animate-spin" />
-                      <p className="text-xs font-bold">Mesclando...</p>
+                      <p className="text-xs font-bold">Gerando UGC...</p>
                     </div>
-                  ) : avatar?.img ? (
+                  ) : generatedJob?.image_url ? (
                     <motion.img
-                      key={avatar.id}
-                      src={avatar.img}
-                      alt={avatar.name}
+                      key={generatedJob.id}
+                      src={generatedJob.image_url}
+                      alt="UGC"
                       initial={{ opacity: 0, scale: 1.02 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ duration: 0.5 }}
                       className="absolute inset-0 w-full h-full object-cover"
                     />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center text-primary">
-                      <Sparkles size={28} />
-                    </div>
-                  )}
-                  {merged && (
+                  ) : null}
+                  {generatedJob?.image_url && (
                     <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-background/70 backdrop-blur-md border border-border/60 text-[9px] font-bold flex items-center gap-1 z-10">
-                      <Sparkles size={9} className="text-primary" /> Mesclado
+                      <Sparkles size={9} className="text-primary" /> UGC pronto
                     </div>
                   )}
                 </div>
