@@ -98,13 +98,38 @@ const MEDIA_GENERATOR_SYSTEM = `Você é o AGENTE GERADOR DE MÍDIA da PearlShop
 // Mapeia status HTTP do Gemini para erros conhecidos.
 function mapGeminiError(status: number, text: string): Error {
   if (status === 429) return new Error("RATE_LIMIT");
-  // 402 quase nunca ocorre no Gemini; 403 com "quota" / "billing" indica créditos esgotados.
   if (status === 402) return new Error("PAYMENT_REQUIRED");
   if (status === 403 && /quota|billing|exceeded|limit/i.test(text)) {
     return new Error("PAYMENT_REQUIRED");
   }
+  if (status === 503 || status === 502 || status === 504) {
+    return new Error("MODEL_OVERLOADED");
+  }
   return new Error(`Gemini error ${status}: ${text}`);
 }
+
+// Retry com backoff exponencial para erros transitórios (503/502/504).
+async function retry<T>(fn: () => Promise<T>, label: string, maxAttempts = 4): Promise<T> {
+  let lastErr: unknown;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      const msg = err instanceof Error ? err.message : String(err);
+      const transient = msg === "MODEL_OVERLOADED";
+      if (!transient || attempt === maxAttempts) {
+        console.error(`[${label}] tentativa ${attempt} falhou (final):`, msg);
+        throw err;
+      }
+      const delay = 1000 * Math.pow(2, attempt - 1) + Math.random() * 500; // 1s, 2s, 4s + jitter
+      console.warn(`[${label}] tentativa ${attempt} falhou (${msg}). Re-tentando em ${Math.round(delay)}ms...`);
+      await new Promise((r) => setTimeout(r, delay));
+    }
+  }
+  throw lastErr;
+}
+
 
 // Converte data URL em { mime, base64 } para inline_data do Gemini.
 function dataUrlToInline(dataUrl: string): { mimeType: string; data: string } | null {
