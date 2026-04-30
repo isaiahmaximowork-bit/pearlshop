@@ -92,6 +92,11 @@ export function StudioStepFinal({ state, updateState }: Props) {
   const [generating, setGenerating] = useState(false);
   const [generatedJob, setGeneratedJob] = useState<any>(null);
   const [scriptLoading, setScriptLoading] = useState<string | null>(null);
+  const [veo3Loading, setVeo3Loading] = useState(false);
+  const [veo3Stage, setVeo3Stage] = useState<"idle" | "analyzing" | "generating">("idle");
+  const [veo3Prompt, setVeo3Prompt] = useState<string | null>(null);
+  const [veo3Analysis, setVeo3Analysis] = useState<any>(null);
+  const [veo3Metadata, setVeo3Metadata] = useState<any>(null);
 
   const avatar = findAvatar(state.avatarId);
 
