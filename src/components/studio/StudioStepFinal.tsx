@@ -82,8 +82,6 @@ const scriptTemplates = [
 
 export function StudioStepFinal({ state, updateState }: Props) {
   const navigate = useNavigate();
-  const [merging, setMerging] = useState(false);
-  const [merged, setMerged] = useState(false);
   const [interaction, setInteraction] = useState(interactionModes[0]);
   const [pose, setPose] = useState(avatarPoses[0]);
   const [customPose, setCustomPose] = useState("");
@@ -96,13 +94,6 @@ export function StudioStepFinal({ state, updateState }: Props) {
 
   const avatar = findAvatar(state.avatarId);
 
-  const handleMerge = () => {
-    setMerging(true);
-    setTimeout(() => {
-      setMerging(false);
-      setMerged(true);
-    }, 1500);
-  };
 
   const generatePrompt = () => {
     const finalPose = pose === "Personalizado" && customPose ? customPose : pose;
