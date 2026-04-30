@@ -14,9 +14,11 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const AI_GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
-const TEXT_MODEL = "google/gemini-3-flash-preview";
-const IMAGE_MODEL = "google/gemini-3.1-flash-image-preview"; // Nano Banana 2
+// API oficial do Google Gemini (Generative Language API).
+// Substitui o Lovable AI Gateway: créditos/rate limits são gerenciados direto pelo Google.
+const GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
+const TEXT_MODEL = "gemini-2.5-flash"; // Diretor Criativo + Gerador de Mídia
+const IMAGE_MODEL = "gemini-2.5-flash-image"; // Nano Banana — geração com imagens de referência
 
 // ---------- AGENT 1: CREATIVE DIRECTOR ----------
 const CREATIVE_DIRECTOR_SYSTEM = `Você é um DIRETOR CRIATIVO ESPECIALISTA em geração de UGC fotorrealista para a PearlShop.
