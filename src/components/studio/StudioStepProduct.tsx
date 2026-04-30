@@ -189,7 +189,7 @@ export function StudioStepProduct({ state, updateState, onAdvance }: Props) {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleSelect(item.id);
+                      handleSelect(item);
                     }}
                     className={`mt-auto w-full py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg ${
                       isSelected
