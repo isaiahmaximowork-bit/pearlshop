@@ -423,14 +423,36 @@ export function StudioStepFinal({ state, updateState }: Props) {
       <div className={`${glassCard} p-6`}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold tracking-tight">Diálogo (Roteiro)</h3>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => updateState({ script: "Olá! Hoje quero te mostrar esse produto incrível que mudou minha rotina..." })}
-            className="rounded-xl gap-2"
-          >
-            <Wand2 size={14} /> Preencher com IA
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="rounded-xl gap-2">
+                <Wand2 size={14} /> Preencher com IA
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-72 rounded-xl">
+              {scriptTemplates.map((tpl) => {
+                const Icon = tpl.icon;
+                return (
+                  <DropdownMenuItem
+                    key={tpl.id}
+                    onClick={() => {
+                      updateState({ script: tpl.text });
+                      toast.success(`Roteiro ${tpl.title} aplicado`);
+                    }}
+                    className="gap-3 py-2.5 cursor-pointer"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shrink-0">
+                      <Icon size={16} className="text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold">{tpl.title}</p>
+                      <p className="text-[11px] text-muted-foreground leading-snug">{tpl.desc}</p>
+                    </div>
+                  </DropdownMenuItem>
+                );
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <Textarea
           value={state.script}
