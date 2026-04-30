@@ -744,8 +744,14 @@ export function StudioStepFinal({ state, updateState }: Props) {
           className="w-full flex items-center justify-between p-5 hover:bg-accent/30 transition-colors"
         >
           <div className="text-left">
-            <h3 className="font-bold tracking-tight">Modo Manual — Copiar Prompt</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">Use o prompt em ferramentas externas.</p>
+            <h3 className="font-bold tracking-tight">
+              {veo3Prompt ? "Prompt Veo 3 (Inglês)" : "Modo Manual — Copiar Prompt"}
+            </h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {veo3Prompt
+                ? "Cole no Flow / Veo 3 e use a imagem UGC como seed (frame-to-video)."
+                : "Use o prompt em ferramentas externas."}
+            </p>
           </div>
           <motion.div animate={{ rotate: manualOpen ? 180 : 0 }}>
             <ChevronDown size={18} className="text-muted-foreground" />
