@@ -8,7 +8,7 @@ interface Props {
   item: any;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSelect: (id: string) => void;
+  onSelect: (item: any) => void;
 }
 
 const formatPrice = (value: number, currency = "BRL") =>
