@@ -56,6 +56,30 @@ const enhancements = [
   "Grão foto",
 ];
 
+const scriptTemplates = [
+  {
+    id: "promocional",
+    icon: Megaphone,
+    title: "Promocional",
+    desc: "Promovendo o produto com oferta e CTA forte",
+    text: "Gente, corre porque essa promoção não vai durar! Esse produto que eu uso todos os dias está com um preço absurdo. Olha só a qualidade... eu já testei e aprovei. Link na bio, garante o seu antes que acabe!",
+  },
+  {
+    id: "indicacional",
+    icon: ThumbsUp,
+    title: "Indicacional",
+    desc: "Indicação autêntica de quem já usa",
+    text: "Olha, eu preciso te indicar esse produto. Faz semanas que estou usando e a diferença é absurda. Se você estava na dúvida, fica essa indicação aqui. De verdade, vale muito a pena.",
+  },
+  {
+    id: "storytelling",
+    icon: BookOpen,
+    title: "Storytelling",
+    desc: "História pessoal conectando com o produto",
+    text: "Deixa eu te contar uma coisa que aconteceu comigo. Eu vivia com esse problema até descobrir esse produto. No começo eu duvidei, mas resolvi testar... e mudou completamente minha rotina. Hoje eu não vivo sem.",
+  },
+];
+
 export function StudioStepFinal({ state, updateState }: Props) {
   const navigate = useNavigate();
   const [merging, setMerging] = useState(false);
