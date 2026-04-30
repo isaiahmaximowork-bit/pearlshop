@@ -59,8 +59,24 @@ export function StudioStepProduct({ state, updateState, onAdvance }: Props) {
     setModalOpen(true);
   };
 
-  const handleSelect = (id: string) => {
-    updateState({ productId: id });
+  const handleSelect = (item: any) => {
+    const product = item?.catalog_products;
+    if (!product) return;
+    const images: string[] =
+      Array.isArray(product.images) && product.images.length > 0
+        ? product.images
+        : product.image_url
+        ? [product.image_url]
+        : [];
+    updateState({
+      productId: item.id,
+      productName: product.product_name ?? null,
+      productDescription: product.description ?? null,
+      productCategory: item.category ?? null,
+      productImageUrl: product.image_url ?? images[0] ?? null,
+      productImages: images,
+      catalogProductId: product.id ?? null,
+    });
     onAdvance?.();
   };
 
