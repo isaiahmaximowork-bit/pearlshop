@@ -165,11 +165,15 @@ export function StudioStepFinal({ state, updateState }: Props) {
       if (error) throw error;
       if (!data?.success) {
         if (data?.errorCode === "AI_CREDITS_EXHAUSTED") {
-          toast.error("Créditos de IA esgotados. Adicione créditos no workspace.");
+          toast.error("Créditos do Gemini esgotados. Verifique o billing no Google AI Studio.");
           return;
         }
         if (data?.errorCode === "RATE_LIMIT") {
           toast.error("Muitas requisições. Aguarde alguns segundos.");
+          return;
+        }
+        if (data?.errorCode === "MODEL_OVERLOADED") {
+          toast.error("Gemini sobrecarregado. Aguarde 1-2 minutos e tente novamente.");
           return;
         }
         throw new Error(data?.error || "Falha na geração");
