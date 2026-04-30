@@ -399,7 +399,8 @@ Deno.serve(async (req) => {
         .update({ status: "failed", error_message: msg })
         .eq("id", job.id);
 
-      const status = msg === "RATE_LIMIT" ? 429 : msg === "PAYMENT_REQUIRED" ? 402 : 500;
+      const errorCode =
+        msg === "RATE_LIMIT" ? "RATE_LIMIT" : msg === "PAYMENT_REQUIRED" ? "AI_CREDITS_EXHAUSTED" : "GENERATION_FAILED";
       const userMsg =
         msg === "RATE_LIMIT"
           ? "Muitas requisições. Tente novamente em instantes."
@@ -407,10 +408,12 @@ Deno.serve(async (req) => {
           ? "Créditos de IA esgotados. Adicione créditos no workspace."
           : msg;
 
-      return new Response(JSON.stringify({ success: false, error: userMsg, jobId: job.id }), {
-        status,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      // Return 200 with structured error so the client SDK doesn't throw
+      // and we always show a friendly toast instead of a blank screen.
+      return new Response(
+        JSON.stringify({ success: false, errorCode, error: userMsg, jobId: job.id, fallback: true }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
   } catch (err) {
     console.error("generate-ugc fatal:", err);
