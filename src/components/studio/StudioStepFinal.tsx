@@ -142,7 +142,17 @@ export function StudioStepFinal({ state, updateState }: Props) {
         },
       });
       if (error) throw error;
-      if (!data?.success) throw new Error(data?.error || "Falha na geração");
+      if (!data?.success) {
+        if (data?.errorCode === "AI_CREDITS_EXHAUSTED") {
+          toast.error("Créditos de IA esgotados. Adicione créditos no workspace.");
+          return;
+        }
+        if (data?.errorCode === "RATE_LIMIT") {
+          toast.error("Muitas requisições. Aguarde alguns segundos.");
+          return;
+        }
+        throw new Error(data?.error || "Falha na geração");
+      }
 
       setGeneratedJob(data.job);
       setPromptGenerated(true);
@@ -153,7 +163,7 @@ export function StudioStepFinal({ state, updateState }: Props) {
       const msg = err?.message || "Erro ao gerar UGC";
       if (msg.includes("Rate") || msg.includes("429")) {
         toast.error("Muitas requisições. Aguarde alguns segundos.");
-      } else if (msg.includes("Payment") || msg.includes("402")) {
+      } else if (msg.includes("Payment") || msg.includes("402") || msg.includes("credit")) {
         toast.error("Créditos de IA esgotados. Adicione créditos no workspace.");
       } else {
         toast.error(msg);
