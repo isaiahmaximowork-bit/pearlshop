@@ -463,35 +463,45 @@ export function StudioStepFinal({ state, updateState }: Props) {
         <p className="text-[10px] text-muted-foreground text-right mt-2">{wordCount} palavras</p>
       </div>
 
-      {/* Gerar UGC */}
+      {/* Gerar Prompt de Vídeo */}
       <div className={`${glassCard} p-6 relative overflow-hidden`}>
         <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-primary/20 blur-[80px] pointer-events-none" />
         <div className="relative">
-          <h3 className="font-bold tracking-tight mb-1">Pronto para gerar?</h3>
+          <h3 className="font-bold tracking-tight mb-1">Gerar Prompt de Vídeo</h3>
           <p className="text-xs text-muted-foreground mb-4">
-            Nossa IA criará um prompt técnico e gerará a imagem UGC ultra-realista para você.
+            A IA usa duração, voz e diálogo para montar um prompt técnico pronto para Veo / Flow / Sora.
           </p>
           <button
-            onClick={handleGenerateUGC}
-            disabled={generating}
-            className="group relative w-full h-14 rounded-xl overflow-hidden font-bold text-base text-white shadow-lg shadow-primary/40 disabled:opacity-70 disabled:cursor-not-allowed"
+            onClick={() => {
+              if (!state.script.trim()) {
+                toast.error("Escreva ou gere o roteiro antes");
+                return;
+              }
+              navigator.clipboard.writeText(generatePrompt());
+              setPromptGenerated(true);
+              setManualOpen(true);
+              fireConfetti();
+              toast.success("Prompt de vídeo gerado e copiado!");
+              const el = document.getElementById("manual-prompt");
+              el?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
+            className="group relative w-full h-14 rounded-xl overflow-hidden font-bold text-base text-white shadow-lg shadow-primary/40"
           >
             <span className="absolute inset-0 bg-[linear-gradient(110deg,hsl(var(--primary)),#9333ea,#c084fc,#9333ea,hsl(var(--primary)))] bg-[length:300%_100%] animate-[shimmer_3s_linear_infinite]" />
             <span className="absolute -inset-1 rounded-xl bg-primary/40 blur-xl opacity-60 group-hover:opacity-90 transition-opacity pointer-events-none" />
             <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" />
             <span className="relative flex items-center justify-center gap-2">
-              {generating ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
-              {generating ? "Gerando UGC com IA..." : "Gerar UGC"}
+              <Film size={18} /> Gerar Prompt de Vídeo
             </span>
           </button>
           <AnimatePresence>
-            {promptGenerated && !generating && (
+            {promptGenerated && (
               <motion.p
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="text-[11px] text-primary text-center mt-3 font-semibold flex items-center justify-center gap-1.5"
               >
-                <Sparkles size={12} /> UGC gerado! Confira abaixo ou no histórico.
+                <Sparkles size={12} /> Prompt copiado! Cole no Veo / Flow para gerar o vídeo.
               </motion.p>
             )}
           </AnimatePresence>
