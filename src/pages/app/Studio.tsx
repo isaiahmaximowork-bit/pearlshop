@@ -9,6 +9,12 @@ import { Button } from "@/components/ui/button";
 
 export type StudioState = {
   productId: string | null;
+  productName: string | null;
+  productDescription: string | null;
+  productCategory: string | null;
+  productImageUrl: string | null;
+  productImages: string[];
+  catalogProductId: string | null;
   cameraStyle: string;
   avatarId: string | null;
   avatarCategory: "mulheres" | "homens" | "ia";
@@ -27,6 +33,12 @@ export type StudioState = {
 
 const initialState: StudioState = {
   productId: null,
+  productName: null,
+  productDescription: null,
+  productCategory: null,
+  productImageUrl: null,
+  productImages: [],
+  catalogProductId: null,
   cameraStyle: "frente",
   avatarId: null,
   avatarCategory: "mulheres",

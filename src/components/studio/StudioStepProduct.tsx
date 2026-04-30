@@ -59,8 +59,24 @@ export function StudioStepProduct({ state, updateState, onAdvance }: Props) {
     setModalOpen(true);
   };
 
-  const handleSelect = (id: string) => {
-    updateState({ productId: id });
+  const handleSelect = (item: any) => {
+    const product = item?.catalog_products;
+    if (!product) return;
+    const images: string[] =
+      Array.isArray(product.images) && product.images.length > 0
+        ? product.images
+        : product.image_url
+        ? [product.image_url]
+        : [];
+    updateState({
+      productId: item.id,
+      productName: product.product_name ?? null,
+      productDescription: product.description ?? null,
+      productCategory: item.category ?? null,
+      productImageUrl: product.image_url ?? images[0] ?? null,
+      productImages: images,
+      catalogProductId: product.id ?? null,
+    });
     onAdvance?.();
   };
 
@@ -173,7 +189,7 @@ export function StudioStepProduct({ state, updateState, onAdvance }: Props) {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleSelect(item.id);
+                      handleSelect(item);
                     }}
                     className={`mt-auto w-full py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg ${
                       isSelected

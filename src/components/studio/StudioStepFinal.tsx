@@ -115,7 +115,12 @@ export function StudioStepFinal({ state, updateState }: Props) {
       const { data, error } = await supabase.functions.invoke("generate-ugc", {
         body: {
           productId: state.productId,
-          productName: state.productId,
+          productName: state.productName,
+          productDescription: state.productDescription,
+          productCategory: state.productCategory,
+          productImageUrl: state.productImageUrl,
+          productImages: state.productImages,
+          catalogProductId: state.catalogProductId,
           avatarId: state.avatarId,
           avatarName: avatar?.name || state.avatarId,
           referenceImageUrl,

@@ -8,7 +8,7 @@ interface Props {
   item: any;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSelect: (id: string) => void;
+  onSelect: (item: any) => void;
 }
 
 const formatPrice = (value: number, currency = "BRL") =>
@@ -179,7 +179,7 @@ export const StudioProductModal = ({ item, open, onOpenChange, onSelect }: Props
               {/* Generate button */}
               <button
                 onClick={() => {
-                  onSelect(item.id);
+                  onSelect(item);
                   onOpenChange(false);
                 }}
                 className="w-full flex items-center justify-center gap-2 py-4 px-6 rounded-2xl bg-gradient-to-r from-primary to-purple-600 text-primary-foreground font-black uppercase tracking-widest text-sm hover:opacity-90 transition-all shadow-lg shadow-primary/30"
