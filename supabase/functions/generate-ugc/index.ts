@@ -14,9 +14,11 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const AI_GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
-const TEXT_MODEL = "google/gemini-3-flash-preview";
-const IMAGE_MODEL = "google/gemini-3.1-flash-image-preview"; // Nano Banana 2
+// API oficial do Google Gemini (Generative Language API).
+// Substitui o Lovable AI Gateway: créditos/rate limits são gerenciados direto pelo Google.
+const GEMINI_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
+const TEXT_MODEL = "gemini-2.5-flash"; // Diretor Criativo + Gerador de Mídia
+const IMAGE_MODEL = "gemini-2.5-flash-image"; // Nano Banana — geração com imagens de referência
 
 // ---------- AGENT 1: CREATIVE DIRECTOR ----------
 const CREATIVE_DIRECTOR_SYSTEM = `Você é um DIRETOR CRIATIVO ESPECIALISTA em geração de UGC fotorrealista para a PearlShop.
@@ -93,36 +95,72 @@ const MEDIA_GENERATOR_SYSTEM = `Você é o AGENTE GERADOR DE MÍDIA da PearlShop
   }
 }`;
 
+// Mapeia status HTTP do Gemini para erros conhecidos.
+function mapGeminiError(status: number, text: string): Error {
+  if (status === 429) return new Error("RATE_LIMIT");
+  // 402 quase nunca ocorre no Gemini; 403 com "quota" / "billing" indica créditos esgotados.
+  if (status === 402) return new Error("PAYMENT_REQUIRED");
+  if (status === 403 && /quota|billing|exceeded|limit/i.test(text)) {
+    return new Error("PAYMENT_REQUIRED");
+  }
+  return new Error(`Gemini error ${status}: ${text}`);
+}
+
+// Converte data URL em { mime, base64 } para inline_data do Gemini.
+function dataUrlToInline(dataUrl: string): { mimeType: string; data: string } | null {
+  const match = dataUrl.match(/^data:([^;]+);base64,(.+)$/);
+  if (!match) return null;
+  return { mimeType: match[1], data: match[2] };
+}
+
+// Baixa imagem http(s) e converte para inline_data.
+async function urlToInline(url: string): Promise<{ mimeType: string; data: string } | null> {
+  try {
+    if (url.startsWith("data:")) return dataUrlToInline(url);
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const mimeType = res.headers.get("content-type") || "image/jpeg";
+    const buf = new Uint8Array(await res.arrayBuffer());
+    let binary = "";
+    for (let i = 0; i < buf.length; i++) binary += String.fromCharCode(buf[i]);
+    return { mimeType: mimeType.split(";")[0], data: btoa(binary) };
+  } catch {
+    return null;
+  }
+}
+
 async function callLLM(systemPrompt: string, userContent: string, apiKey: string) {
-  const res = await fetch(AI_GATEWAY, {
+  const url = `${GEMINI_BASE}/${TEXT_MODEL}:generateContent?key=${apiKey}`;
+  const res = await fetch(url, {
     method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: TEXT_MODEL,
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userContent },
-      ],
-      response_format: { type: "json_object" },
+      systemInstruction: { parts: [{ text: systemPrompt }] },
+      contents: [{ role: "user", parts: [{ text: userContent }] }],
+      generationConfig: {
+        responseMimeType: "application/json",
+        temperature: 0.7,
+      },
     }),
   });
 
   if (!res.ok) {
     const text = await res.text();
-    if (res.status === 429) throw new Error("RATE_LIMIT");
-    if (res.status === 402) throw new Error("PAYMENT_REQUIRED");
-    throw new Error(`LLM error ${res.status}: ${text}`);
+    throw mapGeminiError(res.status, text);
   }
 
   const data = await res.json();
-  const content = data.choices?.[0]?.message?.content;
-  if (!content) throw new Error("LLM returned empty content");
+  const content = data.candidates?.[0]?.content?.parts
+    ?.map((p: any) => p.text || "")
+    .join("")
+    .trim();
+  if (!content) throw new Error("Gemini returned empty content");
   try {
     return JSON.parse(content);
   } catch {
     const match = content.match(/\{[\s\S]*\}/);
     if (match) return JSON.parse(match[0]);
-    throw new Error("LLM returned invalid JSON");
+    throw new Error("Gemini returned invalid JSON");
   }
 }
 
@@ -133,33 +171,42 @@ async function generateImage(
   productImageUrl: string | null,
   apiKey: string
 ): Promise<string> {
-  const parts: any[] = [{ type: "text", text: prompt }];
-  if (avatarImageUrl) parts.push({ type: "image_url", image_url: { url: avatarImageUrl } });
-  if (productImageUrl) parts.push({ type: "image_url", image_url: { url: productImageUrl } });
+  const parts: any[] = [{ text: prompt }];
 
-  const content = parts.length === 1 ? prompt : parts;
+  if (avatarImageUrl) {
+    const inline = await urlToInline(avatarImageUrl);
+    if (inline) parts.push({ inlineData: inline });
+  }
+  if (productImageUrl) {
+    const inline = await urlToInline(productImageUrl);
+    if (inline) parts.push({ inlineData: inline });
+  }
 
-  const res = await fetch(AI_GATEWAY, {
+  const url = `${GEMINI_BASE}/${IMAGE_MODEL}:generateContent?key=${apiKey}`;
+  const res = await fetch(url, {
     method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: IMAGE_MODEL,
-      messages: [{ role: "user", content }],
-      modalities: ["image", "text"],
+      contents: [{ role: "user", parts }],
+      generationConfig: {
+        responseModalities: ["IMAGE", "TEXT"],
+      },
     }),
   });
 
   if (!res.ok) {
     const text = await res.text();
-    if (res.status === 429) throw new Error("RATE_LIMIT");
-    if (res.status === 402) throw new Error("PAYMENT_REQUIRED");
-    throw new Error(`Image gen error ${res.status}: ${text}`);
+    throw mapGeminiError(res.status, text);
   }
 
   const data = await res.json();
-  const url = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-  if (!url) throw new Error("Image gen returned no image");
-  return url;
+  const imagePart = data.candidates?.[0]?.content?.parts?.find(
+    (p: any) => p.inlineData?.data || p.inline_data?.data
+  );
+  const inline = imagePart?.inlineData || imagePart?.inline_data;
+  if (!inline?.data) throw new Error("Gemini returned no image");
+  const mime = inline.mimeType || inline.mime_type || "image/png";
+  return `data:${mime};base64,${inline.data}`;
 }
 
 function dataUrlToBytes(dataUrl: string): { bytes: Uint8Array; contentType: string } {
@@ -233,8 +280,8 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY não configurado");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY não configurado");
 
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -329,7 +376,7 @@ Deno.serve(async (req) => {
       const agent1 = await callLLM(
         CREATIVE_DIRECTOR_SYSTEM,
         `Configurações do Studio:\n${JSON.stringify(agent1Input, null, 2)}\n\nLEMBRE-SE:\n- A identidade física do avatar virá da PRIMEIRA imagem anexada — NÃO descreva etnia/idade/cabelo/olhos.\n- O PRODUTO "${product.productName ?? "(sem nome)"}" DEVE aparecer organicamente e ser citado pelo nome no masterPrompt.\n- Aplique o framing correto baseado em interaction="${input.interaction}".`,
-        LOVABLE_API_KEY
+        GEMINI_API_KEY
       );
 
       // Validar produto mencionado
@@ -342,7 +389,7 @@ Deno.serve(async (req) => {
       const agent2 = await callLLM(
         MEDIA_GENERATOR_SYSTEM,
         `Saída do Agente 1:\n${JSON.stringify(agent1, null, 2)}\n\nDuração do vídeo: ${input.duration}\nTom de voz: ${input.voiceTone} / energia ${input.voiceEnergy} / estilo ${input.voiceStyle}\nRoteiro do usuário (se houver): ${input.script || "(vazio — você decide)"}\n\nLembre: imagePrompt DEVE começar EXATAMENTE com "Using the FIRST attached image as the EXACT character reference..." e citar o produto "${product.productName ?? ""}".`,
-        LOVABLE_API_KEY
+        GEMINI_API_KEY
       );
 
       // ===== IMAGE GEN com 2 referências =====
@@ -350,7 +397,7 @@ Deno.serve(async (req) => {
         agent2.imagePrompt,
         referenceImageUrl,
         product.productImageUrl,
-        LOVABLE_API_KEY
+        GEMINI_API_KEY
       );
       const { bytes, contentType } = dataUrlToBytes(imageDataUrl);
 
