@@ -398,10 +398,14 @@ Deno.serve(async (req) => {
         duration: input.duration,
       };
 
-      const agent1 = await callLLM(
-        CREATIVE_DIRECTOR_SYSTEM,
-        `Configurações do Studio:\n${JSON.stringify(agent1Input, null, 2)}\n\nLEMBRE-SE:\n- A identidade física do avatar virá da PRIMEIRA imagem anexada — NÃO descreva etnia/idade/cabelo/olhos.\n- O PRODUTO "${product.productName ?? "(sem nome)"}" DEVE aparecer organicamente e ser citado pelo nome no masterPrompt.\n- Aplique o framing correto baseado em interaction="${input.interaction}".`,
-        GEMINI_API_KEY
+      const agent1 = await retry(
+        () =>
+          callLLM(
+            CREATIVE_DIRECTOR_SYSTEM,
+            `Configurações do Studio:\n${JSON.stringify(agent1Input, null, 2)}\n\nLEMBRE-SE:\n- A identidade física do avatar virá da PRIMEIRA imagem anexada — NÃO descreva etnia/idade/cabelo/olhos.\n- O PRODUTO "${product.productName ?? "(sem nome)"}" DEVE aparecer organicamente e ser citado pelo nome no masterPrompt.\n- Aplique o framing correto baseado em interaction="${input.interaction}".`,
+            GEMINI_API_KEY
+          ),
+        "agent1"
       );
 
       // Validar produto mencionado
@@ -411,18 +415,20 @@ Deno.serve(async (req) => {
       }
 
       // ===== AGENT 2 =====
-      const agent2 = await callLLM(
-        MEDIA_GENERATOR_SYSTEM,
-        `Saída do Agente 1:\n${JSON.stringify(agent1, null, 2)}\n\nDuração do vídeo: ${input.duration}\nTom de voz: ${input.voiceTone} / energia ${input.voiceEnergy} / estilo ${input.voiceStyle}\nRoteiro do usuário (se houver): ${input.script || "(vazio — você decide)"}\n\nLembre: imagePrompt DEVE começar EXATAMENTE com "Using the FIRST attached image as the EXACT character reference..." e citar o produto "${product.productName ?? ""}".`,
-        GEMINI_API_KEY
+      const agent2 = await retry(
+        () =>
+          callLLM(
+            MEDIA_GENERATOR_SYSTEM,
+            `Saída do Agente 1:\n${JSON.stringify(agent1, null, 2)}\n\nDuração do vídeo: ${input.duration}\nTom de voz: ${input.voiceTone} / energia ${input.voiceEnergy} / estilo ${input.voiceStyle}\nRoteiro do usuário (se houver): ${input.script || "(vazio — você decide)"}\n\nLembre: imagePrompt DEVE começar EXATAMENTE com "Using the FIRST attached image as the EXACT character reference..." e citar o produto "${product.productName ?? ""}".`,
+            GEMINI_API_KEY
+          ),
+        "agent2"
       );
 
       // ===== IMAGE GEN com 2 referências =====
-      const imageDataUrl = await generateImage(
-        agent2.imagePrompt,
-        referenceImageUrl,
-        product.productImageUrl,
-        GEMINI_API_KEY
+      const imageDataUrl = await retry(
+        () => generateImage(agent2.imagePrompt, referenceImageUrl, product.productImageUrl, GEMINI_API_KEY),
+        "image-gen"
       );
       const { bytes, contentType } = dataUrlToBytes(imageDataUrl);
 
