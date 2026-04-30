@@ -311,18 +311,18 @@ export function StudioStepFinal({ state, updateState }: Props) {
             </div>
           </div>
 
-          {/* Gerar Imagem button — animated gradient */}
+          {/* Gerar UGC button (gera a imagem real) — animated gradient */}
           <div className="pt-2">
             <button
-              onClick={handleMerge}
-              disabled={merging}
+              onClick={handleGenerateUGC}
+              disabled={generating}
               className="group relative w-full h-12 rounded-xl overflow-hidden font-bold text-base text-white shadow-lg shadow-primary/40 disabled:opacity-70 disabled:cursor-not-allowed"
             >
               <span className="absolute inset-0 bg-[linear-gradient(110deg,hsl(var(--primary)),#9333ea,#c084fc,#9333ea,hsl(var(--primary)))] bg-[length:300%_100%] animate-[shimmer_3s_linear_infinite]" />
               <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" />
               <span className="relative flex items-center justify-center gap-2">
-                {merging ? <Loader2 size={18} className="animate-spin" /> : <ImageIcon size={18} />}
-                {merging ? "Gerando imagem..." : merged ? "Regerar imagem" : "Gerar Imagem"}
+                {generating ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
+                {generating ? "Gerando UGC..." : generatedJob ? "Regerar UGC" : "Gerar UGC"}
               </span>
             </button>
           </div>
