@@ -98,13 +98,38 @@ const MEDIA_GENERATOR_SYSTEM = `Você é o AGENTE GERADOR DE MÍDIA da PearlShop
 // Mapeia status HTTP do Gemini para erros conhecidos.
 function mapGeminiError(status: number, text: string): Error {
   if (status === 429) return new Error("RATE_LIMIT");
-  // 402 quase nunca ocorre no Gemini; 403 com "quota" / "billing" indica créditos esgotados.
   if (status === 402) return new Error("PAYMENT_REQUIRED");
   if (status === 403 && /quota|billing|exceeded|limit/i.test(text)) {
     return new Error("PAYMENT_REQUIRED");
   }
+  if (status === 503 || status === 502 || status === 504) {
+    return new Error("MODEL_OVERLOADED");
+  }
   return new Error(`Gemini error ${status}: ${text}`);
 }
+
+// Retry com backoff exponencial para erros transitórios (503/502/504).
+async function retry<T>(fn: () => Promise<T>, label: string, maxAttempts = 4): Promise<T> {
+  let lastErr: unknown;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      const msg = err instanceof Error ? err.message : String(err);
+      const transient = msg === "MODEL_OVERLOADED";
+      if (!transient || attempt === maxAttempts) {
+        console.error(`[${label}] tentativa ${attempt} falhou (final):`, msg);
+        throw err;
+      }
+      const delay = 1000 * Math.pow(2, attempt - 1) + Math.random() * 500; // 1s, 2s, 4s + jitter
+      console.warn(`[${label}] tentativa ${attempt} falhou (${msg}). Re-tentando em ${Math.round(delay)}ms...`);
+      await new Promise((r) => setTimeout(r, delay));
+    }
+  }
+  throw lastErr;
+}
+
 
 // Converte data URL em { mime, base64 } para inline_data do Gemini.
 function dataUrlToInline(dataUrl: string): { mimeType: string; data: string } | null {
@@ -373,10 +398,14 @@ Deno.serve(async (req) => {
         duration: input.duration,
       };
 
-      const agent1 = await callLLM(
-        CREATIVE_DIRECTOR_SYSTEM,
-        `Configurações do Studio:\n${JSON.stringify(agent1Input, null, 2)}\n\nLEMBRE-SE:\n- A identidade física do avatar virá da PRIMEIRA imagem anexada — NÃO descreva etnia/idade/cabelo/olhos.\n- O PRODUTO "${product.productName ?? "(sem nome)"}" DEVE aparecer organicamente e ser citado pelo nome no masterPrompt.\n- Aplique o framing correto baseado em interaction="${input.interaction}".`,
-        GEMINI_API_KEY
+      const agent1 = await retry(
+        () =>
+          callLLM(
+            CREATIVE_DIRECTOR_SYSTEM,
+            `Configurações do Studio:\n${JSON.stringify(agent1Input, null, 2)}\n\nLEMBRE-SE:\n- A identidade física do avatar virá da PRIMEIRA imagem anexada — NÃO descreva etnia/idade/cabelo/olhos.\n- O PRODUTO "${product.productName ?? "(sem nome)"}" DEVE aparecer organicamente e ser citado pelo nome no masterPrompt.\n- Aplique o framing correto baseado em interaction="${input.interaction}".`,
+            GEMINI_API_KEY
+          ),
+        "agent1"
       );
 
       // Validar produto mencionado
@@ -386,18 +415,20 @@ Deno.serve(async (req) => {
       }
 
       // ===== AGENT 2 =====
-      const agent2 = await callLLM(
-        MEDIA_GENERATOR_SYSTEM,
-        `Saída do Agente 1:\n${JSON.stringify(agent1, null, 2)}\n\nDuração do vídeo: ${input.duration}\nTom de voz: ${input.voiceTone} / energia ${input.voiceEnergy} / estilo ${input.voiceStyle}\nRoteiro do usuário (se houver): ${input.script || "(vazio — você decide)"}\n\nLembre: imagePrompt DEVE começar EXATAMENTE com "Using the FIRST attached image as the EXACT character reference..." e citar o produto "${product.productName ?? ""}".`,
-        GEMINI_API_KEY
+      const agent2 = await retry(
+        () =>
+          callLLM(
+            MEDIA_GENERATOR_SYSTEM,
+            `Saída do Agente 1:\n${JSON.stringify(agent1, null, 2)}\n\nDuração do vídeo: ${input.duration}\nTom de voz: ${input.voiceTone} / energia ${input.voiceEnergy} / estilo ${input.voiceStyle}\nRoteiro do usuário (se houver): ${input.script || "(vazio — você decide)"}\n\nLembre: imagePrompt DEVE começar EXATAMENTE com "Using the FIRST attached image as the EXACT character reference..." e citar o produto "${product.productName ?? ""}".`,
+            GEMINI_API_KEY
+          ),
+        "agent2"
       );
 
       // ===== IMAGE GEN com 2 referências =====
-      const imageDataUrl = await generateImage(
-        agent2.imagePrompt,
-        referenceImageUrl,
-        product.productImageUrl,
-        GEMINI_API_KEY
+      const imageDataUrl = await retry(
+        () => generateImage(agent2.imagePrompt, referenceImageUrl, product.productImageUrl, GEMINI_API_KEY),
+        "image-gen"
       );
       const { bytes, contentType } = dataUrlToBytes(imageDataUrl);
 
@@ -447,12 +478,20 @@ Deno.serve(async (req) => {
         .eq("id", job.id);
 
       const errorCode =
-        msg === "RATE_LIMIT" ? "RATE_LIMIT" : msg === "PAYMENT_REQUIRED" ? "AI_CREDITS_EXHAUSTED" : "GENERATION_FAILED";
+        msg === "RATE_LIMIT"
+          ? "RATE_LIMIT"
+          : msg === "PAYMENT_REQUIRED"
+          ? "AI_CREDITS_EXHAUSTED"
+          : msg === "MODEL_OVERLOADED"
+          ? "MODEL_OVERLOADED"
+          : "GENERATION_FAILED";
       const userMsg =
         msg === "RATE_LIMIT"
           ? "Muitas requisições. Tente novamente em instantes."
           : msg === "PAYMENT_REQUIRED"
-          ? "Créditos de IA esgotados. Adicione créditos no workspace."
+          ? "Créditos do Gemini esgotados. Verifique billing no Google AI Studio."
+          : msg === "MODEL_OVERLOADED"
+          ? "Servidores do Gemini sobrecarregados no momento. Aguarde 1-2 minutos e tente novamente."
           : msg;
 
       // Return 200 with structured error so the client SDK doesn't throw
