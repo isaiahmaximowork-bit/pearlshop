@@ -478,12 +478,20 @@ Deno.serve(async (req) => {
         .eq("id", job.id);
 
       const errorCode =
-        msg === "RATE_LIMIT" ? "RATE_LIMIT" : msg === "PAYMENT_REQUIRED" ? "AI_CREDITS_EXHAUSTED" : "GENERATION_FAILED";
+        msg === "RATE_LIMIT"
+          ? "RATE_LIMIT"
+          : msg === "PAYMENT_REQUIRED"
+          ? "AI_CREDITS_EXHAUSTED"
+          : msg === "MODEL_OVERLOADED"
+          ? "MODEL_OVERLOADED"
+          : "GENERATION_FAILED";
       const userMsg =
         msg === "RATE_LIMIT"
           ? "Muitas requisições. Tente novamente em instantes."
           : msg === "PAYMENT_REQUIRED"
-          ? "Créditos de IA esgotados. Adicione créditos no workspace."
+          ? "Créditos do Gemini esgotados. Verifique billing no Google AI Studio."
+          : msg === "MODEL_OVERLOADED"
+          ? "Servidores do Gemini sobrecarregados no momento. Aguarde 1-2 minutos e tente novamente."
           : msg;
 
       // Return 200 with structured error so the client SDK doesn't throw
