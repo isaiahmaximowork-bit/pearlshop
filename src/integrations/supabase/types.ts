@@ -92,11 +92,13 @@ export type Database = {
           avatar_id: string | null
           avatar_name: string | null
           camera_style: string | null
+          clothing_description: string | null
           created_at: string
           duration: string | null
           energy: number | null
           enhancements: string[] | null
           error_message: string | null
+          framing_type: string | null
           id: string
           image_prompt: string | null
           image_storage_key: string | null
@@ -104,7 +106,11 @@ export type Database = {
           interaction: string | null
           master_prompt: string | null
           pose: string | null
+          product_category: string | null
+          product_description: string | null
           product_id: string | null
+          product_image_url: string | null
+          product_mention: string | null
           product_name: string | null
           proximity: number | null
           reference_image_url: string | null
@@ -127,11 +133,13 @@ export type Database = {
           avatar_id?: string | null
           avatar_name?: string | null
           camera_style?: string | null
+          clothing_description?: string | null
           created_at?: string
           duration?: string | null
           energy?: number | null
           enhancements?: string[] | null
           error_message?: string | null
+          framing_type?: string | null
           id?: string
           image_prompt?: string | null
           image_storage_key?: string | null
@@ -139,7 +147,11 @@ export type Database = {
           interaction?: string | null
           master_prompt?: string | null
           pose?: string | null
+          product_category?: string | null
+          product_description?: string | null
           product_id?: string | null
+          product_image_url?: string | null
+          product_mention?: string | null
           product_name?: string | null
           proximity?: number | null
           reference_image_url?: string | null
@@ -162,11 +174,13 @@ export type Database = {
           avatar_id?: string | null
           avatar_name?: string | null
           camera_style?: string | null
+          clothing_description?: string | null
           created_at?: string
           duration?: string | null
           energy?: number | null
           enhancements?: string[] | null
           error_message?: string | null
+          framing_type?: string | null
           id?: string
           image_prompt?: string | null
           image_storage_key?: string | null
@@ -174,7 +188,11 @@ export type Database = {
           interaction?: string | null
           master_prompt?: string | null
           pose?: string | null
+          product_category?: string | null
+          product_description?: string | null
           product_id?: string | null
+          product_image_url?: string | null
+          product_mention?: string | null
           product_name?: string | null
           proximity?: number | null
           reference_image_url?: string | null
