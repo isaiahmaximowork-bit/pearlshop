@@ -91,8 +91,54 @@ export function StudioStepFinal({ state, updateState }: Props) {
   const [successOpen, setSuccessOpen] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [generatedJob, setGeneratedJob] = useState<any>(null);
+  const [scriptLoading, setScriptLoading] = useState<string | null>(null);
 
   const avatar = findAvatar(state.avatarId);
+
+  const handleGenerateScriptAI = async (type: "promocional" | "indicacional" | "storytelling", title: string) => {
+    if (scriptLoading) return;
+    setScriptLoading(type);
+    const toastId = toast.loading(`Gerando roteiro ${title}...`);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-script", {
+        body: {
+          scriptType: type,
+          productId: state.productId,
+          catalogProductId: state.catalogProductId,
+          productName: state.productName,
+          productDescription: state.productDescription,
+          productCategory: state.productCategory,
+          voiceGender: state.voiceGender,
+          voiceTone: state.voiceTone,
+          voiceEnergy: state.voiceEnergy,
+          voiceStyle: state.voiceStyle,
+          duration: state.duration,
+        },
+      });
+      if (error) throw error;
+      if (!data?.success) {
+        if (data?.errorCode === "AI_CREDITS_EXHAUSTED") {
+          toast.error("Créditos do Gemini esgotados.", { id: toastId });
+          return;
+        }
+        if (data?.errorCode === "RATE_LIMIT") {
+          toast.error("Muitas requisições. Aguarde alguns segundos.", { id: toastId });
+          return;
+        }
+        if (data?.errorCode === "MODEL_OVERLOADED") {
+          toast.error("Gemini sobrecarregado. Tente novamente em 1-2 min.", { id: toastId });
+          return;
+        }
+        throw new Error(data?.error || "Falha ao gerar roteiro");
+      }
+      updateState({ script: data.script });
+      toast.success(`Roteiro ${title} pronto!`, { id: toastId });
+    } catch (err: any) {
+      toast.error(err?.message || "Erro ao gerar roteiro", { id: toastId });
+    } finally {
+      setScriptLoading(null);
+    }
+  };
 
 
   const generatePrompt = () => {
@@ -420,24 +466,31 @@ export function StudioStepFinal({ state, updateState }: Props) {
           <h3 className="font-bold tracking-tight">Diálogo (Roteiro)</h3>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="rounded-xl gap-2">
-                <Wand2 size={14} /> Preencher com IA
+              <Button variant="outline" size="sm" className="rounded-xl gap-2" disabled={!!scriptLoading}>
+                {scriptLoading ? <Loader2 size={14} className="animate-spin" /> : <Wand2 size={14} />}
+                {scriptLoading ? "Gerando..." : "Preencher com IA"}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-72 rounded-xl">
               {scriptTemplates.map((tpl) => {
                 const Icon = tpl.icon;
+                const isLoading = scriptLoading === tpl.id;
                 return (
                   <DropdownMenuItem
                     key={tpl.id}
-                    onClick={() => {
-                      updateState({ script: tpl.text });
-                      toast.success(`Roteiro ${tpl.title} aplicado`);
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleGenerateScriptAI(tpl.id as any, tpl.title);
                     }}
+                    disabled={!!scriptLoading}
                     className="gap-3 py-2.5 cursor-pointer"
                   >
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shrink-0">
-                      <Icon size={16} className="text-primary" />
+                      {isLoading ? (
+                        <Loader2 size={16} className="text-primary animate-spin" />
+                      ) : (
+                        <Icon size={16} className="text-primary" />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold">{tpl.title}</p>
