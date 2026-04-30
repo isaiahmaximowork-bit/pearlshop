@@ -146,7 +146,129 @@ export function StudioStepFinal({ state, updateState }: Props) {
   };
 
 
+  // Detecta o tipo de roteiro a partir do conteúdo da textarea (heurística simples).
+  // Usuário pode ter escrito do zero ou usado o "Preencher com IA". Default = promocional.
+  const detectScriptType = (text: string): "promocional" | "indicacional" | "storytelling" => {
+    const t = text.toLowerCase();
+    if (/(deixa eu te contar|aconteceu|eu vivia|semana passada|antes eu)/.test(t)) return "storytelling";
+    if (/(corre|promo|link na bio|antes que acabe|aproveita|garante o seu)/.test(t)) return "promocional";
+    if (/(indic|recomend|de verdade|vale a pena|olha que)/.test(t)) return "indicacional";
+    return "promocional";
+  };
+
+  // Pipeline Veo 3 (Etapas 3 + 4 do PDF):
+  //   1) analyze-ugc-image   → relatório JSON da primeira imagem
+  //   2) generate-veo3-prompt → prompt final em inglês pronto para colar no Flow/Veo 3
+  // NÃO chama a API do Veo 3 — só prepara o prompt.
+  const handleGenerateVeo3Prompt = async () => {
+    if (!generatedJob?.image_url) {
+      toast.error("Gere a imagem UGC primeiro");
+      return;
+    }
+    if (!state.script.trim()) {
+      toast.error("Escreva ou gere o roteiro antes");
+      return;
+    }
+    if (veo3Loading) return;
+
+    setVeo3Loading(true);
+    setVeo3Stage("analyzing");
+    const toastId = toast.loading("Analisando imagem UGC...");
+
+    try {
+      // ETAPA 3 — Analyze
+      const analyzeRes = await supabase.functions.invoke("analyze-ugc-image", {
+        body: {
+          jobId: generatedJob.id,
+          ugcImageUrl: generatedJob.image_url,
+          productName: state.productName,
+          productDescription: state.productDescription,
+          productCategory: state.productCategory,
+          avatarName: avatar?.name || state.avatarId,
+        },
+      });
+      if (analyzeRes.error) throw analyzeRes.error;
+      const analyzeData: any = analyzeRes.data;
+      if (!analyzeData?.success) {
+        const code = analyzeData?.errorCode;
+        if (code === "AI_CREDITS_EXHAUSTED") throw new Error("Créditos do Gemini esgotados.");
+        if (code === "RATE_LIMIT") throw new Error("Muitas requisições. Aguarde alguns segundos.");
+        if (code === "MODEL_OVERLOADED") throw new Error("Gemini sobrecarregado. Tente em 1-2 min.");
+        throw new Error(analyzeData?.error || "Falha ao analisar imagem");
+      }
+      const report = analyzeData.report;
+      setVeo3Analysis(report);
+
+      if (analyzeData.status === "regenerate") {
+        toast.warning(
+          `Qualidade da imagem baixa (${report.qualityScore}/10). Considere regenerar a UGC antes.`,
+          { id: toastId, duration: 6000 },
+        );
+      } else {
+        toast.loading(
+          `Análise OK (${report.qualityScore}/10). Gerando prompt Veo 3...`,
+          { id: toastId },
+        );
+      }
+
+      // ETAPA 4 — Generate Veo 3 prompt
+      setVeo3Stage("generating");
+      const scriptType = detectScriptType(state.script);
+      const promptRes = await supabase.functions.invoke("generate-veo3-prompt", {
+        body: {
+          jobId: generatedJob.id,
+          ugcImageUrl: generatedJob.image_url,
+          analysisReport: report,
+          script: state.script,
+          scriptType,
+          voice: {
+            gender: state.voiceGender,
+            tone: state.voiceTone,
+            energy: state.voiceEnergy,
+            style: state.voiceStyle,
+          },
+          product: {
+            name: state.productName,
+            description: state.productDescription,
+            category: state.productCategory,
+          },
+          avatar: {
+            name: avatar?.name || state.avatarId,
+          },
+        },
+      });
+      if (promptRes.error) throw promptRes.error;
+      const promptData: any = promptRes.data;
+      if (!promptData?.success) {
+        const code = promptData?.errorCode;
+        if (code === "AI_CREDITS_EXHAUSTED") throw new Error("Créditos do Gemini esgotados.");
+        if (code === "RATE_LIMIT") throw new Error("Muitas requisições. Aguarde alguns segundos.");
+        if (code === "MODEL_OVERLOADED") throw new Error("Gemini sobrecarregado. Tente em 1-2 min.");
+        throw new Error(promptData?.error || "Falha ao gerar prompt Veo 3");
+      }
+
+      setVeo3Prompt(promptData.veo3Prompt);
+      setVeo3Metadata(promptData.metadata);
+      setPromptGenerated(true);
+      setManualOpen(true);
+      navigator.clipboard.writeText(promptData.veo3Prompt).catch(() => {});
+      fireConfetti();
+      toast.success("Prompt Veo 3 gerado e copiado! Cole no Flow.", { id: toastId });
+      setTimeout(() => {
+        document.getElementById("manual-prompt")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    } catch (err: any) {
+      toast.error(err?.message || "Erro ao gerar prompt Veo 3", { id: toastId });
+    } finally {
+      setVeo3Loading(false);
+      setVeo3Stage("idle");
+    }
+  };
+
+  // Fallback prompt local (resumo das config) — usado enquanto o Veo 3 prompt
+  // ainda não foi gerado. O prompt REAL do Veo 3 vem da edge function.
   const generatePrompt = () => {
+    if (veo3Prompt) return veo3Prompt;
     const finalPose = pose === "Personalizado" && customPose ? customPose : pose;
     return `Vídeo UGC com avatar ${avatar?.name || state.avatarId || "—"}, cenário: ${state.scenarioTags.join(", ") || state.scenarioText || "padrão"}, estilo de câmera: ${state.cameraStyle}, estilo de vídeo: ${state.videoStyle}, modo de interação: ${interaction}, pose: ${finalPose}, melhorias: ${enhance.join(", ") || "nenhuma"}, proximidade ${state.proximity}%, energia ${state.energy}%, duração: ${state.duration}, voz ${state.voiceGender} ${state.voiceTone} energia ${state.voiceEnergy} estilo ${state.voiceStyle}. Roteiro: ${state.script || "(roteiro não definido)"}`;
   };
