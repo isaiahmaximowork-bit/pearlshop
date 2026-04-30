@@ -92,6 +92,11 @@ export function StudioStepFinal({ state, updateState }: Props) {
   const [generating, setGenerating] = useState(false);
   const [generatedJob, setGeneratedJob] = useState<any>(null);
   const [scriptLoading, setScriptLoading] = useState<string | null>(null);
+  const [veo3Loading, setVeo3Loading] = useState(false);
+  const [veo3Stage, setVeo3Stage] = useState<"idle" | "analyzing" | "generating">("idle");
+  const [veo3Prompt, setVeo3Prompt] = useState<string | null>(null);
+  const [veo3Analysis, setVeo3Analysis] = useState<any>(null);
+  const [veo3Metadata, setVeo3Metadata] = useState<any>(null);
 
   const avatar = findAvatar(state.avatarId);
 
@@ -141,7 +146,129 @@ export function StudioStepFinal({ state, updateState }: Props) {
   };
 
 
+  // Detecta o tipo de roteiro a partir do conteúdo da textarea (heurística simples).
+  // Usuário pode ter escrito do zero ou usado o "Preencher com IA". Default = promocional.
+  const detectScriptType = (text: string): "promocional" | "indicacional" | "storytelling" => {
+    const t = text.toLowerCase();
+    if (/(deixa eu te contar|aconteceu|eu vivia|semana passada|antes eu)/.test(t)) return "storytelling";
+    if (/(corre|promo|link na bio|antes que acabe|aproveita|garante o seu)/.test(t)) return "promocional";
+    if (/(indic|recomend|de verdade|vale a pena|olha que)/.test(t)) return "indicacional";
+    return "promocional";
+  };
+
+  // Pipeline Veo 3 (Etapas 3 + 4 do PDF):
+  //   1) analyze-ugc-image   → relatório JSON da primeira imagem
+  //   2) generate-veo3-prompt → prompt final em inglês pronto para colar no Flow/Veo 3
+  // NÃO chama a API do Veo 3 — só prepara o prompt.
+  const handleGenerateVeo3Prompt = async () => {
+    if (!generatedJob?.image_url) {
+      toast.error("Gere a imagem UGC primeiro");
+      return;
+    }
+    if (!state.script.trim()) {
+      toast.error("Escreva ou gere o roteiro antes");
+      return;
+    }
+    if (veo3Loading) return;
+
+    setVeo3Loading(true);
+    setVeo3Stage("analyzing");
+    const toastId = toast.loading("Analisando imagem UGC...");
+
+    try {
+      // ETAPA 3 — Analyze
+      const analyzeRes = await supabase.functions.invoke("analyze-ugc-image", {
+        body: {
+          jobId: generatedJob.id,
+          ugcImageUrl: generatedJob.image_url,
+          productName: state.productName,
+          productDescription: state.productDescription,
+          productCategory: state.productCategory,
+          avatarName: avatar?.name || state.avatarId,
+        },
+      });
+      if (analyzeRes.error) throw analyzeRes.error;
+      const analyzeData: any = analyzeRes.data;
+      if (!analyzeData?.success) {
+        const code = analyzeData?.errorCode;
+        if (code === "AI_CREDITS_EXHAUSTED") throw new Error("Créditos do Gemini esgotados.");
+        if (code === "RATE_LIMIT") throw new Error("Muitas requisições. Aguarde alguns segundos.");
+        if (code === "MODEL_OVERLOADED") throw new Error("Gemini sobrecarregado. Tente em 1-2 min.");
+        throw new Error(analyzeData?.error || "Falha ao analisar imagem");
+      }
+      const report = analyzeData.report;
+      setVeo3Analysis(report);
+
+      if (analyzeData.status === "regenerate") {
+        toast.warning(
+          `Qualidade da imagem baixa (${report.qualityScore}/10). Considere regenerar a UGC antes.`,
+          { id: toastId, duration: 6000 },
+        );
+      } else {
+        toast.loading(
+          `Análise OK (${report.qualityScore}/10). Gerando prompt Veo 3...`,
+          { id: toastId },
+        );
+      }
+
+      // ETAPA 4 — Generate Veo 3 prompt
+      setVeo3Stage("generating");
+      const scriptType = detectScriptType(state.script);
+      const promptRes = await supabase.functions.invoke("generate-veo3-prompt", {
+        body: {
+          jobId: generatedJob.id,
+          ugcImageUrl: generatedJob.image_url,
+          analysisReport: report,
+          script: state.script,
+          scriptType,
+          voice: {
+            gender: state.voiceGender,
+            tone: state.voiceTone,
+            energy: state.voiceEnergy,
+            style: state.voiceStyle,
+          },
+          product: {
+            name: state.productName,
+            description: state.productDescription,
+            category: state.productCategory,
+          },
+          avatar: {
+            name: avatar?.name || state.avatarId,
+          },
+        },
+      });
+      if (promptRes.error) throw promptRes.error;
+      const promptData: any = promptRes.data;
+      if (!promptData?.success) {
+        const code = promptData?.errorCode;
+        if (code === "AI_CREDITS_EXHAUSTED") throw new Error("Créditos do Gemini esgotados.");
+        if (code === "RATE_LIMIT") throw new Error("Muitas requisições. Aguarde alguns segundos.");
+        if (code === "MODEL_OVERLOADED") throw new Error("Gemini sobrecarregado. Tente em 1-2 min.");
+        throw new Error(promptData?.error || "Falha ao gerar prompt Veo 3");
+      }
+
+      setVeo3Prompt(promptData.veo3Prompt);
+      setVeo3Metadata(promptData.metadata);
+      setPromptGenerated(true);
+      setManualOpen(true);
+      navigator.clipboard.writeText(promptData.veo3Prompt).catch(() => {});
+      fireConfetti();
+      toast.success("Prompt Veo 3 gerado e copiado! Cole no Flow.", { id: toastId });
+      setTimeout(() => {
+        document.getElementById("manual-prompt")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    } catch (err: any) {
+      toast.error(err?.message || "Erro ao gerar prompt Veo 3", { id: toastId });
+    } finally {
+      setVeo3Loading(false);
+      setVeo3Stage("idle");
+    }
+  };
+
+  // Fallback prompt local (resumo das config) — usado enquanto o Veo 3 prompt
+  // ainda não foi gerado. O prompt REAL do Veo 3 vem da edge function.
   const generatePrompt = () => {
+    if (veo3Prompt) return veo3Prompt;
     const finalPose = pose === "Personalizado" && customPose ? customPose : pose;
     return `Vídeo UGC com avatar ${avatar?.name || state.avatarId || "—"}, cenário: ${state.scenarioTags.join(", ") || state.scenarioText || "padrão"}, estilo de câmera: ${state.cameraStyle}, estilo de vídeo: ${state.videoStyle}, modo de interação: ${interaction}, pose: ${finalPose}, melhorias: ${enhance.join(", ") || "nenhuma"}, proximidade ${state.proximity}%, energia ${state.energy}%, duração: ${state.duration}, voz ${state.voiceGender} ${state.voiceTone} energia ${state.voiceEnergy} estilo ${state.voiceStyle}. Roteiro: ${state.script || "(roteiro não definido)"}`;
   };
@@ -511,45 +638,99 @@ export function StudioStepFinal({ state, updateState }: Props) {
         <p className="text-[10px] text-muted-foreground text-right mt-2">{wordCount} palavras</p>
       </div>
 
-      {/* Gerar Prompt de Vídeo */}
+      {/* Gerar Prompt de Vídeo Veo 3 (pipeline com análise da imagem) */}
       <div className={`${glassCard} p-6 relative overflow-hidden`}>
         <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-primary/20 blur-[80px] pointer-events-none" />
         <div className="relative">
-          <h3 className="font-bold tracking-tight mb-1">Gerar Prompt de Vídeo</h3>
+          <h3 className="font-bold tracking-tight mb-1">Gerar Prompt de Vídeo (Veo 3)</h3>
           <p className="text-xs text-muted-foreground mb-4">
-            A IA usa duração, voz e diálogo para montar um prompt técnico pronto para Veo / Flow / Sora.
+            A IA analisa a imagem UGC, identifica pontos fortes/fracos e gera um prompt técnico AAA em inglês — pronto para colar no Flow / Veo 3.
           </p>
+
+          {!generatedJob?.image_url && (
+            <div className="mb-3 px-3 py-2 rounded-xl border border-dashed border-border/60 text-[11px] text-muted-foreground text-center">
+              Gere a imagem UGC acima primeiro.
+            </div>
+          )}
+
           <button
-            onClick={() => {
-              if (!state.script.trim()) {
-                toast.error("Escreva ou gere o roteiro antes");
-                return;
-              }
-              navigator.clipboard.writeText(generatePrompt());
-              setPromptGenerated(true);
-              setManualOpen(true);
-              fireConfetti();
-              toast.success("Prompt de vídeo gerado e copiado!");
-              const el = document.getElementById("manual-prompt");
-              el?.scrollIntoView({ behavior: "smooth", block: "start" });
-            }}
-            className="group relative w-full h-14 rounded-xl overflow-hidden font-bold text-base text-white shadow-lg shadow-primary/40"
+            onClick={handleGenerateVeo3Prompt}
+            disabled={veo3Loading || !generatedJob?.image_url || !state.script.trim()}
+            className="group relative w-full h-14 rounded-xl overflow-hidden font-bold text-base text-white shadow-lg shadow-primary/40 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <span className="absolute inset-0 bg-[linear-gradient(110deg,hsl(var(--primary)),#9333ea,#c084fc,#9333ea,hsl(var(--primary)))] bg-[length:300%_100%] animate-[shimmer_3s_linear_infinite]" />
             <span className="absolute -inset-1 rounded-xl bg-primary/40 blur-xl opacity-60 group-hover:opacity-90 transition-opacity pointer-events-none" />
             <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" />
             <span className="relative flex items-center justify-center gap-2">
-              <Film size={18} /> Gerar Prompt de Vídeo
+              {veo3Loading ? <Loader2 size={18} className="animate-spin" /> : <Film size={18} />}
+              {veo3Stage === "analyzing"
+                ? "Analisando imagem..."
+                : veo3Stage === "generating"
+                ? "Gerando prompt Veo 3..."
+                : veo3Prompt
+                ? "Regerar Prompt Veo 3"
+                : "Gerar Prompt de Vídeo"}
             </span>
           </button>
+
+          {/* Painel da análise */}
           <AnimatePresence>
-            {promptGenerated && (
+            {veo3Analysis && (
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                className="mt-4 p-4 rounded-xl bg-card/60 border border-border/60"
+              >
+                <div className="flex items-baseline justify-between mb-3">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                    Análise da imagem
+                  </p>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-2xl font-black tracking-tight bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent">
+                      {veo3Analysis.qualityScore?.toFixed(1)}
+                    </span>
+                    <span className="text-xs text-muted-foreground">/10</span>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center">
+                  {[
+                    ["Avatar", veo3Analysis.avatarConsistency],
+                    ["Produto", veo3Analysis.productVisibility],
+                    ["Luz", veo3Analysis.lightingQuality],
+                    ["Qualidade", veo3Analysis.overallQuality],
+                    ["Movim.", veo3Analysis.movementPotential],
+                  ].map(([label, val]: any) => (
+                    <div key={label} className="py-1.5 rounded-lg bg-background/40 border border-border/40">
+                      <p className="text-[9px] uppercase tracking-wider text-muted-foreground">{label}</p>
+                      <p className="text-sm font-bold">{Number(val).toFixed(1)}</p>
+                    </div>
+                  ))}
+                </div>
+                {Array.isArray(veo3Analysis.optimizationFocus) && veo3Analysis.optimizationFocus.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {veo3Analysis.optimizationFocus.map((tag: string) => (
+                      <span
+                        key={tag}
+                        className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary/15 border border-primary/30 text-primary"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <AnimatePresence>
+            {veo3Prompt && (
               <motion.p
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="text-[11px] text-primary text-center mt-3 font-semibold flex items-center justify-center gap-1.5"
               >
-                <Sparkles size={12} /> Prompt copiado! Cole no Veo / Flow para gerar o vídeo.
+                <Sparkles size={12} /> Prompt Veo 3 copiado! Cole no Flow + use a imagem UGC como seed.
               </motion.p>
             )}
           </AnimatePresence>
@@ -563,8 +744,14 @@ export function StudioStepFinal({ state, updateState }: Props) {
           className="w-full flex items-center justify-between p-5 hover:bg-accent/30 transition-colors"
         >
           <div className="text-left">
-            <h3 className="font-bold tracking-tight">Modo Manual — Copiar Prompt</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">Use o prompt em ferramentas externas.</p>
+            <h3 className="font-bold tracking-tight">
+              {veo3Prompt ? "Prompt Veo 3 (Inglês)" : "Modo Manual — Copiar Prompt"}
+            </h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {veo3Prompt
+                ? "Cole no Flow / Veo 3 e use a imagem UGC como seed (frame-to-video)."
+                : "Use o prompt em ferramentas externas."}
+            </p>
           </div>
           <motion.div animate={{ rotate: manualOpen ? 180 : 0 }}>
             <ChevronDown size={18} className="text-muted-foreground" />
