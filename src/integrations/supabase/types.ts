@@ -89,6 +89,8 @@ export type Database = {
       media_jobs: {
         Row: {
           agent1_metadata: Json | null
+          analysis_quality_score: number | null
+          analysis_report: Json | null
           avatar_id: string | null
           avatar_name: string | null
           camera_style: string | null
@@ -118,9 +120,13 @@ export type Database = {
           scenario_text: string | null
           script: string | null
           script_prompt: Json | null
+          script_type: string | null
           status: string
           updated_at: string
           user_id: string
+          veo3_metadata: Json | null
+          veo3_prompt: string | null
+          veo3_video_url: string | null
           video_style: string | null
           voice_energy: string | null
           voice_gender: string | null
@@ -130,6 +136,8 @@ export type Database = {
         }
         Insert: {
           agent1_metadata?: Json | null
+          analysis_quality_score?: number | null
+          analysis_report?: Json | null
           avatar_id?: string | null
           avatar_name?: string | null
           camera_style?: string | null
@@ -159,9 +167,13 @@ export type Database = {
           scenario_text?: string | null
           script?: string | null
           script_prompt?: Json | null
+          script_type?: string | null
           status?: string
           updated_at?: string
           user_id: string
+          veo3_metadata?: Json | null
+          veo3_prompt?: string | null
+          veo3_video_url?: string | null
           video_style?: string | null
           voice_energy?: string | null
           voice_gender?: string | null
@@ -171,6 +183,8 @@ export type Database = {
         }
         Update: {
           agent1_metadata?: Json | null
+          analysis_quality_score?: number | null
+          analysis_report?: Json | null
           avatar_id?: string | null
           avatar_name?: string | null
           camera_style?: string | null
@@ -200,9 +214,13 @@ export type Database = {
           scenario_text?: string | null
           script?: string | null
           script_prompt?: Json | null
+          script_type?: string | null
           status?: string
           updated_at?: string
           user_id?: string
+          veo3_metadata?: Json | null
+          veo3_prompt?: string | null
+          veo3_video_url?: string | null
           video_style?: string | null
           voice_energy?: string | null
           voice_gender?: string | null
