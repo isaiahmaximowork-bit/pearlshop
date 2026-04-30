@@ -91,8 +91,54 @@ export function StudioStepFinal({ state, updateState }: Props) {
   const [successOpen, setSuccessOpen] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [generatedJob, setGeneratedJob] = useState<any>(null);
+  const [scriptLoading, setScriptLoading] = useState<string | null>(null);
 
   const avatar = findAvatar(state.avatarId);
+
+  const handleGenerateScriptAI = async (type: "promocional" | "indicacional" | "storytelling", title: string) => {
+    if (scriptLoading) return;
+    setScriptLoading(type);
+    const toastId = toast.loading(`Gerando roteiro ${title}...`);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-script", {
+        body: {
+          scriptType: type,
+          productId: state.productId,
+          catalogProductId: state.catalogProductId,
+          productName: state.productName,
+          productDescription: state.productDescription,
+          productCategory: state.productCategory,
+          voiceGender: state.voiceGender,
+          voiceTone: state.voiceTone,
+          voiceEnergy: state.voiceEnergy,
+          voiceStyle: state.voiceStyle,
+          duration: state.duration,
+        },
+      });
+      if (error) throw error;
+      if (!data?.success) {
+        if (data?.errorCode === "AI_CREDITS_EXHAUSTED") {
+          toast.error("Créditos do Gemini esgotados.", { id: toastId });
+          return;
+        }
+        if (data?.errorCode === "RATE_LIMIT") {
+          toast.error("Muitas requisições. Aguarde alguns segundos.", { id: toastId });
+          return;
+        }
+        if (data?.errorCode === "MODEL_OVERLOADED") {
+          toast.error("Gemini sobrecarregado. Tente novamente em 1-2 min.", { id: toastId });
+          return;
+        }
+        throw new Error(data?.error || "Falha ao gerar roteiro");
+      }
+      updateState({ script: data.script });
+      toast.success(`Roteiro ${title} pronto!`, { id: toastId });
+    } catch (err: any) {
+      toast.error(err?.message || "Erro ao gerar roteiro", { id: toastId });
+    } finally {
+      setScriptLoading(null);
+    }
+  };
 
 
   const generatePrompt = () => {
