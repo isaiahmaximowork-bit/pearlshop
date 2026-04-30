@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Wand2, Copy, ChevronDown, ExternalLink, Sparkles, Image as ImageIcon, Loader2, Download, X, Rocket, History } from "lucide-react";
+import { Wand2, Copy, ChevronDown, ExternalLink, Sparkles, Image as ImageIcon, Loader2, Download, X, Rocket, History, Megaphone, ThumbsUp, BookOpen, Film } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import { glassCard, glassSelectable } from "./glass";
@@ -50,10 +56,32 @@ const enhancements = [
   "Grão foto",
 ];
 
+const scriptTemplates = [
+  {
+    id: "promocional",
+    icon: Megaphone,
+    title: "Promocional",
+    desc: "Promovendo o produto com oferta e CTA forte",
+    text: "Gente, corre porque essa promoção não vai durar! Esse produto que eu uso todos os dias está com um preço absurdo. Olha só a qualidade... eu já testei e aprovei. Link na bio, garante o seu antes que acabe!",
+  },
+  {
+    id: "indicacional",
+    icon: ThumbsUp,
+    title: "Indicacional",
+    desc: "Indicação autêntica de quem já usa",
+    text: "Olha, eu preciso te indicar esse produto. Faz semanas que estou usando e a diferença é absurda. Se você estava na dúvida, fica essa indicação aqui. De verdade, vale muito a pena.",
+  },
+  {
+    id: "storytelling",
+    icon: BookOpen,
+    title: "Storytelling",
+    desc: "História pessoal conectando com o produto",
+    text: "Deixa eu te contar uma coisa que aconteceu comigo. Eu vivia com esse problema até descobrir esse produto. No começo eu duvidei, mas resolvi testar... e mudou completamente minha rotina. Hoje eu não vivo sem.",
+  },
+];
+
 export function StudioStepFinal({ state, updateState }: Props) {
   const navigate = useNavigate();
-  const [merging, setMerging] = useState(false);
-  const [merged, setMerged] = useState(false);
   const [interaction, setInteraction] = useState(interactionModes[0]);
   const [pose, setPose] = useState(avatarPoses[0]);
   const [customPose, setCustomPose] = useState("");
@@ -66,13 +94,6 @@ export function StudioStepFinal({ state, updateState }: Props) {
 
   const avatar = findAvatar(state.avatarId);
 
-  const handleMerge = () => {
-    setMerging(true);
-    setTimeout(() => {
-      setMerging(false);
-      setMerged(true);
-    }, 1500);
-  };
 
   const generatePrompt = () => {
     const finalPose = pose === "Personalizado" && customPose ? customPose : pose;
@@ -281,25 +302,25 @@ export function StudioStepFinal({ state, updateState }: Props) {
             </div>
           </div>
 
-          {/* Gerar Imagem button — animated gradient */}
+          {/* Gerar UGC button (gera a imagem real) — animated gradient */}
           <div className="pt-2">
             <button
-              onClick={handleMerge}
-              disabled={merging}
+              onClick={handleGenerateUGC}
+              disabled={generating}
               className="group relative w-full h-12 rounded-xl overflow-hidden font-bold text-base text-white shadow-lg shadow-primary/40 disabled:opacity-70 disabled:cursor-not-allowed"
             >
               <span className="absolute inset-0 bg-[linear-gradient(110deg,hsl(var(--primary)),#9333ea,#c084fc,#9333ea,hsl(var(--primary)))] bg-[length:300%_100%] animate-[shimmer_3s_linear_infinite]" />
               <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" />
               <span className="relative flex items-center justify-center gap-2">
-                {merging ? <Loader2 size={18} className="animate-spin" /> : <ImageIcon size={18} />}
-                {merging ? "Gerando imagem..." : merged ? "Regerar imagem" : "Gerar Imagem"}
+                {generating ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
+                {generating ? "Gerando UGC..." : generatedJob ? "Regerar UGC" : "Gerar UGC"}
               </span>
             </button>
           </div>
 
           {/* Reduced-scale preview */}
           <AnimatePresence>
-            {(merging || merged) && (
+            {(generating || generatedJob?.image_url) && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
@@ -307,29 +328,25 @@ export function StudioStepFinal({ state, updateState }: Props) {
                 className="flex justify-center pt-2"
               >
                 <div className="relative w-56 aspect-[9/16] rounded-2xl overflow-hidden border border-border/60 shadow-[0_12px_40px_hsl(var(--primary)/0.25)] bg-gradient-to-br from-primary/10 via-purple-500/10 to-background">
-                  {merging ? (
+                  {generating ? (
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-primary">
                       <Loader2 size={28} className="animate-spin" />
-                      <p className="text-xs font-bold">Mesclando...</p>
+                      <p className="text-xs font-bold">Gerando UGC...</p>
                     </div>
-                  ) : avatar?.img ? (
+                  ) : generatedJob?.image_url ? (
                     <motion.img
-                      key={avatar.id}
-                      src={avatar.img}
-                      alt={avatar.name}
+                      key={generatedJob.id}
+                      src={generatedJob.image_url}
+                      alt="UGC"
                       initial={{ opacity: 0, scale: 1.02 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ duration: 0.5 }}
                       className="absolute inset-0 w-full h-full object-cover"
                     />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center text-primary">
-                      <Sparkles size={28} />
-                    </div>
-                  )}
-                  {merged && (
+                  ) : null}
+                  {generatedJob?.image_url && (
                     <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-background/70 backdrop-blur-md border border-border/60 text-[9px] font-bold flex items-center gap-1 z-10">
-                      <Sparkles size={9} className="text-primary" /> Mesclado
+                      <Sparkles size={9} className="text-primary" /> UGC pronto
                     </div>
                   )}
                 </div>
@@ -397,14 +414,36 @@ export function StudioStepFinal({ state, updateState }: Props) {
       <div className={`${glassCard} p-6`}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold tracking-tight">Diálogo (Roteiro)</h3>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => updateState({ script: "Olá! Hoje quero te mostrar esse produto incrível que mudou minha rotina..." })}
-            className="rounded-xl gap-2"
-          >
-            <Wand2 size={14} /> Preencher com IA
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="rounded-xl gap-2">
+                <Wand2 size={14} /> Preencher com IA
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-72 rounded-xl">
+              {scriptTemplates.map((tpl) => {
+                const Icon = tpl.icon;
+                return (
+                  <DropdownMenuItem
+                    key={tpl.id}
+                    onClick={() => {
+                      updateState({ script: tpl.text });
+                      toast.success(`Roteiro ${tpl.title} aplicado`);
+                    }}
+                    className="gap-3 py-2.5 cursor-pointer"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shrink-0">
+                      <Icon size={16} className="text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold">{tpl.title}</p>
+                      <p className="text-[11px] text-muted-foreground leading-snug">{tpl.desc}</p>
+                    </div>
+                  </DropdownMenuItem>
+                );
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <Textarea
           value={state.script}
@@ -415,35 +454,45 @@ export function StudioStepFinal({ state, updateState }: Props) {
         <p className="text-[10px] text-muted-foreground text-right mt-2">{wordCount} palavras</p>
       </div>
 
-      {/* Gerar UGC */}
+      {/* Gerar Prompt de Vídeo */}
       <div className={`${glassCard} p-6 relative overflow-hidden`}>
         <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-primary/20 blur-[80px] pointer-events-none" />
         <div className="relative">
-          <h3 className="font-bold tracking-tight mb-1">Pronto para gerar?</h3>
+          <h3 className="font-bold tracking-tight mb-1">Gerar Prompt de Vídeo</h3>
           <p className="text-xs text-muted-foreground mb-4">
-            Nossa IA criará um prompt técnico e gerará a imagem UGC ultra-realista para você.
+            A IA usa duração, voz e diálogo para montar um prompt técnico pronto para Veo / Flow / Sora.
           </p>
           <button
-            onClick={handleGenerateUGC}
-            disabled={generating}
-            className="group relative w-full h-14 rounded-xl overflow-hidden font-bold text-base text-white shadow-lg shadow-primary/40 disabled:opacity-70 disabled:cursor-not-allowed"
+            onClick={() => {
+              if (!state.script.trim()) {
+                toast.error("Escreva ou gere o roteiro antes");
+                return;
+              }
+              navigator.clipboard.writeText(generatePrompt());
+              setPromptGenerated(true);
+              setManualOpen(true);
+              fireConfetti();
+              toast.success("Prompt de vídeo gerado e copiado!");
+              const el = document.getElementById("manual-prompt");
+              el?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
+            className="group relative w-full h-14 rounded-xl overflow-hidden font-bold text-base text-white shadow-lg shadow-primary/40"
           >
             <span className="absolute inset-0 bg-[linear-gradient(110deg,hsl(var(--primary)),#9333ea,#c084fc,#9333ea,hsl(var(--primary)))] bg-[length:300%_100%] animate-[shimmer_3s_linear_infinite]" />
             <span className="absolute -inset-1 rounded-xl bg-primary/40 blur-xl opacity-60 group-hover:opacity-90 transition-opacity pointer-events-none" />
             <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" />
             <span className="relative flex items-center justify-center gap-2">
-              {generating ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
-              {generating ? "Gerando UGC com IA..." : "Gerar UGC"}
+              <Film size={18} /> Gerar Prompt de Vídeo
             </span>
           </button>
           <AnimatePresence>
-            {promptGenerated && !generating && (
+            {promptGenerated && (
               <motion.p
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="text-[11px] text-primary text-center mt-3 font-semibold flex items-center justify-center gap-1.5"
               >
-                <Sparkles size={12} /> UGC gerado! Confira abaixo ou no histórico.
+                <Sparkles size={12} /> Prompt copiado! Cole no Veo / Flow para gerar o vídeo.
               </motion.p>
             )}
           </AnimatePresence>
