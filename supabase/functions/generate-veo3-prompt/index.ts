@@ -121,6 +121,18 @@ RESPONSABILIDADES CRÍTICAS:
 
 ESTRUTURA DO PROMPT OTIMIZADO (sempre em INGLÊS, blocos === SECTION ===):
 
+IMPORTANTE — O BLOCO DE DIÁLOGO É O MAIS CRÍTICO:
+O Veo 3 SÓ gera fala se o diálogo estiver EXPLÍCITO e PROEMINENTE no prompt.
+O bloco === SPOKEN DIALOGUE === DEVE vir PRIMEIRO no prompt, antes de qualquer
+descrição visual. Use o formato EXATO: 'The person speaks directly to camera,
+saying out loud in Brazilian Portuguese: "[roteiro completo]"'.
+NÃO resuma, NÃO traduza, NÃO omita nenhuma parte do roteiro.
+O roteiro INTEIRO deve aparecer entre aspas como diálogo falado.
+
+=== SPOKEN DIALOGUE (MUST BE FIRST) ===
+"The person speaks directly to camera, saying out loud in Brazilian Portuguese:
+'[ROTEIRO COMPLETO EM PORTUGUÊS, SEM ALTERAÇÕES, SEM RESUMO, PALAVRA POR PALAVRA]'"
+
 === VISUAL REFERENCE ===
 "Use this image as the starting frame, maintain 100% consistency with the reference"
 
@@ -149,12 +161,12 @@ STORYTELLING:
 "Expressive hand movements following narrative arc, varied facial expressions showing emotional journey, natural transitions between poses, hand movements following story rhythm, eye movements showing reflection or memory, body positioning changes for different story beats, authentic emotional expressions, natural pacing with story rhythm, genuine reactions and authentic moments, spontaneous, unscripted feel"
 
 === VOICE & DIALOGUE SYNCHRONIZATION ===
-"Dialogue (Portuguese): [roteiro completo, EM PORTUGUÊS, dentro de aspas]
-Voice characteristics: [gender, tone, energy, style]
-Lip-sync: Perfect synchronization with dialogue
+"Voice characteristics: [gender, tone, energy, style]
+Lip-sync: Perfect synchronization with dialogue — the person MUST be visibly speaking every word
 Natural speech pace with occasional pauses
 Emphasis on key words: [3-5 palavras-chave do roteiro]
-Emotional tone: [emotion matching o tipo de roteiro]"
+Emotional tone: [emotion matching o tipo de roteiro]
+CRITICAL: The person's mouth MUST move throughout the video, clearly articulating every word of the dialogue above"
 
 === TECHNICAL SPECIFICATIONS ===
 Resolution: 4K (3840x2160)
