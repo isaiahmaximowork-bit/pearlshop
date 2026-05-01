@@ -772,7 +772,8 @@ export function StudioStepFinal({ state, updateState }: Props) {
         </div>
       </div>
 
-      {/* Modo manual */}
+      {/* Modo manual — só aparece após gerar */}
+      {promptGenerated && (
       <div id="manual-prompt" className={`${glassCard} overflow-hidden`}>
         <button
           onClick={() => setManualOpen((o) => !o)}
@@ -828,6 +829,7 @@ export function StudioStepFinal({ state, updateState }: Props) {
           )}
         </AnimatePresence>
       </div>
+      )}
 
       {/* Success modal */}
       <Dialog open={successOpen} onOpenChange={setSuccessOpen}>
