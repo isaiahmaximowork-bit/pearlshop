@@ -16,6 +16,7 @@ type MediaJob = {
   master_prompt: string | null;
   image_prompt: string | null;
   script_prompt: any;
+  veo3_prompt: string | null;
   error_message: string | null;
   created_at: string;
 };
@@ -29,7 +30,7 @@ const Historico = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("media_jobs")
-      .select("id, product_name, avatar_name, pose, status, image_url, master_prompt, image_prompt, script_prompt, error_message, created_at")
+      .select("id, product_name, avatar_name, pose, status, image_url, master_prompt, image_prompt, script_prompt, veo3_prompt, error_message, created_at")
       .order("created_at", { ascending: false });
     if (error) {
       toast.error("Erro ao carregar histórico");
@@ -178,6 +179,21 @@ const Historico = () => {
                   </div>
                   <Button size="sm" variant="outline" onClick={() => copy(selected.script_prompt.script, "Roteiro")} className="rounded-xl gap-1.5 mt-1">
                     <Copy size={12} /> Copiar roteiro
+                  </Button>
+                </div>
+              )}
+
+              {selected.veo3_prompt && (
+                <div className="rounded-xl border-2 border-primary/40 bg-primary/5 p-4 space-y-2">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
+                      <Sparkles size={12} className="text-white" />
+                    </div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-primary">Prompt Final — Veo 3 / Flow</p>
+                  </div>
+                  <p className="text-xs font-mono whitespace-pre-wrap break-words text-foreground/80">{selected.veo3_prompt}</p>
+                  <Button size="sm" onClick={() => copy(selected.veo3_prompt!, "Prompt Veo 3")} className="rounded-xl gap-1.5 mt-1 bg-gradient-to-r from-primary to-purple-600">
+                    <Copy size={12} /> Copiar Prompt Final
                   </Button>
                 </div>
               )}
