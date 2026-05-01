@@ -25,11 +25,6 @@ const cameraStyles = [
   { id: "demo", label: "Demonstração", desc: "Foco no produto em uso", img: camDemo },
 ];
 
-const videoStyles = [
-  { id: "ugc", label: "UGC Autêntico", desc: "Estilo natural, gravação caseira", icon: Camera },
-  { id: "publi", label: "Publicitário", desc: "Visual polido e cinematográfico", icon: Sparkles },
-  { id: "viral", label: "Viral TikTok", desc: "Cortes rápidos, dinâmico", icon: Zap },
-];
 
 const scenarioOptions = ["Quarto", "Estúdio", "Cozinha", "Banheiro", "Sala", "Externo", "Academia", "Carro"];
 
