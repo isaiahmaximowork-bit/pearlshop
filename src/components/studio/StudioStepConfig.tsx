@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, Camera, Hand, Box, User, Image as ImageIcon, Upload, Sparkles, Zap, ZoomIn, Wand2 } from "lucide-react";
+import { ChevronDown, Hand, Box, User, Image as ImageIcon, Upload, Zap, ZoomIn, Wand2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { glassCard, glassSelectable } from "./glass";
 import { Slider } from "@/components/ui/slider";
@@ -25,11 +25,6 @@ const cameraStyles = [
   { id: "demo", label: "Demonstração", desc: "Foco no produto em uso", img: camDemo },
 ];
 
-const videoStyles = [
-  { id: "ugc", label: "UGC Autêntico", desc: "Estilo natural, gravação caseira", icon: Camera },
-  { id: "publi", label: "Publicitário", desc: "Visual polido e cinematográfico", icon: Sparkles },
-  { id: "viral", label: "Viral TikTok", desc: "Cortes rápidos, dinâmico", icon: Zap },
-];
 
 const scenarioOptions = ["Quarto", "Estúdio", "Cozinha", "Banheiro", "Sala", "Externo", "Academia", "Carro"];
 
@@ -222,33 +217,6 @@ export function StudioStepConfig({ state, updateState }: Props) {
             placeholder="Ou descreva o cenário em texto..."
             className="rounded-xl h-11"
           />
-        </div>
-      </Section>
-
-      {/* Video style */}
-      <Section title="Estilo do Vídeo" description="Tom geral da produção">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {videoStyles.map((v) => {
-            const Icon = v.icon;
-            const sel = state.videoStyle === v.id;
-            return (
-              <div
-                key={v.id}
-                onClick={(e) => { updateState({ videoStyle: v.id }); handleSelectAndScroll(e); }}
-                className={`${glassSelectable(sel)} p-5`}
-              >
-                <div
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${
-                    sel ? "bg-gradient-to-br from-primary to-purple-600 text-white" : "bg-accent"
-                  }`}
-                >
-                  <Icon size={18} />
-                </div>
-                <p className="font-bold text-sm">{v.label}</p>
-                <p className="text-[11px] text-muted-foreground mt-1">{v.desc}</p>
-              </div>
-            );
-          })}
         </div>
       </Section>
 
