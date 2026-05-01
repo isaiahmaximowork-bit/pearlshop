@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Wand2, Copy, ChevronDown, ExternalLink, Sparkles, Image as ImageIcon, Loader2, Download, X, Rocket, History, Megaphone, ThumbsUp, BookOpen, Film } from "lucide-react";
+import { Wand2, Copy, ChevronDown, ExternalLink, Sparkles, Image as ImageIcon, Loader2, Download, X, Rocket, History, Megaphone, ThumbsUp, BookOpen, Film, Camera, Zap } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -54,6 +54,12 @@ const enhancements = [
   "Anti-IA",
   "Profundidade",
   "Grão foto",
+];
+
+const videoStyles = [
+  { id: "ugc", label: "UGC Autêntico", desc: "Estilo natural, gravação caseira", icon: Camera },
+  { id: "publi", label: "Publicitário", desc: "Visual polido e cinematográfico", icon: Sparkles },
+  { id: "viral", label: "Viral TikTok", desc: "Cortes rápidos, dinâmico", icon: Zap },
 ];
 
 const scriptTemplates = [
