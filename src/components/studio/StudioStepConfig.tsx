@@ -225,33 +225,6 @@ export function StudioStepConfig({ state, updateState }: Props) {
         </div>
       </Section>
 
-      {/* Video style */}
-      <Section title="Estilo do Vídeo" description="Tom geral da produção">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {videoStyles.map((v) => {
-            const Icon = v.icon;
-            const sel = state.videoStyle === v.id;
-            return (
-              <div
-                key={v.id}
-                onClick={(e) => { updateState({ videoStyle: v.id }); handleSelectAndScroll(e); }}
-                className={`${glassSelectable(sel)} p-5`}
-              >
-                <div
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${
-                    sel ? "bg-gradient-to-br from-primary to-purple-600 text-white" : "bg-accent"
-                  }`}
-                >
-                  <Icon size={18} />
-                </div>
-                <p className="font-bold text-sm">{v.label}</p>
-                <p className="text-[11px] text-muted-foreground mt-1">{v.desc}</p>
-              </div>
-            );
-          })}
-        </div>
-      </Section>
-
       {/* Performance */}
       <Section title="Ajustes de Performance" description="Refine a entrega final">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

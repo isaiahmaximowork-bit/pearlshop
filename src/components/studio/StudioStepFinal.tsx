@@ -638,6 +638,35 @@ export function StudioStepFinal({ state, updateState }: Props) {
         <p className="text-[10px] text-muted-foreground text-right mt-2">{wordCount} palavras</p>
       </div>
 
+      {/* Estilo do Vídeo — movido da aba 2 */}
+      <div className={`${glassCard} p-6`}>
+        <h3 className="font-bold tracking-tight mb-1">Estilo do Vídeo</h3>
+        <p className="text-xs text-muted-foreground mb-4">Tom geral da produção</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {videoStyles.map((v) => {
+            const Icon = v.icon;
+            const sel = state.videoStyle === v.id;
+            return (
+              <div
+                key={v.id}
+                onClick={() => updateState({ videoStyle: v.id })}
+                className={`${glassSelectable(sel)} p-5`}
+              >
+                <div
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${
+                    sel ? "bg-gradient-to-br from-primary to-purple-600 text-white" : "bg-accent"
+                  }`}
+                >
+                  <Icon size={18} />
+                </div>
+                <p className="font-bold text-sm">{v.label}</p>
+                <p className="text-[11px] text-muted-foreground mt-1">{v.desc}</p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Gerar Prompt de Vídeo Veo 3 (pipeline com análise da imagem) */}
       <div className={`${glassCard} p-6 relative overflow-hidden`}>
         <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-primary/20 blur-[80px] pointer-events-none" />
