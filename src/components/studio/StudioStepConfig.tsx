@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, Hand, Box, User, Image as ImageIcon, Upload, Zap, ZoomIn, Wand2 } from "lucide-react";
+import { ChevronDown, User, Image as ImageIcon, Upload, Zap, ZoomIn } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { glassCard, glassSelectable } from "./glass";
 import { Slider } from "@/components/ui/slider";
