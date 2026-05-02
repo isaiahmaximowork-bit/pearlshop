@@ -78,7 +78,7 @@ const Historico = () => {
           <Sparkles size={20} className="text-white" />
         </div>
         <div>
-          <h1 className="text-2xl font-black tracking-tight">Histórico de Gerações</h1>
+          <h1 className="text-2xl font-black tracking-tight">Biblioteca</h1>
           <p className="text-sm text-muted-foreground">Suas mídias UGC criadas com IA</p>
         </div>
       </div>
