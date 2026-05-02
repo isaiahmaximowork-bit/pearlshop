@@ -12,7 +12,7 @@ const mainItems = [
 const studioItems = [
   { title: "Studio", url: "/app/studio", icon: Sparkles },
   { title: "UGC Avatar Gen", url: "/app/ugc-builder", icon: Video },
-  { title: "Histórico", url: "/app/historico", icon: History },
+  { title: "Biblioteca", url: "/app/historico", icon: History },
   { title: "Turbinar", url: "/app/turbinar", icon: Zap },
 ];
 
