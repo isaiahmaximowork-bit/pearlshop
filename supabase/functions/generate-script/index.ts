@@ -47,6 +47,7 @@ function durationToWords(duration?: string): { min: number; max: number; seconds
     "2takes": 16,
     "3takes": 24,
     "4takes": 32,
+    "5takes": 40,
   };
   const seconds = map[duration || "1take"] ?? 8;
   // Margem para entrega natural com pausas
