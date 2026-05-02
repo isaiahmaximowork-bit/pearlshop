@@ -494,6 +494,42 @@ export function StudioStepFinal({ state, updateState }: Props) {
             </div>
           </div>
 
+          {/* Estilo de Câmera — movido da aba 2 */}
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">
+              Estilo de Câmera
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {cameraStyles.map((c) => {
+                const sel = state.cameraStyle === c.id;
+                return (
+                  <div
+                    key={c.id}
+                    onClick={() => updateState({ cameraStyle: c.id })}
+                    className={`${glassSelectable(sel)} p-3 text-center`}
+                  >
+                    <div
+                      className={`relative aspect-square w-full rounded-xl overflow-hidden mb-3 ring-2 transition-all ${
+                        sel ? "ring-primary shadow-lg shadow-primary/30" : "ring-transparent"
+                      }`}
+                    >
+                      <img
+                        src={c.img}
+                        alt={c.label}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover"
+                      />
+                      {sel && (
+                        <div className="absolute inset-0 bg-gradient-to-t from-primary/40 via-transparent to-transparent" />
+                      )}
+                    </div>
+                    <p className="font-bold text-sm">{c.label}</p>
+                    <p className="text-[11px] text-muted-foreground mt-1">{c.desc}</p>
+                  </div>
+                );
+              })}
+
           {/* Gerar UGC button (gera a imagem real) — animated gradient */}
           <div className="pt-2">
             <button
