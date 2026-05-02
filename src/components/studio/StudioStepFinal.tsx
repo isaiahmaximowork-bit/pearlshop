@@ -17,6 +17,15 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type { StudioState } from "@/pages/app/Studio";
 import { findAvatar } from "./avatars";
+import camFrente from "@/assets/camera/frente.webp";
+import camPov from "@/assets/camera/pov.webp";
+import camDemo from "@/assets/camera/demo.webp";
+
+const cameraStyles = [
+  { id: "frente", label: "De Frente", desc: "Avatar olhando para câmera", img: camFrente },
+  { id: "pov", label: "Mãos (POV)", desc: "Vista em primeira pessoa", img: camPov },
+  { id: "demo", label: "Demonstração", desc: "Foco no produto em uso", img: camDemo },
+];
 
 interface Props {
   state: StudioState;
