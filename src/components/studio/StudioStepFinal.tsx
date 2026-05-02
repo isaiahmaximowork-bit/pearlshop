@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Wand2, Copy, ChevronDown, ExternalLink, Sparkles, Image as ImageIcon, Loader2, Download, X, Rocket, History, Megaphone, ThumbsUp, BookOpen, Film, Camera, Zap } from "lucide-react";
+import { Wand2, Copy, ChevronDown, ExternalLink, Sparkles, Image as ImageIcon, Loader2, Download, X, Rocket, History, Megaphone, ThumbsUp, BookOpen, Film, Camera, Zap, Video } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +17,15 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type { StudioState } from "@/pages/app/Studio";
 import { findAvatar } from "./avatars";
+import camFrente from "@/assets/camera/frente.webp";
+import camPov from "@/assets/camera/pov.webp";
+import camDemo from "@/assets/camera/demo.webp";
+
+const cameraStyles = [
+  { id: "frente", label: "De Frente", desc: "Avatar olhando para câmera", img: camFrente },
+  { id: "pov", label: "Mãos (POV)", desc: "Vista em primeira pessoa", img: camPov },
+  { id: "demo", label: "Demonstração", desc: "Foco no produto em uso", img: camDemo },
+];
 
 interface Props {
   state: StudioState;
@@ -499,6 +508,44 @@ export function StudioStepFinal({ state, updateState }: Props) {
                 {generating ? "Gerando UGC..." : generatedJob ? "Regerar UGC" : "Gerar UGC"}
               </span>
             </button>
+          </div>
+
+          {/* Estilo de Câmera — movido da aba 2 */}
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">
+              Estilo de Câmera
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {cameraStyles.map((c) => {
+                const sel = state.cameraStyle === c.id;
+                return (
+                  <div
+                    key={c.id}
+                    onClick={() => updateState({ cameraStyle: c.id })}
+                    className={`${glassSelectable(sel)} p-3 text-center`}
+                  >
+                    <div
+                      className={`relative aspect-square w-full rounded-xl overflow-hidden mb-3 ring-2 transition-all ${
+                        sel ? "ring-primary shadow-lg shadow-primary/30" : "ring-transparent"
+                      }`}
+                    >
+                      <img
+                        src={c.img}
+                        alt={c.label}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover"
+                      />
+                      {sel && (
+                        <div className="absolute inset-0 bg-gradient-to-t from-primary/40 via-transparent to-transparent" />
+                      )}
+                    </div>
+                    <p className="font-bold text-sm">{c.label}</p>
+                    <p className="text-[11px] text-muted-foreground mt-1">{c.desc}</p>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {/* Reduced-scale preview */}

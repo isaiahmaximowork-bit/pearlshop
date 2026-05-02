@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, Hand, Box, User, Image as ImageIcon, Upload, Zap, ZoomIn, Wand2 } from "lucide-react";
+import { ChevronDown, User, Image as ImageIcon, Upload, Zap, ZoomIn } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { glassCard, glassSelectable } from "./glass";
 import { Slider } from "@/components/ui/slider";
@@ -10,20 +10,11 @@ import type { StudioState } from "@/pages/app/Studio";
 import { handleSelectAndScroll } from "./useAutoScrollNext";
 
 import { avatarsByCategory as avatars } from "./avatars";
-import camFrente from "@/assets/camera/frente.webp";
-import camPov from "@/assets/camera/pov.webp";
-import camDemo from "@/assets/camera/demo.webp";
 
 interface Props {
   state: StudioState;
   updateState: (patch: Partial<StudioState>) => void;
 }
-
-const cameraStyles = [
-  { id: "frente", label: "De Frente", desc: "Avatar olhando para câmera", img: camFrente },
-  { id: "pov", label: "Mãos (POV)", desc: "Vista em primeira pessoa", img: camPov },
-  { id: "demo", label: "Demonstração", desc: "Foco no produto em uso", img: camDemo },
-];
 
 
 const scenarioOptions = ["Quarto", "Estúdio", "Cozinha", "Banheiro", "Sala", "Externo", "Academia", "Carro"];
@@ -85,40 +76,6 @@ export function StudioStepConfig({ state, updateState }: Props) {
         <p className="text-muted-foreground">Personalize cada detalhe da geração com IA.</p>
       </div>
 
-      {/* Camera style */}
-      <Section title="Estilo de Câmera" description="Escolha o ângulo principal">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {cameraStyles.map((c) => {
-            const sel = state.cameraStyle === c.id;
-            return (
-              <div
-                key={c.id}
-                onClick={(e) => { updateState({ cameraStyle: c.id }); handleSelectAndScroll(e); }}
-                className={`${glassSelectable(sel)} p-3 text-center`}
-              >
-                <div
-                  className={`relative aspect-square w-full rounded-xl overflow-hidden mb-3 ring-2 transition-all ${
-                    sel ? "ring-primary shadow-lg shadow-primary/30" : "ring-transparent"
-                  }`}
-                >
-                  <img
-                    src={c.img}
-                    alt={c.label}
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full h-full object-cover"
-                  />
-                  {sel && (
-                    <div className="absolute inset-0 bg-gradient-to-t from-primary/40 via-transparent to-transparent" />
-                  )}
-                </div>
-                <p className="font-bold text-sm">{c.label}</p>
-                <p className="text-[11px] text-muted-foreground mt-1">{c.desc}</p>
-              </div>
-            );
-          })}
-        </div>
-      </Section>
 
       {/* Avatar */}
       <Section title="Avatar para o Vídeo" description="Escolha quem vai apresentar">
