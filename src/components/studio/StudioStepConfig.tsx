@@ -1,23 +1,31 @@
 import { useState } from "react";
-import { ChevronDown, User, Image as ImageIcon, Upload, Zap, ZoomIn } from "lucide-react";
+import { ChevronDown, User, Image as ImageIcon, Upload, Zap, ZoomIn, Gauge, Move } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { glassCard, glassSelectable } from "./glass";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import type { StudioState } from "@/pages/app/Studio";
 import { handleSelectAndScroll } from "./useAutoScrollNext";
-
 import { avatarsByCategory as avatars } from "./avatars";
+import type { CameraMovement } from "./types";
 
 interface Props {
   state: StudioState;
   updateState: (patch: Partial<StudioState>) => void;
 }
 
+const scenarioOptions = [
+  "Quarto", "Estúdio", "Cozinha", "Banheiro", "Sala", "Externo",
+  "Academia", "Carro", "Bar", "Escritório", "Loja/Boutique", "Café",
+];
 
-const scenarioOptions = ["Quarto", "Estúdio", "Cozinha", "Banheiro", "Sala", "Externo", "Academia", "Carro"];
+const cameraMovementOptions: { id: CameraMovement; label: string }[] = [
+  { id: "estatico", label: "Estático" },
+  { id: "handheld_suave", label: "Handheld Suave" },
+  { id: "handheld_energetico", label: "Handheld Energético" },
+  { id: "zoom_lento", label: "Zoom Lento" },
+];
 
 function Section({
   title,
@@ -76,7 +84,6 @@ export function StudioStepConfig({ state, updateState }: Props) {
         <p className="text-muted-foreground">Personalize cada detalhe da geração com IA.</p>
       </div>
 
-
       {/* Avatar */}
       <Section title="Avatar para o Vídeo" description="Escolha quem vai apresentar">
         <div className="flex flex-wrap gap-2 mb-4">
@@ -119,13 +126,7 @@ export function StudioStepConfig({ state, updateState }: Props) {
                 >
                   <div className="aspect-square rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center overflow-hidden">
                     {a.img ? (
-                      <img
-                        src={a.img}
-                        alt={a.name}
-                        loading="lazy"
-                        decoding="async"
-                        className="w-full h-full object-cover"
-                      />
+                      <img src={a.img} alt={a.name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                     ) : (
                       <User size={28} className="text-primary/60" />
                     )}
@@ -180,42 +181,74 @@ export function StudioStepConfig({ state, updateState }: Props) {
       {/* Performance */}
       <Section title="Ajustes de Performance" description="Refine a entrega final">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Proximidade */}
           <div>
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <ZoomIn size={16} className="text-primary" />
-                <p className="text-sm font-bold">Proximidade</p>
+                <p className="text-sm font-bold">Proximidade da Câmera</p>
               </div>
               <span className="text-xs text-muted-foreground">{state.proximity}%</span>
             </div>
-            <Slider
-              value={[state.proximity]}
-              onValueChange={([v]) => updateState({ proximity: v })}
-              max={100}
-              step={1}
-            />
+            <Slider value={[state.proximity]} onValueChange={([v]) => updateState({ proximity: v })} max={100} step={1} />
             <div className="flex justify-between text-[10px] text-muted-foreground mt-2">
-              <span>Mais distante</span>
-              <span>Mais próximo</span>
+              <span>Mais distante</span><span>Mais próximo</span>
             </div>
           </div>
+
+          {/* Energia */}
           <div>
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <Zap size={16} className="text-primary" />
-                <p className="text-sm font-bold">Energia</p>
+                <p className="text-sm font-bold">Energia do Avatar</p>
               </div>
               <span className="text-xs text-muted-foreground">{state.energy}%</span>
             </div>
-            <Slider
-              value={[state.energy]}
-              onValueChange={([v]) => updateState({ energy: v })}
-              max={100}
-              step={1}
-            />
+            <Slider value={[state.energy]} onValueChange={([v]) => updateState({ energy: v })} max={100} step={1} />
             <div className="flex justify-between text-[10px] text-muted-foreground mt-2">
-              <span>Calmo</span>
-              <span>Vibrante</span>
+              <span>Calmo</span><span>Vibrante</span>
+            </div>
+          </div>
+
+          {/* Naturalidade (NOVO) */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Gauge size={16} className="text-primary" />
+                <p className="text-sm font-bold">Naturalidade</p>
+              </div>
+              <span className="text-xs text-muted-foreground">{state.naturalness}%</span>
+            </div>
+            <Slider value={[state.naturalness]} onValueChange={([v]) => updateState({ naturalness: v })} max={100} step={1} />
+            <div className="flex justify-between text-[10px] text-muted-foreground mt-2">
+              <span>Estilizado</span><span>Ultra-realista</span>
+            </div>
+          </div>
+
+          {/* Movimento de Câmera (NOVO) */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <Move size={16} className="text-primary" />
+              <p className="text-sm font-bold">Movimento de Câmera</p>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {cameraMovementOptions.map((opt) => {
+                const sel = state.cameraMovement === opt.id;
+                return (
+                  <button
+                    key={opt.id}
+                    onClick={() => updateState({ cameraMovement: opt.id })}
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                      sel
+                        ? "bg-primary/20 border border-primary text-primary shadow-[0_4px_16px_hsl(var(--primary)/0.25)]"
+                        : "bg-card/60 border border-border/60 text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>

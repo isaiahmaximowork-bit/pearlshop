@@ -6,6 +6,7 @@ import { StudioStepConfig } from "@/components/studio/StudioStepConfig";
 import { StudioStepFinal } from "@/components/studio/StudioStepFinal";
 import { StudioProgressBar } from "@/components/studio/StudioProgressBar";
 import { Button } from "@/components/ui/button";
+import type { VideoStyle, VideoFormat, GenerationMode, TakeConfig, CameraMovement } from "@/components/studio/types";
 
 export type StudioState = {
   productId: string | null;
@@ -20,9 +21,15 @@ export type StudioState = {
   avatarCategory: "mulheres" | "homens" | "ia";
   scenarioTags: string[];
   scenarioText: string;
-  videoStyle: string;
+  videoStyle: VideoStyle;
+  videoFormat: VideoFormat;
+  generationMode: GenerationMode;
+  numTakes: 1 | 2 | 3 | 4 | 5;
+  takes: TakeConfig[];
   proximity: number;
   energy: number;
+  naturalness: number;
+  cameraMovement: CameraMovement;
   duration: string;
   voiceGender: string;
   voiceTone: string;
@@ -44,9 +51,15 @@ const initialState: StudioState = {
   avatarCategory: "mulheres",
   scenarioTags: [],
   scenarioText: "",
-  videoStyle: "ugc",
+  videoStyle: "ugc_autentico",
+  videoFormat: "9:16",
+  generationMode: "automatico",
+  numTakes: 1,
+  takes: [],
   proximity: 50,
   energy: 50,
+  naturalness: 70,
+  cameraMovement: "handheld_suave",
   duration: "1take",
   voiceGender: "feminino",
   voiceTone: "natural",
