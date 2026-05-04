@@ -20,6 +20,7 @@ import Builder from "./pages/app/Builder.tsx";
 import StoreSettings from "./pages/app/StoreSettings.tsx";
 import EditarPerfil from "./pages/app/EditarPerfil.tsx";
 import Studio from "./pages/app/Studio.tsx";
+import Admin from "./pages/app/Admin.tsx";
 import Historico from "./pages/app/Historico.tsx";
 import StorePage from "./pages/StorePage.tsx";
 import AvisoLegal from "./pages/AvisoLegal.tsx";
