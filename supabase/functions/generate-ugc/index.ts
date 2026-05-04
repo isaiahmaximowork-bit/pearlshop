@@ -131,7 +131,7 @@ RESTRIÇÕES OBRIGATÓRIAS:
 - "No distorted hands, no extra fingers, no anatomical errors."
 - "Do not change the face, do not alter identity."
 - "Do not change the product shape or color."
-- "Vertical 9:16 framing, mobile-first composition."
+- "Aspect ratio: STRICTLY ${videoFormat || '9:16'} — fill entire frame, NO letterboxing, NO pillarboxing."
 
 ### SAÍDA OBRIGATÓRIA — JSON válido (sem markdown):
 {
