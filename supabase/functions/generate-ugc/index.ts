@@ -548,7 +548,7 @@ Deno.serve(async (req) => {
         proximity: input.proximity,
         energy: input.energy,
         duration: input.duration,
-      };
+        videoFormat: input.videoFormat || "9:16",
 
       const agent1 = await retry(
         () =>
