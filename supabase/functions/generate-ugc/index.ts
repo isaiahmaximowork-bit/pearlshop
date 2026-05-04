@@ -114,7 +114,7 @@ Outros:
 + "Resolution: 4K (3840x2160), ultra-high detail."
 + "Color grading: Natural color palette, realistic color accuracy, warm tones (not cold), professional color grading (not oversaturated)."
 + "Sharpness: Tack-sharp focus on face and product, natural depth of field (f/1.8 equivalent), realistic focus transition."
-+ "Aspect ratio: 9:16 vertical (mobile-first), properly framed."
++ "Aspect ratio: STRICTLY ${videoFormat || '9:16'} — fill entire frame, NO letterboxing, NO pillarboxing, NO black bars."
 + "Style: Cinematic, professional, UGC authentic (looks like real user-generated content, not overly polished)."
 
 6. REALISMO EXTREMO (Bloco 6)
@@ -131,7 +131,7 @@ RESTRIÇÕES OBRIGATÓRIAS:
 - "No distorted hands, no extra fingers, no anatomical errors."
 - "Do not change the face, do not alter identity."
 - "Do not change the product shape or color."
-- "Vertical 9:16 framing, mobile-first composition."
+- "Aspect ratio: STRICTLY ${videoFormat || '9:16'} — fill entire frame, NO letterboxing, NO pillarboxing."
 
 ### SAÍDA OBRIGATÓRIA — JSON válido (sem markdown):
 {
@@ -208,7 +208,7 @@ Depois, adicione os 7 BLOCOS OBRIGATÓRIOS.
 + "Resolution: 4K (3840x2160), ultra-high detail."
 + "Color grading: Natural color palette, realistic color accuracy, warm tones (not cold), professional color grading (not oversaturated)."
 + "Sharpness: Tack-sharp focus on face and product, natural depth of field (f/1.8 equivalent), realistic focus transition."
-+ "Aspect ratio: 9:16 vertical (mobile-first), properly framed."
++ "Aspect ratio: STRICTLY the requested format — fill entire frame, NO letterboxing, NO pillarboxing, NO black bars."
 + "Style: Cinematic, professional, UGC authentic (looks like real user-generated content, not overly polished)."
 
 === BLOCO 7 — REALISMO EXTREMO & RESTRIÇÕES (ANTI-IA) ===
@@ -224,7 +224,7 @@ RESTRIÇÕES OBRIGATÓRIAS:
 - "Candid handheld feel (not overly polished or staged)."
 - "Natural imperfections (not airbrushed or retouched)."
 - "Authentic emotion and expression."
-- "Vertical 9:16 framing, mobile-first composition."
+- "Aspect ratio: STRICTLY the requested format — fill entire frame, NO letterboxing, NO pillarboxing."
 
 ### REGRAS PARA scriptPrompt
 - script em PORTUGUÊS DO BRASIL, natural, no tom solicitado.
@@ -548,6 +548,7 @@ Deno.serve(async (req) => {
         proximity: input.proximity,
         energy: input.energy,
         duration: input.duration,
+        videoFormat: input.videoFormat || "9:16",
       };
 
       const agent1 = await retry(
@@ -571,7 +572,7 @@ Deno.serve(async (req) => {
         () =>
           callLLM(
             MEDIA_GENERATOR_SYSTEM,
-            `Saída do Agente 1:\n${JSON.stringify(agent1, null, 2)}\n\nDuração do vídeo: ${input.duration}\nTom de voz: ${input.voiceTone} / energia ${input.voiceEnergy} / estilo ${input.voiceStyle}\nRoteiro do usuário (se houver): ${input.script || "(vazio — você decide)"}\n\nLembre: imagePrompt DEVE começar EXATAMENTE com "Using the FIRST attached image as the EXACT character reference..." e citar o produto "${product.productName ?? ""}".`,
+            `Saída do Agente 1:\n${JSON.stringify(agent1, null, 2)}\n\nDuração do vídeo: ${input.duration}\nFormato do vídeo: ${input.videoFormat || "9:16"} — OBRIGATÓRIO respeitar proporção, sem letterboxing.\nTom de voz: ${input.voiceTone} / energia ${input.voiceEnergy} / estilo ${input.voiceStyle}\nRoteiro do usuário (se houver): ${input.script || "(vazio — você decide)"}\n\nLembre: imagePrompt DEVE começar EXATAMENTE com "Using the FIRST attached image as the EXACT character reference..." e citar o produto "${product.productName ?? ""}". Formato OBRIGATÓRIO: ${input.videoFormat || "9:16"}.`,
             GEMINI_API_KEY
           ),
         "agent2"
