@@ -15,6 +15,7 @@ import { glassCard, glassSelectable } from "./glass";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type { StudioState } from "@/pages/app/Studio";
@@ -36,14 +37,14 @@ const cameraStyles = [
   { id: "demo", label: "Demonstração", desc: "Foco no produto em uso", img: camDemo },
 ];
 
-const videoStyles: { id: VideoStyle; label: string; desc: string; icon: any; badge: string }[] = [
-  { id: "ugc_autentico", label: "UGC Autêntico", desc: "Estilo natural, gravação caseira", icon: Camera, badge: "Iniciante" },
-  { id: "publicitario", label: "Publicitário", desc: "Visual polido e cinematográfico", icon: Sparkles, badge: "Intermediário" },
-  { id: "viral_tiktok", label: "Viral TikTok", desc: "Cortes rápidos, dinâmico", icon: Zap, badge: "Iniciante" },
-  { id: "dancinha", label: "Dancinha", desc: "Movimentos rítmicos com produto", icon: Music, badge: "Intermediário" },
-  { id: "close_up", label: "Close-up", desc: "Expressões faciais íntimas", icon: Eye, badge: "Avançado" },
-  { id: "mirror_selfie", label: "Mirror Selfie", desc: "Reveal de outfit no espelho", icon: Smartphone, badge: "Intermediário" },
-  { id: "hook_mao_camera", label: "Hook Mão", desc: "Dedo na câmera → reveal", icon: Hand, badge: "Avançado" },
+const videoStyles: { id: VideoStyle; label: string; desc: string; icon: any }[] = [
+  { id: "ugc_autentico", label: "UGC Autêntico", desc: "Estilo natural, gravação caseira", icon: Camera },
+  { id: "publicitario", label: "Publicitário", desc: "Visual polido e cinematográfico", icon: Sparkles },
+  { id: "viral_tiktok", label: "Viral TikTok", desc: "Cortes rápidos, dinâmico", icon: Zap },
+  { id: "dancinha", label: "Dancinha", desc: "Movimentos rítmicos com produto", icon: Music },
+  { id: "close_up", label: "Close-up", desc: "Expressões faciais íntimas", icon: Eye },
+  { id: "mirror_selfie", label: "Mirror Selfie", desc: "Reveal de outfit no espelho", icon: Smartphone },
+  { id: "hook_mao_camera", label: "Hook Mão", desc: "Dedo na câmera → reveal", icon: Hand },
 ];
 
 const videoFormats: { id: VideoFormat; label: string; desc: string; ratio: string }[] = [
@@ -68,7 +69,36 @@ const voiceOptions = {
   voiceStyle: { label: "Estilo", options: ["conversacional", "narrativo", "publicitario"] },
 };
 
-const interactionModes = ["Vestindo o produto", "Segurando o produto", "Selfie no espelho", "Selfie"];
+// Visibility matrix by product category + camera style
+const CATEGORY_VISIBILITY: Record<string, string[]> = {
+  clothing: ["Vestindo o produto", "Segurando o produto", "Selfie no espelho", "Selfie"],
+  footwear: ["Vestindo o produto", "Segurando o produto", "Selfie"],
+  accessories: ["Segurando o produto", "Selfie no espelho", "Selfie"],
+  beauty: ["Segurando o produto", "Selfie no espelho", "Selfie"],
+  electronics: ["Segurando o produto", "Selfie"],
+  home: ["Segurando o produto", "Selfie"],
+  food_beverage: ["Segurando o produto", "Selfie"],
+  fitness: ["Vestindo o produto", "Segurando o produto", "Selfie"],
+};
+
+const CAMERA_INTERACTION_VISIBILITY: Record<string, string[]> = {
+  frente: ["Vestindo o produto", "Segurando o produto", "Selfie no espelho", "Selfie"],
+  pov: ["Segurando o produto", "Selfie"],
+  demo: ["Segurando o produto", "Vestindo o produto", "Selfie"],
+};
+
+const CATEGORY_VIDEOSTYLE_VISIBILITY: Record<string, VideoStyle[]> = {
+  clothing: ["ugc_autentico", "publicitario", "viral_tiktok", "dancinha", "close_up", "mirror_selfie", "hook_mao_camera"],
+  footwear: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "hook_mao_camera"],
+  accessories: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "hook_mao_camera"],
+  beauty: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "mirror_selfie", "hook_mao_camera"],
+  electronics: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "hook_mao_camera"],
+  home: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up"],
+  food_beverage: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up"],
+  fitness: ["ugc_autentico", "publicitario", "viral_tiktok", "dancinha", "close_up", "mirror_selfie"],
+};
+
+const allInteractionModes = ["Vestindo o produto", "Segurando o produto", "Selfie no espelho", "Selfie"];
 const avatarPoses = ["De frente", "De lado", "3/4", "Sentado(a)", "Andando", "Personalizado"];
 const enhancements = [
   "Luz natural", "Ultra-nitidez 8K", "Mãos perfeitas", "Brilho natural",
@@ -112,7 +142,7 @@ interface Props {
 
 export function StudioStepFinal({ state, updateState }: Props) {
   const navigate = useNavigate();
-  const [interaction, setInteraction] = useState(interactionModes[0]);
+  const [interaction, setInteraction] = useState(allInteractionModes[0]);
   const [pose, setPose] = useState(avatarPoses[0]);
   const [customPose, setCustomPose] = useState("");
   const [enhance, setEnhance] = useState<string[]>([]);
@@ -131,9 +161,22 @@ export function StudioStepFinal({ state, updateState }: Props) {
   const [storyboard, setStoryboard] = useState<TakeConfig[] | null>(null);
   const [activePromptTab, setActivePromptTab] = useState(0);
   const [veo3Prompts, setVeo3Prompts] = useState<string[]>([]);
+  const [isAutomatic, setIsAutomatic] = useState(true);
 
   const avatar = findAvatar(state.avatarId);
   const numTakes = durations.find((d) => d.id === state.duration)?.takes || 1;
+
+  // Compute visible interaction modes based on category + camera
+  const productCategory = (state.productCategory || "").toLowerCase();
+  const categoryModes = CATEGORY_VISIBILITY[productCategory] || allInteractionModes;
+  const cameraModes = CAMERA_INTERACTION_VISIBILITY[state.cameraStyle] || allInteractionModes;
+  const visibleInteractionModes = allInteractionModes.filter(
+    (m) => categoryModes.includes(m) && cameraModes.includes(m)
+  );
+
+  // Compute visible video styles based on category
+  const visibleVideoStyleIds = CATEGORY_VIDEOSTYLE_VISIBILITY[productCategory] || videoStyles.map(v => v.id);
+  const visibleVideoStyles = videoStyles.filter(v => visibleVideoStyleIds.includes(v.id));
 
   // Sync takes array when numTakes changes
   const ensureTakes = (n: number): TakeConfig[] => {
@@ -151,7 +194,7 @@ export function StudioStepFinal({ state, updateState }: Props) {
     updateState({ takes });
   };
 
-  // === Handlers (same logic, preserved) ===
+  // === Handlers ===
 
   const handleGenerateScriptAI = async (type: "promocional" | "indicacional" | "storytelling", title: string) => {
     if (scriptLoading) return;
@@ -302,7 +345,6 @@ export function StudioStepFinal({ state, updateState }: Props) {
         throw new Error(promptData?.error || "Falha ao gerar prompt Veo 3");
       }
 
-      // Support multi-take prompts
       if (promptData.prompts && Array.isArray(promptData.prompts)) {
         setVeo3Prompts(promptData.prompts.map((p: any) => p.veo3Prompt || p));
         setVeo3Prompt(promptData.prompts[0]?.veo3Prompt || promptData.prompts[0]);
@@ -366,7 +408,8 @@ export function StudioStepFinal({ state, updateState }: Props) {
           avatarName: avatar?.name || state.avatarId, referenceImageUrl,
           pose: finalPose, interaction, scenarioTags: state.scenarioTags,
           scenarioText: state.scenarioText, cameraStyle: state.cameraStyle,
-          videoStyle: state.videoStyle, enhancements: enhance,
+          videoStyle: state.videoStyle, videoFormat: state.videoFormat,
+          enhancements: enhance,
           proximity: state.proximity, energy: state.energy, naturalness: state.naturalness,
           duration: state.duration, voiceGender: state.voiceGender,
           voiceTone: state.voiceTone, voiceEnergy: state.voiceEnergy,
@@ -433,6 +476,12 @@ export function StudioStepFinal({ state, updateState }: Props) {
 
   const wordCount = state.script.trim() ? state.script.trim().split(/\s+/).length : 0;
 
+  // Aspect ratio for UGC preview
+  const previewAspect = state.videoFormat === "16:9" ? "aspect-[16/9] w-80"
+    : state.videoFormat === "1:1" ? "aspect-square w-56"
+    : state.videoFormat === "3:4" ? "aspect-[3/4] w-48"
+    : "aspect-[9/16] w-56";
+
   return (
     <div className="space-y-5 max-w-4xl mx-auto">
       <div className="text-center mb-8">
@@ -440,96 +489,7 @@ export function StudioStepFinal({ state, updateState }: Props) {
         <p className="text-muted-foreground">Mescle, configure a voz e gere seu vídeo com IA.</p>
       </div>
 
-      {/* Mesclagem com IA */}
-      <div className={`${glassCard} p-6`}>
-        <h3 className="font-bold tracking-tight mb-1">Mesclar com IA</h3>
-        <p className="text-xs text-muted-foreground mb-5">Avatar + Produto + Cenário → foto realista</p>
-        <div className="space-y-5">
-          <PillGroup label="Modo de interação" options={interactionModes} value={interaction} onChange={setInteraction} />
-          <div>
-            <PillGroup label="Pose do avatar" options={avatarPoses} value={pose} onChange={setPose} />
-            {pose === "Personalizado" && (
-              <input value={customPose} onChange={(e) => setCustomPose(e.target.value)}
-                placeholder="Descreva a pose desejada..."
-                className="w-full mt-3 h-10 rounded-xl bg-card/60 backdrop-blur-md border border-border/60 px-3 text-sm focus:outline-none focus:border-primary" />
-            )}
-          </div>
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Melhorias opcionais</p>
-            <div className="flex flex-wrap gap-1.5">
-              {enhancements.map((e) => {
-                const sel = enhance.includes(e);
-                return (
-                  <button key={e} onClick={() => setEnhance(sel ? enhance.filter((x) => x !== e) : [...enhance, e])}
-                    className={`px-3 py-1.5 rounded-full text-[11px] font-bold transition-all ${
-                      sel ? "bg-primary/20 border border-primary text-primary shadow-[0_4px_16px_hsl(var(--primary)/0.25)]"
-                        : "bg-card/60 border border-border/60 text-muted-foreground hover:text-foreground"
-                    }`}>{e}</button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Gerar UGC */}
-          <div className="pt-2">
-            <button onClick={handleGenerateUGC} disabled={generating}
-              className="group relative w-full h-12 rounded-xl overflow-hidden font-bold text-base text-white shadow-lg shadow-primary/40 disabled:opacity-70 disabled:cursor-not-allowed">
-              <span className="absolute inset-0 bg-[linear-gradient(110deg,hsl(var(--primary)),#9333ea,#c084fc,#9333ea,hsl(var(--primary)))] bg-[length:300%_100%] animate-[shimmer_3s_linear_infinite]" />
-              <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" />
-              <span className="relative flex items-center justify-center gap-2">
-                {generating ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
-                {generating ? "Gerando UGC..." : generatedJob ? "Regerar UGC" : "Gerar UGC"}
-              </span>
-            </button>
-          </div>
-
-          {/* Estilo de Câmera */}
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Estilo de Câmera</p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {cameraStyles.map((c) => {
-                const sel = state.cameraStyle === c.id;
-                return (
-                  <div key={c.id} onClick={() => updateState({ cameraStyle: c.id })} className={`${glassSelectable(sel)} p-3 text-center`}>
-                    <div className={`relative aspect-square w-full rounded-xl overflow-hidden mb-3 ring-2 transition-all ${sel ? "ring-primary shadow-lg shadow-primary/30" : "ring-transparent"}`}>
-                      <img src={c.img} alt={c.label} loading="lazy" decoding="async" className="w-full h-full object-cover" />
-                      {sel && <div className="absolute inset-0 bg-gradient-to-t from-primary/40 via-transparent to-transparent" />}
-                    </div>
-                    <p className="font-bold text-sm">{c.label}</p>
-                    <p className="text-[11px] text-muted-foreground mt-1">{c.desc}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* UGC Preview */}
-          <AnimatePresence>
-            {(generating || generatedJob?.image_url) && (
-              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="flex justify-center pt-2">
-                <div className="relative w-56 aspect-[9/16] rounded-2xl overflow-hidden border border-border/60 shadow-[0_12px_40px_hsl(var(--primary)/0.25)] bg-gradient-to-br from-primary/10 via-purple-500/10 to-background">
-                  {generating ? (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-primary">
-                      <Loader2 size={28} className="animate-spin" /><p className="text-xs font-bold">Gerando UGC...</p>
-                    </div>
-                  ) : generatedJob?.image_url ? (
-                    <motion.img key={generatedJob.id} src={generatedJob.image_url} alt="UGC"
-                      initial={{ opacity: 0, scale: 1.02 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}
-                      className="absolute inset-0 w-full h-full object-cover" />
-                  ) : null}
-                  {generatedJob?.image_url && (
-                    <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-background/70 backdrop-blur-md border border-border/60 text-[9px] font-bold flex items-center gap-1 z-10">
-                      <Sparkles size={9} className="text-primary" /> UGC pronto
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
-
-      {/* Formato do Vídeo (NOVO) */}
+      {/* 1. FORMATO DO VÍDEO */}
       <div className={`${glassCard} p-6`}>
         <div className="flex items-center gap-2 mb-4">
           <Ratio size={18} className="text-primary" />
@@ -551,54 +511,9 @@ export function StudioStepFinal({ state, updateState }: Props) {
         </div>
       </div>
 
-      {/* Estilo do Vídeo — 7 cards */}
+      {/* 2. QUANTIDADE DE TAKES */}
       <div className={`${glassCard} p-6`}>
-        <h3 className="font-bold tracking-tight mb-1">Estilo do Vídeo</h3>
-        <p className="text-xs text-muted-foreground mb-4">Tom geral da produção — agora com 7 estilos</p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {videoStyles.map((v) => {
-            const Icon = v.icon;
-            const sel = state.videoStyle === v.id;
-            return (
-              <div key={v.id} onClick={() => updateState({ videoStyle: v.id })} className={`${glassSelectable(sel)} p-4 relative`}>
-                <span className={`absolute top-2 right-2 text-[8px] font-bold uppercase px-1.5 py-0.5 rounded-full ${
-                  v.badge === "Avançado" ? "bg-red-500/20 text-red-400"
-                    : v.badge === "Intermediário" ? "bg-yellow-500/20 text-yellow-400"
-                    : "bg-green-500/20 text-green-400"
-                }`}>{v.badge}</span>
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${
-                  sel ? "bg-gradient-to-br from-primary to-purple-600 text-white" : "bg-accent"
-                }`}><Icon size={18} /></div>
-                <p className="font-bold text-sm">{v.label}</p>
-                <p className="text-[10px] text-muted-foreground mt-1 leading-snug">{v.desc}</p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Modo de Geração (NOVO) */}
-      <div className={`${glassCard} p-6`}>
-        <h3 className="font-bold tracking-tight mb-4">Modo de Geração</h3>
-        <div className="grid grid-cols-2 gap-3">
-          {([
-            { id: "automatico" as GenerationMode, label: "✨ Automático", desc: "Agente Director gera a sequência ideal", icon: ToggleRight },
-            { id: "manual" as GenerationMode, label: "🎛 Manual", desc: "Você configura cada take individualmente", icon: ToggleLeft },
-          ]).map((m) => {
-            const sel = state.generationMode === m.id;
-            return (
-              <div key={m.id} onClick={() => updateState({ generationMode: m.id })} className={`${glassSelectable(sel)} p-5`}>
-                <p className="font-bold text-sm mb-1">{m.label}</p>
-                <p className="text-[10px] text-muted-foreground leading-snug">{m.desc}</p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Duração / Takes */}
-      <div className={`${glassCard} p-6`}>
-        <h3 className="font-bold tracking-tight mb-4">Duração do Vídeo</h3>
+        <h3 className="font-bold tracking-tight mb-4">Quantidade de Takes</h3>
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
           {durations.map((d) => {
             const sel = state.duration === d.id;
@@ -614,8 +529,85 @@ export function StudioStepFinal({ state, updateState }: Props) {
         </div>
       </div>
 
+      {/* 3. TIPO DE CÂMERA */}
+      <div className={`${glassCard} p-6`}>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Tipo de Câmera</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {cameraStyles.map((c) => {
+            const sel = state.cameraStyle === c.id;
+            return (
+              <div key={c.id} onClick={() => updateState({ cameraStyle: c.id })} className={`${glassSelectable(sel)} p-3 text-center`}>
+                <div className={`relative aspect-square w-full rounded-xl overflow-hidden mb-3 ring-2 transition-all ${sel ? "ring-primary shadow-lg shadow-primary/30" : "ring-transparent"}`}>
+                  <img src={c.img} alt={c.label} loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                  {sel && <div className="absolute inset-0 bg-gradient-to-t from-primary/40 via-transparent to-transparent" />}
+                </div>
+                <p className="font-bold text-sm">{c.label}</p>
+                <p className="text-[11px] text-muted-foreground mt-1">{c.desc}</p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 4. ESTILO DO VÍDEO — 7 cards, sem badges */}
+      <div className={`${glassCard} p-6`}>
+        <h3 className="font-bold tracking-tight mb-1">Estilo do Vídeo</h3>
+        <p className="text-xs text-muted-foreground mb-4">Tom geral da produção</p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {visibleVideoStyles.map((v) => {
+            const Icon = v.icon;
+            const sel = state.videoStyle === v.id;
+            return (
+              <div key={v.id} onClick={() => updateState({ videoStyle: v.id })} className={`${glassSelectable(sel)} p-4`}>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${
+                  sel ? "bg-gradient-to-br from-primary to-purple-600 text-white" : "bg-accent"
+                }`}><Icon size={18} /></div>
+                <p className="font-bold text-sm">{v.label}</p>
+                <p className="text-[10px] text-muted-foreground mt-1 leading-snug">{v.desc}</p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 5. MODO DE GERAÇÃO */}
+      <div className={`${glassCard} p-6`}>
+        <h3 className="font-bold tracking-tight mb-4">Modo de Geração</h3>
+        <div className="grid grid-cols-2 gap-3">
+          {([
+            { id: "automatico" as GenerationMode, label: "✨ Automático", desc: "A IA cria a sequência ideal", icon: ToggleRight },
+            { id: "manual" as GenerationMode, label: "🎛 Manual", desc: "Configure cada take individualmente", icon: ToggleLeft },
+          ]).map((m) => {
+            const sel = state.generationMode === m.id;
+            return (
+              <div key={m.id} onClick={() => updateState({ generationMode: m.id })} className={`${glassSelectable(sel)} p-5`}>
+                <p className="font-bold text-sm mb-1">{m.label}</p>
+                <p className="text-[10px] text-muted-foreground leading-snug">{m.desc}</p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 6. AUTO TOGGLE — visible only when numTakes > 1 */}
+      {numTakes > 1 && (
+        <div className={`${glassCard} p-6`}>
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-bold tracking-tight">Criar Automaticamente</h3>
+              <p className="text-xs text-muted-foreground mt-1">
+                {isAutomatic
+                  ? "Director gera sequência completa de takes"
+                  : "Configure cada take manualmente"}
+              </p>
+            </div>
+            <Switch checked={isAutomatic} onCheckedChange={setIsAutomatic} />
+          </div>
+        </div>
+      )}
+
       {/* Modo Automático — Director + Storyboard */}
-      {state.generationMode === "automatico" && numTakes > 1 && (
+      {numTakes > 1 && isAutomatic && (
         <div className={`${glassCard} p-6`}>
           <h3 className="font-bold tracking-tight mb-1">Agente Director</h3>
           <p className="text-xs text-muted-foreground mb-4">
@@ -627,7 +619,6 @@ export function StudioStepFinal({ state, updateState }: Props) {
             {directorLoading ? "Gerando sequência..." : storyboard ? "Regenerar Sequência" : "Gerar Sequência Automática"}
           </Button>
 
-          {/* Storyboard preview */}
           <AnimatePresence>
             {storyboard && storyboard.length > 0 && (
               <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-4 space-y-2">
@@ -650,8 +641,8 @@ export function StudioStepFinal({ state, updateState }: Props) {
         </div>
       )}
 
-      {/* Modo Manual — Accordion por take */}
-      {state.generationMode === "manual" && numTakes > 0 && (
+      {/* Modo Manual — Accordion por take (when auto is off or manual mode) */}
+      {((numTakes > 1 && !isAutomatic) || state.generationMode === "manual") && numTakes > 0 && (
         <div className={`${glassCard} p-6`}>
           <h3 className="font-bold tracking-tight mb-4">Configuração por Take</h3>
           <div className="space-y-3">
@@ -663,7 +654,7 @@ export function StudioStepFinal({ state, updateState }: Props) {
         </div>
       )}
 
-      {/* Voz */}
+      {/* 7. CONFIGURAÇÃO DE VOZ */}
       <div className={`${glassCard} p-6`}>
         <h3 className="font-bold tracking-tight mb-4">Configuração de Voz</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -687,7 +678,7 @@ export function StudioStepFinal({ state, updateState }: Props) {
         </div>
       </div>
 
-      {/* Diálogo */}
+      {/* 8. DIÁLOGO */}
       <div className={`${glassCard} p-6`}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold tracking-tight">Diálogo (Roteiro)</h3>
@@ -727,7 +718,76 @@ export function StudioStepFinal({ state, updateState }: Props) {
         </div>
       </div>
 
-      {/* Gerar Prompt Veo 3 */}
+      {/* Mesclagem com IA */}
+      <div className={`${glassCard} p-6`}>
+        <h3 className="font-bold tracking-tight mb-1">Mesclar com IA</h3>
+        <p className="text-xs text-muted-foreground mb-5">Avatar + Produto + Cenário → foto realista</p>
+        <div className="space-y-5">
+          <PillGroup label="Modo de interação" options={visibleInteractionModes} value={interaction} onChange={setInteraction} />
+          <div>
+            <PillGroup label="Pose do avatar" options={avatarPoses} value={pose} onChange={setPose} />
+            {pose === "Personalizado" && (
+              <input value={customPose} onChange={(e) => setCustomPose(e.target.value)}
+                placeholder="Descreva a pose desejada..."
+                className="w-full mt-3 h-10 rounded-xl bg-card/60 backdrop-blur-md border border-border/60 px-3 text-sm focus:outline-none focus:border-primary" />
+            )}
+          </div>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Melhorias opcionais</p>
+            <div className="flex flex-wrap gap-1.5">
+              {enhancements.map((e) => {
+                const sel = enhance.includes(e);
+                return (
+                  <button key={e} onClick={() => setEnhance(sel ? enhance.filter((x) => x !== e) : [...enhance, e])}
+                    className={`px-3 py-1.5 rounded-full text-[11px] font-bold transition-all ${
+                      sel ? "bg-primary/20 border border-primary text-primary shadow-[0_4px_16px_hsl(var(--primary)/0.25)]"
+                        : "bg-card/60 border border-border/60 text-muted-foreground hover:text-foreground"
+                    }`}>{e}</button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Gerar UGC */}
+          <div className="pt-2">
+            <button onClick={handleGenerateUGC} disabled={generating}
+              className="group relative w-full h-12 rounded-xl overflow-hidden font-bold text-base text-white shadow-lg shadow-primary/40 disabled:opacity-70 disabled:cursor-not-allowed">
+              <span className="absolute inset-0 bg-[linear-gradient(110deg,hsl(var(--primary)),#9333ea,#c084fc,#9333ea,hsl(var(--primary)))] bg-[length:300%_100%] animate-[shimmer_3s_linear_infinite]" />
+              <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" />
+              <span className="relative flex items-center justify-center gap-2">
+                {generating ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
+                {generating ? "Gerando UGC..." : generatedJob ? "Regerar UGC" : "Gerar UGC"}
+              </span>
+            </button>
+          </div>
+
+          {/* UGC Preview */}
+          <AnimatePresence>
+            {(generating || generatedJob?.image_url) && (
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="flex justify-center pt-2">
+                <div className={`relative ${previewAspect} rounded-2xl overflow-hidden border border-border/60 shadow-[0_12px_40px_hsl(var(--primary)/0.25)] bg-gradient-to-br from-primary/10 via-purple-500/10 to-background`}>
+                  {generating ? (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-primary">
+                      <Loader2 size={28} className="animate-spin" /><p className="text-xs font-bold">Gerando UGC...</p>
+                    </div>
+                  ) : generatedJob?.image_url ? (
+                    <motion.img key={generatedJob.id} src={generatedJob.image_url} alt="UGC"
+                      initial={{ opacity: 0, scale: 1.02 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}
+                      className="absolute inset-0 w-full h-full object-cover" />
+                  ) : null}
+                  {generatedJob?.image_url && (
+                    <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-background/70 backdrop-blur-md border border-border/60 text-[9px] font-bold flex items-center gap-1 z-10">
+                      <Sparkles size={9} className="text-primary" /> UGC pronto
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+
+      {/* 9. Gerar Prompt Veo 3 */}
       <div className={`${glassCard} p-6 relative overflow-hidden`}>
         <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-primary/20 blur-[80px] pointer-events-none" />
         <div className="relative">
@@ -819,7 +879,6 @@ export function StudioStepFinal({ state, updateState }: Props) {
             {manualOpen && (
               <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
                 <div className="px-5 pb-6 space-y-3">
-                  {/* Tabs for multi-take */}
                   {veo3Prompts.length > 1 && (
                     <div className="flex gap-1 mb-2">
                       {veo3Prompts.map((_, i) => (
@@ -879,7 +938,7 @@ export function StudioStepFinal({ state, updateState }: Props) {
                 A IA gerou a imagem ultra-realista, o roteiro e os prompts. Tudo salvo na biblioteca.
               </p>
               {generatedJob?.image_url ? (
-                <div className="w-40 aspect-[9/16] mx-auto rounded-2xl overflow-hidden ring-2 ring-primary/40 shadow-lg shadow-primary/30 mb-5">
+                <div className={`${previewAspect} mx-auto rounded-2xl overflow-hidden ring-2 ring-primary/40 shadow-lg shadow-primary/30 mb-5`}>
                   <img src={generatedJob.image_url} alt="UGC gerado" className="w-full h-full object-cover" />
                 </div>
               ) : avatar?.img && (
