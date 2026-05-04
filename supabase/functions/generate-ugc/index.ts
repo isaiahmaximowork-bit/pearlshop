@@ -572,7 +572,7 @@ Deno.serve(async (req) => {
         () =>
           callLLM(
             MEDIA_GENERATOR_SYSTEM,
-            `Saída do Agente 1:\n${JSON.stringify(agent1, null, 2)}\n\nDuração do vídeo: ${input.duration}\nTom de voz: ${input.voiceTone} / energia ${input.voiceEnergy} / estilo ${input.voiceStyle}\nRoteiro do usuário (se houver): ${input.script || "(vazio — você decide)"}\n\nLembre: imagePrompt DEVE começar EXATAMENTE com "Using the FIRST attached image as the EXACT character reference..." e citar o produto "${product.productName ?? ""}".`,
+            `Saída do Agente 1:\n${JSON.stringify(agent1, null, 2)}\n\nDuração do vídeo: ${input.duration}\nFormato do vídeo: ${input.videoFormat || "9:16"} — OBRIGATÓRIO respeitar proporção, sem letterboxing.\nTom de voz: ${input.voiceTone} / energia ${input.voiceEnergy} / estilo ${input.voiceStyle}\nRoteiro do usuário (se houver): ${input.script || "(vazio — você decide)"}\n\nLembre: imagePrompt DEVE começar EXATAMENTE com "Using the FIRST attached image as the EXACT character reference..." e citar o produto "${product.productName ?? ""}". Formato OBRIGATÓRIO: ${input.videoFormat || "9:16"}.`,
             GEMINI_API_KEY
           ),
         "agent2"
