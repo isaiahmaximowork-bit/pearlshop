@@ -52,6 +52,7 @@ const App = () => (
               <Route path="perfil" element={<EditarPerfil />} />
               <Route path="studio" element={<Studio />} />
               <Route path="historico" element={<Historico />} />
+              <Route path="admin" element={<Admin />} />
             </Route>
             <Route path="/app/builder" element={<ProtectedRoute><Builder /></ProtectedRoute>} />
 
