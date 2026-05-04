@@ -224,7 +224,7 @@ RESTRIÇÕES OBRIGATÓRIAS:
 - "Candid handheld feel (not overly polished or staged)."
 - "Natural imperfections (not airbrushed or retouched)."
 - "Authentic emotion and expression."
-- "Vertical 9:16 framing, mobile-first composition."
+- "Aspect ratio: STRICTLY the requested format — fill entire frame, NO letterboxing, NO pillarboxing."
 
 ### REGRAS PARA scriptPrompt
 - script em PORTUGUÊS DO BRASIL, natural, no tom solicitado.
