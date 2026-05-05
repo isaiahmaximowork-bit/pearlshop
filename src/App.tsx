@@ -22,6 +22,8 @@ import EditarPerfil from "./pages/app/EditarPerfil.tsx";
 import Studio from "./pages/app/Studio.tsx";
 import Admin from "./pages/app/Admin.tsx";
 import Historico from "./pages/app/Historico.tsx";
+import UgcBuilder from "./pages/app/UgcBuilder.tsx";
+import Turbinar from "./pages/app/Turbinar.tsx";
 import StorePage from "./pages/StorePage.tsx";
 import AvisoLegal from "./pages/AvisoLegal.tsx";
 const queryClient = new QueryClient();
@@ -52,6 +54,8 @@ const App = () => (
               <Route path="perfil" element={<EditarPerfil />} />
               <Route path="studio" element={<Studio />} />
               <Route path="historico" element={<Historico />} />
+              <Route path="ugc-builder" element={<UgcBuilder />} />
+              <Route path="turbinar" element={<Turbinar />} />
               <Route path="admin" element={<Admin />} />
             </Route>
             <Route path="/app/builder" element={<ProtectedRoute><Builder /></ProtectedRoute>} />
