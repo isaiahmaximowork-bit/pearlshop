@@ -114,7 +114,7 @@ Outros:
 + "Resolution: 4K (3840x2160), ultra-high detail."
 + "Color grading: Natural color palette, realistic color accuracy, warm tones (not cold), professional color grading (not oversaturated)."
 + "Sharpness: Tack-sharp focus on face and product, natural depth of field (f/1.8 equivalent), realistic focus transition."
-+ "Aspect ratio: STRICTLY ${videoFormat || '9:16'} — fill entire frame, NO letterboxing, NO pillarboxing, NO black bars."
++ "Aspect ratio: STRICTLY [videoFormat from user input] — fill entire frame, NO letterboxing, NO pillarboxing, NO black bars."
 + "Style: Cinematic, professional, UGC authentic (looks like real user-generated content, not overly polished)."
 
 6. REALISMO EXTREMO (Bloco 6)
@@ -131,7 +131,7 @@ RESTRIÇÕES OBRIGATÓRIAS:
 - "No distorted hands, no extra fingers, no anatomical errors."
 - "Do not change the face, do not alter identity."
 - "Do not change the product shape or color."
-- "Aspect ratio: STRICTLY ${videoFormat || '9:16'} — fill entire frame, NO letterboxing, NO pillarboxing."
+- "Aspect ratio: STRICTLY [videoFormat from user input] — fill entire frame, NO letterboxing, NO pillarboxing."
 
 ### SAÍDA OBRIGATÓRIA — JSON válido (sem markdown):
 {
