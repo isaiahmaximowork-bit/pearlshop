@@ -293,8 +293,15 @@ function buildUserPrompt(input: GenerateVeo3Input): string {
 === ANALYSIS REPORT ===
 ${JSON.stringify(a, null, 2)}
 
-=== SCRIPT (Portuguese) ===
+=== SCRIPT (Portuguese) — THIS IS THE DIALOGUE THE PERSON MUST SPEAK ===
 "${input.script.replace(/"/g, "'")}"
+
+CRITICAL DIALOGUE INSTRUCTION: The person in the video MUST speak this ENTIRE script out loud
+in Brazilian Portuguese. The === SPOKEN DIALOGUE === section MUST be the VERY FIRST block in your
+veo3Prompt. Use the EXACT format: 'The person speaks directly to camera, saying out loud in
+Brazilian Portuguese: "[FULL SCRIPT WORD FOR WORD]"'. Do NOT summarize, do NOT translate,
+do NOT omit any part. The video MUST NOT be silent — the person MUST be visibly talking
+throughout the entire video with perfect lip-sync.
 
 === VOICE CONFIG ===
 Gender: ${input.voice.gender || "feminino"}
@@ -331,16 +338,20 @@ Weaknesses to Address: ${(a.weaknesses || []).join("; ") || "(none)"}
 
 === GENERATE OPTIMIZED VEO 3 PROMPT ===
 Generate a COMPLETE, DETAILED, and PROFESSIONAL Veo 3 prompt that:
-1. Uses the UGC image as frame-to-video seed
-2. Maintains all strengths from analysis
-3. Addresses all weaknesses from analysis
-4. Synchronizes perfectly with the Portuguese script
-5. Includes humanized movement choreography matching scriptType="${input.scriptType}"
-6. Specifies AAA quality requirements
-7. Ensures perfect lip-sync
-8. Preserves avatar consistency 100%
-9. Ensures product visibility and manipulation of "${input.product.name || ""}"
-10. Includes ALL technical specifications (4K, 60fps, 9:16, 8s)
+1. STARTS with === SPOKEN DIALOGUE === containing the FULL Portuguese script as spoken dialogue
+2. Uses the UGC image as frame-to-video seed
+3. Maintains all strengths from analysis
+4. Addresses all weaknesses from analysis
+5. Synchronizes perfectly with the Portuguese script
+6. Includes humanized movement choreography matching scriptType="${input.scriptType}"
+7. Specifies AAA quality requirements
+8. Ensures PERFECT LIP-SYNC — mouth MUST move throughout
+9. Preserves avatar consistency 100%
+10. Ensures product visibility and manipulation of "${input.product.name || ""}"
+11. Includes ALL technical specifications (4K, 60fps, 9:16, 8s)
+
+REMINDER: The SPOKEN DIALOGUE block with the COMPLETE script MUST be the FIRST section
+in your veo3Prompt. Without it, the video will be MUTE which is UNACCEPTABLE.
 
 The prompt MUST be in ENGLISH (for Veo 3). Apenas JSON no formato definido no system prompt — nada fora.`;
 }
