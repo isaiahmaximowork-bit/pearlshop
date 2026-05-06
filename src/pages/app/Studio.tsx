@@ -38,6 +38,8 @@ export type StudioState = {
   voiceStyle: string;
   script: string;
   _generatedJob: any;
+  _generationProgress: { active: boolean; step: number; total: number; label: string } | null;
+  _generatedTakes: any[];
 };
 
 const initialState: StudioState = {
@@ -69,6 +71,8 @@ const initialState: StudioState = {
   voiceStyle: "conversacional",
   script: "",
   _generatedJob: null,
+  _generationProgress: null,
+  _generatedTakes: [],
 };
 
 const steps = [
@@ -80,9 +84,20 @@ const steps = [
 
 const Studio = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [state, setState] = useState<StudioState>(initialState);
+  const [state, setState] = useState<StudioState>(() => {
+    try {
+      const saved = localStorage.getItem("pearlshop-studio-state");
+      return saved ? { ...initialState, ...JSON.parse(saved) } : initialState;
+    } catch {
+      return initialState;
+    }
+  });
 
   const updateState = (patch: Partial<StudioState>) => setState((s) => ({ ...s, ...patch }));
+
+  useEffect(() => {
+    localStorage.setItem("pearlshop-studio-state", JSON.stringify(state));
+  }, [state]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
