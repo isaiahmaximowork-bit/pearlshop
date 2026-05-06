@@ -605,13 +605,16 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
         <div className={`${glassCard} p-6`}>
           <h3 className="font-bold tracking-tight mb-1">Modo Automático</h3>
           <p className="text-xs text-muted-foreground mb-4">
-            A IA vai gerar automaticamente a sequência ideal de takes, imagem e prompt na próxima etapa.
+            A IA vai criar as cenas, gerar as imagens e abrir a etapa 4 com o progresso salvo.
           </p>
-          <div className="p-4 rounded-xl border border-primary/30 bg-primary/5 text-center">
-            <Sparkles size={24} className="mx-auto text-primary mb-2" />
-            <p className="text-sm font-bold">Avance para a etapa 4</p>
-            <p className="text-xs text-muted-foreground mt-1">A IA criará tudo automaticamente: câmera, estilo, imagem e prompt.</p>
-          </div>
+          <button onClick={handleAutomaticGenerateAll} disabled={generating}
+            className="group relative w-full h-12 rounded-xl overflow-hidden font-bold text-base text-white shadow-lg shadow-primary/40 disabled:opacity-70 disabled:cursor-not-allowed">
+            <span className="absolute inset-0 bg-[linear-gradient(110deg,hsl(var(--primary)),#9333ea,#c084fc,#9333ea,hsl(var(--primary)))] bg-[length:300%_100%] animate-[shimmer_3s_linear_infinite]" />
+            <span className="relative flex items-center justify-center gap-2">
+              {generating ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
+              {generating ? "Gerando sequência..." : "Gerar UGC automático"}
+            </span>
+          </button>
         </div>
       )}
 
