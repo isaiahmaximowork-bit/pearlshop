@@ -236,6 +236,108 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
     }
   };
 
+  const generateUGCJob = async (overrides: Partial<TakeConfig> = {}, previousJobs: any[] = []) => {
+    const finalPose = pose === "Personalizado" && customPose ? customPose : pose;
+    const referenceImageUrl = avatar?.img ? await fetchAvatarAsDataUrl(avatar.img) : null;
+    const sceneLabel = overrides.scenarioText || overrides.scene || state.scenarioText;
+    const { data, error } = await supabase.functions.invoke("generate-ugc", {
+      body: {
+        productId: state.productId, productName: state.productName,
+        productDescription: state.productDescription, productCategory: state.productCategory,
+        productImageUrl: state.productImageUrl, productImages: state.productImages,
+        catalogProductId: state.catalogProductId, avatarId: state.avatarId,
+        avatarName: avatar?.name || state.avatarId, referenceImageUrl,
+        pose: finalPose, interaction: overrides.interaction || interaction,
+        scenarioTags: sceneLabel ? [String(sceneLabel)] : state.scenarioTags,
+        scenarioText: sceneLabel || state.scenarioText,
+        cameraStyle: overrides.cameraStyle || state.cameraStyle,
+        videoStyle: overrides.videoStyle || state.videoStyle,
+        videoFormat: state.videoFormat,
+        enhancements: enhance,
+        proximity: state.proximity, energy: state.energy, naturalness: state.naturalness,
+        duration: "1take", voiceGender: state.voiceGender,
+        voiceTone: state.voiceTone, voiceEnergy: state.voiceEnergy,
+        voiceStyle: state.voiceStyle, script: overrides.dialogue || state.script,
+        takeContext: { take: overrides.takeNumber, previousImages: previousJobs.map((j) => j.image_url).filter(Boolean) },
+      },
+    });
+    if (error) throw error;
+    if (!data?.success) throw new Error(data?.error || "Falha na geração");
+    return data.job;
+  };
+
+  const handleGenerateTakeImage = async (index: number) => {
+    if (!state.productId || !state.avatarId) { toast.error("Selecione produto e avatar antes"); return; }
+    setGenerating(true);
+    try {
+      const takes = ensureTakes(numTakes);
+      const previousJobs = takes.slice(0, index).map((t) => t.imageJob).filter(Boolean);
+      const job = await generateUGCJob(takes[index], previousJobs);
+      updateTake(index, { imageJob: job });
+      updateState({ _generatedJob: index === 0 ? job : state._generatedJob });
+      toast.success(`Take ${index + 1} gerado!`);
+    } catch (err: any) {
+      toast.error(err?.message || "Erro ao gerar take");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const autoMessages = (count: number) => [
+    "Criando ideia de post de alta conversão",
+    ...Array.from({ length: count }, (_, i) => `Gerando cena ${i + 1}`),
+    ...Array.from({ length: Math.max(0, count - 1) }, (_, i) => `Criando cena ${i + 2}`),
+    "Finalizando",
+    "Últimos ajustes",
+  ];
+
+  const handleAutomaticGenerateAll = async () => {
+    if (!state.productId || !state.avatarId) { toast.error("Selecione produto e avatar antes"); return; }
+    setGenerating(true);
+    onAdvance?.();
+    const messages = autoMessages(numTakes);
+    try {
+      updateState({ _generationProgress: { active: true, step: 1, total: messages.length, label: messages[0] } });
+      const { data, error } = await supabase.functions.invoke("studio-director", {
+        body: {
+          product: { name: state.productName, category: state.productCategory, image_url: state.productImageUrl },
+          avatar: { id: state.avatarId, name: avatar?.name, gender: state.voiceGender === "feminino" ? "female" : "male" },
+          style: state.videoStyle, num_takes: numTakes, total_duration_seconds: numTakes * 8,
+        },
+      });
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Falha ao criar ideias dos takes");
+      const planned = (data.takes || []).map((t: any, i: number) => ({
+        ...defaultTake(i + 1),
+        scene: t.scene || "quarto", cameraAngle: t.camera_angle || "frontal_medio",
+        cameraStyle: state.cameraStyle, videoStyle: state.videoStyle,
+        lighting: t.lighting || "natural_suave", cameraMovement: t.camera_movement || "handheld_suave",
+        productInteraction: t.product_interaction || "vestindo", dialogue: t.dialogue_hint || "",
+        veo3Prompt: t.veo3_prompt,
+      })).slice(0, numTakes);
+      const jobs: any[] = [];
+      for (let i = 0; i < numTakes; i++) {
+        updateState({ _generationProgress: { active: true, step: i + 2, total: messages.length, label: `Gerando cena ${i + 1}` } });
+        const job = await generateUGCJob(planned[i], jobs);
+        jobs.push(job);
+        planned[i].imageJob = job;
+      }
+      updateState({
+        takes: planned,
+        _generatedTakes: jobs,
+        _generatedJob: jobs[0],
+        _generationProgress: { active: false, step: messages.length, total: messages.length, label: "Últimos ajustes" },
+      });
+      fireConfetti();
+      toast.success("Takes automáticos gerados!");
+    } catch (err: any) {
+      toast.error(err?.message || "Erro ao gerar automaticamente");
+      updateState({ _generationProgress: null });
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   const handleDirectorGenerate = async () => {
     if (directorLoading) return;
     setDirectorLoading(true);
