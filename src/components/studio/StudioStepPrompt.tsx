@@ -62,6 +62,8 @@ export function StudioStepPrompt({ state, updateState }: Props) {
 
   // Check if there's a generated job (image) from step 3
   const generatedJob = state._generatedJob as any;
+  const generatedTakes = (state.takes || []).map((t) => t.imageJob).filter(Boolean);
+  const progress = state._generationProgress;
 
   const detectScriptType = (text: string): "promocional" | "indicacional" | "storytelling" => {
     const t = text.toLowerCase();
@@ -103,7 +105,7 @@ export function StudioStepPrompt({ state, updateState }: Props) {
 
   const handleGenerateVeo3Prompt = async () => {
     if (!generatedJob?.image_url) { toast.error("Gere a imagem UGC na etapa anterior primeiro"); return; }
-    if (!state.script.trim()) { toast.error("Escreva ou gere o roteiro antes"); return; }
+    if (!state.script.trim() && !state.takes.some((t) => t.dialogue?.trim())) { toast.error("Escreva ou gere o roteiro antes"); return; }
     if (veo3Loading) return;
 
     setVeo3Loading(true);
@@ -111,6 +113,49 @@ export function StudioStepPrompt({ state, updateState }: Props) {
     const toastId = toast.loading("Analisando imagem UGC...");
 
     try {
+      const jobsForTakes = generatedTakes.length > 1 ? generatedTakes : [];
+      if (jobsForTakes.length > 1) {
+        const prompts: string[] = [];
+        const nextTakes = [...state.takes];
+        for (let i = 0; i < jobsForTakes.length; i++) {
+          const job = jobsForTakes[i];
+          const takeScript = nextTakes[i]?.dialogue?.trim() || state.script.trim();
+          toast.loading(`Analisando take ${i + 1}...`, { id: toastId });
+          const analyzeRes = await supabase.functions.invoke("analyze-ugc-image", {
+            body: { jobId: job.id, ugcImageUrl: job.image_url, productName: state.productName, productDescription: state.productDescription, productCategory: state.productCategory, avatarName: avatar?.name || state.avatarId },
+          });
+          if (analyzeRes.error) throw analyzeRes.error;
+          const analyzeData: any = analyzeRes.data;
+          if (!analyzeData?.success) throw new Error(analyzeData?.error || `Falha ao analisar take ${i + 1}`);
+          toast.loading(`Gerando prompt do take ${i + 1}...`, { id: toastId });
+          const scriptType = detectScriptType(takeScript);
+          const promptRes = await supabase.functions.invoke("generate-veo3-prompt", {
+            body: {
+              jobId: job.id, ugcImageUrl: job.image_url, analysisReport: analyzeData.report, script: takeScript, scriptType,
+              videoStyle: nextTakes[i]?.videoStyle || state.videoStyle, videoFormat: state.videoFormat,
+              numTakes: 1, takes: [nextTakes[i]],
+              voice: { gender: state.voiceGender, tone: state.voiceTone, energy: state.voiceEnergy, style: state.voiceStyle },
+              product: { name: state.productName, description: state.productDescription, category: state.productCategory },
+              avatar: { name: avatar?.name || state.avatarId },
+            },
+          });
+          if (promptRes.error) throw promptRes.error;
+          const promptData: any = promptRes.data;
+          if (!promptData?.success) throw new Error(promptData?.error || `Falha ao gerar prompt do take ${i + 1}`);
+          prompts.push(promptData.veo3Prompt);
+          nextTakes[i] = { ...nextTakes[i], veo3Prompt: promptData.veo3Prompt };
+        }
+        setVeo3Prompts(prompts);
+        setVeo3Prompt(prompts[0]);
+        updateState({ takes: nextTakes });
+        setPromptGenerated(true);
+        setManualOpen(true);
+        navigator.clipboard.writeText(prompts.map((p, i) => `--- TAKE ${i + 1} ---\n${p}`).join("\n\n")).catch(() => {});
+        fireConfetti();
+        toast.success("Prompts por take gerados e copiados!", { id: toastId });
+        return;
+      }
+
       const analyzeRes = await supabase.functions.invoke("analyze-ugc-image", {
         body: {
           jobId: generatedJob.id, ugcImageUrl: generatedJob.image_url,
@@ -206,17 +251,33 @@ export function StudioStepPrompt({ state, updateState }: Props) {
         <p className="text-muted-foreground">Configure a voz, roteiro e gere o prompt para o Veo 3.</p>
       </div>
 
+      {progress?.active && (
+        <div className={`${glassCard} p-6 text-center`}>
+          <Loader2 size={34} className="mx-auto text-primary animate-spin mb-4" />
+          <p className="font-black tracking-tight mb-2">{progress.label}</p>
+          <div className="h-2 rounded-full bg-border/60 overflow-hidden mb-2">
+            <motion.div className="h-full bg-gradient-to-r from-primary to-purple-600 rounded-full"
+              animate={{ width: `${Math.min(100, (progress.step / progress.total) * 100)}%` }} />
+          </div>
+          <p className="text-xs text-muted-foreground">{progress.step} de {progress.total}</p>
+        </div>
+      )}
+
       {/* UGC Preview */}
-      {generatedJob?.image_url && (
+      {(generatedTakes.length > 1 || generatedJob?.image_url) && (
         <div className={`${glassCard} p-6`}>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Imagem UGC Gerada</p>
-          <div className="flex justify-center">
-            <div className={`relative ${previewAspect} rounded-2xl overflow-hidden border border-border/60 shadow-xl`}>
-              <img src={generatedJob.image_url} alt="UGC" className="absolute inset-0 w-full h-full object-cover" />
-              <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-background/70 backdrop-blur-md border border-border/60 text-[9px] font-bold flex items-center gap-1">
-                <Sparkles size={9} className="text-primary" /> UGC pronto
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">
+            {generatedTakes.length > 1 ? "Imagens UGC Geradas" : "Imagem UGC Gerada"}
+          </p>
+          <div className="flex justify-center gap-3 overflow-x-auto pb-1">
+            {(generatedTakes.length > 1 ? generatedTakes : [generatedJob]).map((job: any, i: number) => (
+              <div key={job.id || i} className={`relative ${previewAspect} shrink-0 rounded-2xl overflow-hidden border border-border/60 shadow-xl`}>
+                <img src={job.image_url} alt={`UGC take ${i + 1}`} className="absolute inset-0 w-full h-full object-cover" />
+                <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-background/70 backdrop-blur-md border border-border/60 text-[9px] font-bold flex items-center gap-1">
+                  <Sparkles size={9} className="text-primary" /> Take {i + 1}
+                </div>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       )}
@@ -232,7 +293,13 @@ export function StudioStepPrompt({ state, updateState }: Props) {
                 {cfg.options.map((opt) => {
                   const sel = (state as any)[key] === opt;
                   return (
-                    <button key={opt} onClick={() => updateState({ [key]: opt } as any)}
+                    <button key={opt} onClick={() => {
+                      if (numTakes > 1 && (state as any)[key] !== opt) {
+                        const ok = window.confirm("Ao alterar as configurações de voz em múltiplos takes, a UGC pode ficar com voz não persistente. Deseja continuar?");
+                        if (!ok) return;
+                      }
+                      updateState({ [key]: opt } as any);
+                    }}
                       className={`px-3 py-1.5 rounded-full text-xs font-semibold capitalize transition-all ${
                         sel ? "bg-gradient-to-r from-primary to-purple-600 text-white shadow-md shadow-primary/30"
                           : "bg-card/60 border border-border/60 text-muted-foreground hover:text-foreground"

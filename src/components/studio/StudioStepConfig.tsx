@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { ChevronDown, User, Image as ImageIcon, Upload, Zap, ZoomIn, Gauge, Move } from "lucide-react";
+import { ChevronDown, User, Upload, Zap, ZoomIn, Gauge, Move } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { glassCard, glassSelectable } from "./glass";
 import { Slider } from "@/components/ui/slider";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import type { StudioState } from "@/pages/app/Studio";
 import { handleSelectAndScroll } from "./useAutoScrollNext";
@@ -14,11 +13,6 @@ interface Props {
   state: StudioState;
   updateState: (patch: Partial<StudioState>) => void;
 }
-
-const scenarioOptions = [
-  "Quarto", "Estúdio", "Cozinha", "Banheiro", "Sala", "Externo",
-  "Academia", "Carro", "Bar", "Escritório", "Loja/Boutique", "Café",
-];
 
 const cameraMovementOptions: { id: CameraMovement; label: string }[] = [
   { id: "estatico", label: "Estático" },
@@ -70,13 +64,6 @@ function Section({
 }
 
 export function StudioStepConfig({ state, updateState }: Props) {
-  const toggleScenario = (tag: string) => {
-    const has = state.scenarioTags.includes(tag);
-    updateState({
-      scenarioTags: has ? state.scenarioTags.filter((t) => t !== tag) : [...state.scenarioTags, tag],
-    });
-  };
-
   return (
     <div className="space-y-5 max-w-4xl mx-auto">
       <div className="text-center mb-8">
@@ -110,7 +97,7 @@ export function StudioStepConfig({ state, updateState }: Props) {
             <p className="text-xs text-muted-foreground mb-4">
               Crie um avatar com seu rosto ou de alguém autorizado para usar nos seus vídeos.
             </p>
-            <Button className="rounded-xl gap-2 bg-gradient-to-r from-primary to-purple-600">
+            <Button disabled className="rounded-xl gap-2 opacity-60 cursor-not-allowed">
               <Upload size={16} /> Criar meu avatar
             </Button>
           </div>
@@ -135,47 +122,14 @@ export function StudioStepConfig({ state, updateState }: Props) {
                 </div>
               );
             })}
-            <div className="p-2 rounded-2xl border border-dashed border-border/60 hover:border-primary/60 cursor-pointer transition-colors flex flex-col items-center justify-center text-center">
+            <div className="p-2 rounded-2xl border border-dashed border-border/60 opacity-50 cursor-not-allowed transition-colors flex flex-col items-center justify-center text-center">
               <div className="aspect-square w-full rounded-xl bg-accent/40 flex items-center justify-center">
                 <Upload size={22} className="text-muted-foreground" />
               </div>
-              <p className="text-[10px] font-semibold text-muted-foreground mt-2">Personalizado</p>
+              <p className="text-[10px] font-semibold text-muted-foreground mt-2">Personalizado em breve</p>
             </div>
           </div>
         )}
-      </Section>
-
-      {/* Cenário */}
-      <Section title="Cenário" description="Defina o ambiente do vídeo">
-        <div className="flex flex-wrap gap-2 mb-4">
-          {scenarioOptions.map((tag) => {
-            const sel = state.scenarioTags.includes(tag);
-            return (
-              <button
-                key={tag}
-                onClick={() => toggleScenario(tag)}
-                className={`px-4 py-2 rounded-full text-xs font-bold backdrop-blur-md transition-all ${
-                  sel
-                    ? "bg-primary/20 border border-primary text-primary shadow-[0_4px_16px_hsl(var(--primary)/0.25)]"
-                    : "bg-card/60 border border-border/60 text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {tag}
-              </button>
-            );
-          })}
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <Button variant="outline" className="rounded-xl gap-2 justify-start h-11">
-            <ImageIcon size={16} /> Enviar imagem do cenário
-          </Button>
-          <Input
-            value={state.scenarioText}
-            onChange={(e) => updateState({ scenarioText: e.target.value })}
-            placeholder="Ou descreva o cenário em texto..."
-            className="rounded-xl h-11"
-          />
-        </div>
       </Section>
 
       {/* Performance */}

@@ -87,6 +87,11 @@ const enhancements = [
   "Tecido real", "Cabelo real", "Anti-IA", "Profundidade", "Grão foto",
 ];
 
+const scenarioOptionsPt = [
+  "Quarto", "Estúdio", "Cozinha", "Banheiro", "Sala", "Externo",
+  "Academia", "Carro", "Bar", "Escritório", "Loja/Boutique", "Café",
+];
+
 const sceneOptions: { id: SceneType; label: string }[] = [
   { id: "quarto", label: "Quarto" }, { id: "escritorio", label: "Escritório" },
   { id: "cozinha", label: "Cozinha" }, { id: "banheiro", label: "Banheiro" },
@@ -113,15 +118,16 @@ const interactionOptions: { id: TakeConfig["productInteraction"]; label: string 
 interface Props {
   state: StudioState;
   updateState: (patch: Partial<StudioState>) => void;
+  onAdvance?: () => void;
 }
 
-export function StudioStepFinal({ state, updateState }: Props) {
+export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
   const [interaction, setInteraction] = useState(allInteractionModes[0]);
   const [pose, setPose] = useState(avatarPoses[0]);
   const [customPose, setCustomPose] = useState("");
   const [enhance, setEnhance] = useState<string[]>([]);
   const [generating, setGenerating] = useState(false);
-  const [isAutomatic, setIsAutomatic] = useState(true);
+  const isAutomatic = state.generationMode === "automatico";
   const [directorLoading, setDirectorLoading] = useState(false);
   const [storyboard, setStoryboard] = useState<TakeConfig[] | null>(null);
 
@@ -137,6 +143,11 @@ export function StudioStepFinal({ state, updateState }: Props) {
   const visibleVideoStyleIds = CATEGORY_VIDEOSTYLE_VISIBILITY[productCategory] || videoStyles.map(v => v.id);
   const visibleVideoStyles = videoStyles.filter(v => visibleVideoStyleIds.includes(v.id));
 
+  const toggleScenario = (tag: string) => {
+    const has = state.scenarioTags.includes(tag);
+    updateState({ scenarioTags: has ? state.scenarioTags.filter((t) => t !== tag) : [...state.scenarioTags, tag] });
+  };
+
   const ensureTakes = (n: number): TakeConfig[] => {
     const current = state.takes.length ? state.takes : [];
     const result: TakeConfig[] = [];
@@ -148,6 +159,22 @@ export function StudioStepFinal({ state, updateState }: Props) {
     const takes = ensureTakes(numTakes);
     takes[index] = { ...takes[index], ...patch };
     updateState({ takes });
+  };
+
+  const moveExtraTakesToLibrary = (nextCount: number) => {
+    const generated = (state.takes || []).slice(nextCount).map((t) => t.imageJob).filter(Boolean);
+    if (generated.length) updateState({ _generatedTakes: [...(state._generatedTakes || []), ...generated] });
+  };
+
+  const handleDurationChange = (d: typeof durations[number]) => {
+    const currentGenerated = (state.takes || []).filter((t) => t.imageJob).length;
+    if (d.takes < currentGenerated) {
+      const lost = Array.from({ length: currentGenerated - d.takes }, (_, i) => d.takes + i + 1).join(", ");
+      const ok = window.confirm(`Você está selecionando menos takes do que já foi gerado. Caso prossiga perderá o take ${lost}.`);
+      if (!ok) return;
+      moveExtraTakesToLibrary(d.takes);
+    }
+    updateState({ duration: d.id, numTakes: d.takes as 1|2|3|4|5, takes: ensureTakes(d.takes).slice(0, d.takes) });
   };
 
   const showManualOptions = numTakes === 1 || (numTakes > 1 && !isAutomatic);
@@ -196,7 +223,7 @@ export function StudioStepFinal({ state, updateState }: Props) {
         if (data?.errorCode === "MODEL_OVERLOADED") { toast.error("Gemini sobrecarregado. Tente em 1-2 min."); return; }
         throw new Error(data?.error || "Falha na geração");
       }
-      updateState({ _generatedJob: data.job });
+      updateState({ _generatedJob: data.job, script: state.script || data.job?.script_prompt?.script || "" });
       fireConfetti();
       toast.success("UGC gerado! Avance para a etapa de Prompt Final.");
     } catch (err: any) {
@@ -204,6 +231,110 @@ export function StudioStepFinal({ state, updateState }: Props) {
       if (msg.includes("Rate") || msg.includes("429")) toast.error("Muitas requisições. Aguarde.");
       else if (msg.includes("Payment") || msg.includes("402") || msg.includes("credit")) toast.error("Créditos esgotados.");
       else toast.error(msg);
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const generateUGCJob = async (overrides: Partial<TakeConfig> = {}, previousJobs: any[] = []) => {
+    const finalPose = pose === "Personalizado" && customPose ? customPose : pose;
+    const referenceImageUrl = avatar?.img ? await fetchAvatarAsDataUrl(avatar.img) : null;
+    const sceneLabel = overrides.scenarioText || overrides.scene || state.scenarioText;
+    const { data, error } = await supabase.functions.invoke("generate-ugc", {
+      body: {
+        productId: state.productId, productName: state.productName,
+        productDescription: state.productDescription, productCategory: state.productCategory,
+        productImageUrl: state.productImageUrl, productImages: state.productImages,
+        catalogProductId: state.catalogProductId, avatarId: state.avatarId,
+        avatarName: avatar?.name || state.avatarId, referenceImageUrl,
+        pose: finalPose, interaction: overrides.interaction || interaction,
+        scenarioTags: sceneLabel ? [String(sceneLabel)] : state.scenarioTags,
+        scenarioText: sceneLabel || state.scenarioText,
+        cameraStyle: overrides.cameraStyle || state.cameraStyle,
+        videoStyle: overrides.videoStyle || state.videoStyle,
+        videoFormat: state.videoFormat,
+        enhancements: enhance,
+        proximity: state.proximity, energy: state.energy, naturalness: state.naturalness,
+        duration: "1take", voiceGender: state.voiceGender,
+        voiceTone: state.voiceTone, voiceEnergy: state.voiceEnergy,
+        voiceStyle: state.voiceStyle, script: overrides.dialogue || state.script,
+        takeContext: { take: overrides.takeNumber, previousImages: previousJobs.map((j) => j.image_url).filter(Boolean) },
+      },
+    });
+    if (error) throw error;
+    if (!data?.success) throw new Error(data?.error || "Falha na geração");
+    return data.job;
+  };
+
+  const handleGenerateTakeImage = async (index: number) => {
+    if (!state.productId || !state.avatarId) { toast.error("Selecione produto e avatar antes"); return; }
+    setGenerating(true);
+    try {
+      const takes = ensureTakes(numTakes);
+      const previousJobs = takes.slice(0, index).map((t) => t.imageJob).filter(Boolean);
+      const job = await generateUGCJob(takes[index], previousJobs);
+      updateTake(index, { imageJob: job, dialogue: takes[index].dialogue || job?.script_prompt?.script || "" });
+      updateState({ _generatedJob: index === 0 ? job : state._generatedJob, script: state.script || job?.script_prompt?.script || "" });
+      toast.success(`Take ${index + 1} gerado!`);
+    } catch (err: any) {
+      toast.error(err?.message || "Erro ao gerar take");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const autoMessages = (count: number) => [
+    "Criando ideia de post de alta conversão",
+    ...Array.from({ length: count }, (_, i) => `Gerando cena ${i + 1}`),
+    ...Array.from({ length: Math.max(0, count - 1) }, (_, i) => `Criando cena ${i + 2}`),
+    "Finalizando",
+    "Últimos ajustes",
+  ];
+
+  const handleAutomaticGenerateAll = async () => {
+    if (!state.productId || !state.avatarId) { toast.error("Selecione produto e avatar antes"); return; }
+    setGenerating(true);
+    onAdvance?.();
+    const messages = autoMessages(numTakes);
+    try {
+      updateState({ _generationProgress: { active: true, step: 1, total: messages.length, label: messages[0] } });
+      const { data, error } = await supabase.functions.invoke("studio-director", {
+        body: {
+          product: { name: state.productName, category: state.productCategory, image_url: state.productImageUrl },
+          avatar: { id: state.avatarId, name: avatar?.name, gender: state.voiceGender === "feminino" ? "female" : "male" },
+          style: state.videoStyle, num_takes: numTakes, total_duration_seconds: numTakes * 8,
+        },
+      });
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Falha ao criar ideias dos takes");
+      const planned = (data.takes || []).map((t: any, i: number) => ({
+        ...defaultTake(i + 1),
+        scene: t.scene || "quarto", cameraAngle: t.camera_angle || "frontal_medio",
+        cameraStyle: state.cameraStyle, videoStyle: state.videoStyle,
+        lighting: t.lighting || "natural_suave", cameraMovement: t.camera_movement || "handheld_suave",
+        productInteraction: t.product_interaction || "vestindo", dialogue: t.dialogue_hint || "",
+        veo3Prompt: t.veo3_prompt,
+      })).slice(0, numTakes);
+      const jobs: any[] = [];
+      for (let i = 0; i < numTakes; i++) {
+        updateState({ _generationProgress: { active: true, step: i + 2, total: messages.length, label: `Gerando cena ${i + 1}` } });
+        const job = await generateUGCJob(planned[i], jobs);
+        jobs.push(job);
+        planned[i].imageJob = job;
+        planned[i].dialogue = planned[i].dialogue || job?.script_prompt?.script || "";
+      }
+      updateState({
+        takes: planned,
+        _generatedTakes: jobs,
+        _generatedJob: jobs[0],
+        script: planned.map((t) => t.dialogue).filter(Boolean).join(" "),
+        _generationProgress: { active: false, step: messages.length, total: messages.length, label: "Últimos ajustes" },
+      });
+      fireConfetti();
+      toast.success("Takes automáticos gerados!");
+    } catch (err: any) {
+      toast.error(err?.message || "Erro ao gerar automaticamente");
+      updateState({ _generationProgress: null });
     } finally {
       setGenerating(false);
     }
@@ -322,9 +453,7 @@ export function StudioStepFinal({ state, updateState }: Props) {
           {durations.map((d) => {
             const sel = state.duration === d.id;
             return (
-              <div key={d.id} onClick={() => {
-                updateState({ duration: d.id, numTakes: d.takes as 1|2|3|4|5, takes: ensureTakes(d.takes) });
-              }} className={`${glassSelectable(sel)} p-4 text-center`}>
+              <div key={d.id} onClick={() => handleDurationChange(d)} className={`${glassSelectable(sel)} p-4 text-center`}>
                 <p className="font-bold text-sm">{d.label}</p>
                 <p className="text-xs text-muted-foreground">{d.sub}</p>
               </div>
@@ -347,7 +476,7 @@ export function StudioStepFinal({ state, updateState }: Props) {
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground">{isAutomatic ? "Automático" : "Manual"}</span>
-              <Switch checked={isAutomatic} onCheckedChange={setIsAutomatic} />
+              <Switch checked={isAutomatic} onCheckedChange={(checked) => updateState({ generationMode: checked ? "automatico" : "manual" })} />
             </div>
           </div>
         </div>
@@ -429,6 +558,27 @@ export function StudioStepFinal({ state, updateState }: Props) {
             </div>
           </div>
 
+          {/* 7. CENÁRIO */}
+          <div className={`${glassCard} p-6`}>
+            <h3 className="font-bold tracking-tight mb-1">Cenário</h3>
+            <p className="text-xs text-muted-foreground mb-4">No automático, a IA pode variar os ambientes entre os takes.</p>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {scenarioOptionsPt.map((tag) => {
+                const sel = state.scenarioTags.includes(tag);
+                return (
+                  <button key={tag} onClick={() => toggleScenario(tag)}
+                    className={`px-4 py-2 rounded-full text-xs font-bold backdrop-blur-md transition-all ${
+                      sel ? "bg-primary/20 border border-primary text-primary shadow-[0_4px_16px_hsl(var(--primary)/0.25)]"
+                        : "bg-card/60 border border-border/60 text-muted-foreground hover:text-foreground"
+                    }`}>{tag}</button>
+                );
+              })}
+            </div>
+            <input value={state.scenarioText} onChange={(e) => updateState({ scenarioText: e.target.value })}
+              placeholder="Ou descreva o cenário em texto..."
+              className="w-full h-11 rounded-xl bg-card/60 border border-border/60 px-3 text-sm focus:outline-none focus:border-primary" />
+          </div>
+
           {/* Manual per-take config — when takes > 1 and manual */}
           {numTakes > 1 && !isAutomatic && (
             <div className={`${glassCard} p-6`}>
@@ -443,6 +593,11 @@ export function StudioStepFinal({ state, updateState }: Props) {
                       take={take}
                       onUpdate={(patch) => updateTake(i, patch)}
                       onAutoGenerate={() => handleAutoGenerateTake(i)}
+                      onGenerateImage={() => handleGenerateTakeImage(i)}
+                      generating={generating}
+                      cameraStyles={cameraStyles}
+                      videoStyles={visibleVideoStyles}
+                      interactions={visibleInteractionModes}
                     />
                   );
                 })}
@@ -457,13 +612,16 @@ export function StudioStepFinal({ state, updateState }: Props) {
         <div className={`${glassCard} p-6`}>
           <h3 className="font-bold tracking-tight mb-1">Modo Automático</h3>
           <p className="text-xs text-muted-foreground mb-4">
-            A IA vai gerar automaticamente a sequência ideal de takes, imagem e prompt na próxima etapa.
+            A IA vai criar as cenas, gerar as imagens e abrir a etapa 4 com o progresso salvo.
           </p>
-          <div className="p-4 rounded-xl border border-primary/30 bg-primary/5 text-center">
-            <Sparkles size={24} className="mx-auto text-primary mb-2" />
-            <p className="text-sm font-bold">Avance para a etapa 4</p>
-            <p className="text-xs text-muted-foreground mt-1">A IA criará tudo automaticamente: câmera, estilo, imagem e prompt.</p>
-          </div>
+          <button onClick={handleAutomaticGenerateAll} disabled={generating}
+            className="group relative w-full h-12 rounded-xl overflow-hidden font-bold text-base text-white shadow-lg shadow-primary/40 disabled:opacity-70 disabled:cursor-not-allowed">
+            <span className="absolute inset-0 bg-[linear-gradient(110deg,hsl(var(--primary)),#9333ea,#c084fc,#9333ea,hsl(var(--primary)))] bg-[length:300%_100%] animate-[shimmer_3s_linear_infinite]" />
+            <span className="relative flex items-center justify-center gap-2">
+              {generating ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
+              {generating ? "Gerando sequência..." : "Gerar UGC automático"}
+            </span>
+          </button>
         </div>
       )}
 
@@ -531,8 +689,10 @@ function PillGroup({ label, options, value, onChange }: { label: string; options
   );
 }
 
-function TakeAccordion({ index, take, onUpdate, onAutoGenerate }: {
+function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage, generating, cameraStyles, videoStyles, interactions }: {
   index: number; take: TakeConfig; onUpdate: (patch: Partial<TakeConfig>) => void; onAutoGenerate: () => void;
+  onGenerateImage: () => void; generating: boolean;
+  cameraStyles: { id: string; label: string }[]; videoStyles: { id: VideoStyle; label: string }[]; interactions: string[];
 }) {
   const [open, setOpen] = useState(index === 0);
   const [autoLoading, setAutoLoading] = useState(false);
@@ -560,7 +720,33 @@ function TakeAccordion({ index, take, onUpdate, onAutoGenerate }: {
         {open && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
             <div className="px-4 pb-4 space-y-3">
-              <Button onClick={handleAuto} disabled={autoLoading} variant="outline" size="sm" className="w-full rounded-xl gap-2 mb-2">
+              <div className="flex justify-end mb-2">
+                <Button onClick={handleAuto} disabled={autoLoading} size="sm" className="h-8 rounded-full gap-1.5 bg-primary text-primary-foreground px-3 text-[11px]">
+                  {autoLoading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                  {autoLoading ? "Gerando..." : "Gerar com IA"}
+                </Button>
+              </div>
+              <Button onClick={onGenerateImage} disabled={generating} variant="outline" size="sm" className="w-full rounded-xl gap-2 mb-2">
+                {generating ? <Loader2 size={14} className="animate-spin" /> : <Camera size={14} />}
+                {take.imageJob?.image_url ? "Gerar novamente a imagem" : "Gerar imagem deste take"}
+              </Button>
+              {take.imageJob?.image_url && (
+                <div className="mx-auto w-32 aspect-[9/16] rounded-xl overflow-hidden border border-border/60 mb-2">
+                  <img src={take.imageJob.image_url} alt={`Take ${index + 1}`} className="w-full h-full object-cover" />
+                </div>
+              )}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <SelectField label="Tipo de Câmera" value={take.cameraStyle || "frente"} options={cameraStyles} onChange={(v) => onUpdate({ cameraStyle: v })} />
+                <SelectField label="Estilo do Vídeo" value={take.videoStyle || "ugc_autentico"} options={videoStyles} onChange={(v) => onUpdate({ videoStyle: v as VideoStyle })} />
+                <SelectField label="Mesclar com IA" value={take.interaction || interactions[0]} options={interactions.map((x) => ({ id: x, label: x }))} onChange={(v) => onUpdate({ interaction: v })} />
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Cenário</p>
+                <input value={take.scenarioText || ""} onChange={(e) => onUpdate({ scenarioText: e.target.value })}
+                  placeholder="Descreva o cenário deste take..."
+                  className="w-full h-9 rounded-lg bg-card/60 border border-border/60 px-2 text-xs focus:outline-none focus:border-primary" />
+              </div>
+              <Button onClick={handleAuto} disabled={autoLoading} variant="outline" size="sm" className="hidden">
                 {autoLoading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
                 {autoLoading ? "Gerando..." : "Gerar automaticamente com IA"}
               </Button>
