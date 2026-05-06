@@ -113,15 +113,16 @@ const interactionOptions: { id: TakeConfig["productInteraction"]; label: string 
 interface Props {
   state: StudioState;
   updateState: (patch: Partial<StudioState>) => void;
+  onAdvance?: () => void;
 }
 
-export function StudioStepFinal({ state, updateState }: Props) {
+export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
   const [interaction, setInteraction] = useState(allInteractionModes[0]);
   const [pose, setPose] = useState(avatarPoses[0]);
   const [customPose, setCustomPose] = useState("");
   const [enhance, setEnhance] = useState<string[]>([]);
   const [generating, setGenerating] = useState(false);
-  const [isAutomatic, setIsAutomatic] = useState(true);
+  const isAutomatic = state.generationMode === "automatico";
   const [directorLoading, setDirectorLoading] = useState(false);
   const [storyboard, setStoryboard] = useState<TakeConfig[] | null>(null);
 
