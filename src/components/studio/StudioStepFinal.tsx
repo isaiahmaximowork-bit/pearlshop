@@ -591,6 +591,11 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
                       take={take}
                       onUpdate={(patch) => updateTake(i, patch)}
                       onAutoGenerate={() => handleAutoGenerateTake(i)}
+                      onGenerateImage={() => handleGenerateTakeImage(i)}
+                      generating={generating}
+                      cameraStyles={cameraStyles}
+                      videoStyles={visibleVideoStyles}
+                      interactions={visibleInteractionModes}
                     />
                   );
                 })}
