@@ -87,6 +87,11 @@ const enhancements = [
   "Tecido real", "Cabelo real", "Anti-IA", "Profundidade", "Grão foto",
 ];
 
+const scenarioOptionsPt = [
+  "Quarto", "Estúdio", "Cozinha", "Banheiro", "Sala", "Externo",
+  "Academia", "Carro", "Bar", "Escritório", "Loja/Boutique", "Café",
+];
+
 const sceneOptions: { id: SceneType; label: string }[] = [
   { id: "quarto", label: "Quarto" }, { id: "escritorio", label: "Escritório" },
   { id: "cozinha", label: "Cozinha" }, { id: "banheiro", label: "Banheiro" },
@@ -137,6 +142,11 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
   );
   const visibleVideoStyleIds = CATEGORY_VIDEOSTYLE_VISIBILITY[productCategory] || videoStyles.map(v => v.id);
   const visibleVideoStyles = videoStyles.filter(v => visibleVideoStyleIds.includes(v.id));
+
+  const toggleScenario = (tag: string) => {
+    const has = state.scenarioTags.includes(tag);
+    updateState({ scenarioTags: has ? state.scenarioTags.filter((t) => t !== tag) : [...state.scenarioTags, tag] });
+  };
 
   const ensureTakes = (n: number): TakeConfig[] => {
     const current = state.takes.length ? state.takes : [];
