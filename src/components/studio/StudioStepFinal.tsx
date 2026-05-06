@@ -321,11 +321,13 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
         const job = await generateUGCJob(planned[i], jobs);
         jobs.push(job);
         planned[i].imageJob = job;
+        planned[i].dialogue = planned[i].dialogue || job?.script_prompt?.script || "";
       }
       updateState({
         takes: planned,
         _generatedTakes: jobs,
         _generatedJob: jobs[0],
+        script: planned.map((t) => t.dialogue).filter(Boolean).join(" "),
         _generationProgress: { active: false, step: messages.length, total: messages.length, label: "Últimos ajustes" },
       });
       fireConfetti();
