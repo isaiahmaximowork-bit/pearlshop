@@ -251,17 +251,33 @@ export function StudioStepPrompt({ state, updateState }: Props) {
         <p className="text-muted-foreground">Configure a voz, roteiro e gere o prompt para o Veo 3.</p>
       </div>
 
+      {progress?.active && (
+        <div className={`${glassCard} p-6 text-center`}>
+          <Loader2 size={34} className="mx-auto text-primary animate-spin mb-4" />
+          <p className="font-black tracking-tight mb-2">{progress.label}</p>
+          <div className="h-2 rounded-full bg-border/60 overflow-hidden mb-2">
+            <motion.div className="h-full bg-gradient-to-r from-primary to-purple-600 rounded-full"
+              animate={{ width: `${Math.min(100, (progress.step / progress.total) * 100)}%` }} />
+          </div>
+          <p className="text-xs text-muted-foreground">{progress.step} de {progress.total}</p>
+        </div>
+      )}
+
       {/* UGC Preview */}
-      {generatedJob?.image_url && (
+      {(generatedTakes.length > 1 || generatedJob?.image_url) && (
         <div className={`${glassCard} p-6`}>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Imagem UGC Gerada</p>
-          <div className="flex justify-center">
-            <div className={`relative ${previewAspect} rounded-2xl overflow-hidden border border-border/60 shadow-xl`}>
-              <img src={generatedJob.image_url} alt="UGC" className="absolute inset-0 w-full h-full object-cover" />
-              <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-background/70 backdrop-blur-md border border-border/60 text-[9px] font-bold flex items-center gap-1">
-                <Sparkles size={9} className="text-primary" /> UGC pronto
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">
+            {generatedTakes.length > 1 ? "Imagens UGC Geradas" : "Imagem UGC Gerada"}
+          </p>
+          <div className="flex justify-center gap-3 overflow-x-auto pb-1">
+            {(generatedTakes.length > 1 ? generatedTakes : [generatedJob]).map((job: any, i: number) => (
+              <div key={job.id || i} className={`relative ${previewAspect} shrink-0 rounded-2xl overflow-hidden border border-border/60 shadow-xl`}>
+                <img src={job.image_url} alt={`UGC take ${i + 1}`} className="absolute inset-0 w-full h-full object-cover" />
+                <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-background/70 backdrop-blur-md border border-border/60 text-[9px] font-bold flex items-center gap-1">
+                  <Sparkles size={9} className="text-primary" /> Take {i + 1}
+                </div>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       )}
