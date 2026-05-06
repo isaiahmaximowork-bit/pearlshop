@@ -687,8 +687,10 @@ function PillGroup({ label, options, value, onChange }: { label: string; options
   );
 }
 
-function TakeAccordion({ index, take, onUpdate, onAutoGenerate }: {
+function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage, generating, cameraStyles, videoStyles, interactions }: {
   index: number; take: TakeConfig; onUpdate: (patch: Partial<TakeConfig>) => void; onAutoGenerate: () => void;
+  onGenerateImage: () => void; generating: boolean;
+  cameraStyles: { id: string; label: string }[]; videoStyles: { id: VideoStyle; label: string }[]; interactions: string[];
 }) {
   const [open, setOpen] = useState(index === 0);
   const [autoLoading, setAutoLoading] = useState(false);
@@ -716,7 +718,33 @@ function TakeAccordion({ index, take, onUpdate, onAutoGenerate }: {
         {open && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
             <div className="px-4 pb-4 space-y-3">
-              <Button onClick={handleAuto} disabled={autoLoading} variant="outline" size="sm" className="w-full rounded-xl gap-2 mb-2">
+              <div className="flex justify-end mb-2">
+                <Button onClick={handleAuto} disabled={autoLoading} size="sm" className="h-8 rounded-full gap-1.5 bg-primary text-primary-foreground px-3 text-[11px]">
+                  {autoLoading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                  {autoLoading ? "Gerando..." : "Gerar com IA"}
+                </Button>
+              </div>
+              <Button onClick={onGenerateImage} disabled={generating} variant="outline" size="sm" className="w-full rounded-xl gap-2 mb-2">
+                {generating ? <Loader2 size={14} className="animate-spin" /> : <Camera size={14} />}
+                {take.imageJob?.image_url ? "Gerar novamente a imagem" : "Gerar imagem deste take"}
+              </Button>
+              {take.imageJob?.image_url && (
+                <div className="mx-auto w-32 aspect-[9/16] rounded-xl overflow-hidden border border-border/60 mb-2">
+                  <img src={take.imageJob.image_url} alt={`Take ${index + 1}`} className="w-full h-full object-cover" />
+                </div>
+              )}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <SelectField label="Tipo de Câmera" value={take.cameraStyle || "frente"} options={cameraStyles} onChange={(v) => onUpdate({ cameraStyle: v })} />
+                <SelectField label="Estilo do Vídeo" value={take.videoStyle || "ugc_autentico"} options={videoStyles} onChange={(v) => onUpdate({ videoStyle: v as VideoStyle })} />
+                <SelectField label="Mesclar com IA" value={take.interaction || interactions[0]} options={interactions.map((x) => ({ id: x, label: x }))} onChange={(v) => onUpdate({ interaction: v })} />
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Cenário</p>
+                <input value={take.scenarioText || ""} onChange={(e) => onUpdate({ scenarioText: e.target.value })}
+                  placeholder="Descreva o cenário deste take..."
+                  className="w-full h-9 rounded-lg bg-card/60 border border-border/60 px-2 text-xs focus:outline-none focus:border-primary" />
+              </div>
+              <Button onClick={handleAuto} disabled={autoLoading} variant="outline" size="sm" className="hidden">
                 {autoLoading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
                 {autoLoading ? "Gerando..." : "Gerar automaticamente com IA"}
               </Button>
