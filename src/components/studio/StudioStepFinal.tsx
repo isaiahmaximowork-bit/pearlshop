@@ -451,9 +451,7 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
           {durations.map((d) => {
             const sel = state.duration === d.id;
             return (
-              <div key={d.id} onClick={() => {
-                updateState({ duration: d.id, numTakes: d.takes as 1|2|3|4|5, takes: ensureTakes(d.takes) });
-              }} className={`${glassSelectable(sel)} p-4 text-center`}>
+              <div key={d.id} onClick={() => handleDurationChange(d)} className={`${glassSelectable(sel)} p-4 text-center`}>
                 <p className="font-bold text-sm">{d.label}</p>
                 <p className="text-xs text-muted-foreground">{d.sub}</p>
               </div>
@@ -556,6 +554,27 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* 7. CENÁRIO */}
+          <div className={`${glassCard} p-6`}>
+            <h3 className="font-bold tracking-tight mb-1">Cenário</h3>
+            <p className="text-xs text-muted-foreground mb-4">No automático, a IA pode variar os ambientes entre os takes.</p>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {scenarioOptionsPt.map((tag) => {
+                const sel = state.scenarioTags.includes(tag);
+                return (
+                  <button key={tag} onClick={() => toggleScenario(tag)}
+                    className={`px-4 py-2 rounded-full text-xs font-bold backdrop-blur-md transition-all ${
+                      sel ? "bg-primary/20 border border-primary text-primary shadow-[0_4px_16px_hsl(var(--primary)/0.25)]"
+                        : "bg-card/60 border border-border/60 text-muted-foreground hover:text-foreground"
+                    }`}>{tag}</button>
+                );
+              })}
+            </div>
+            <input value={state.scenarioText} onChange={(e) => updateState({ scenarioText: e.target.value })}
+              placeholder="Ou descreva o cenário em texto..."
+              className="w-full h-11 rounded-xl bg-card/60 border border-border/60 px-3 text-sm focus:outline-none focus:border-primary" />
           </div>
 
           {/* Manual per-take config — when takes > 1 and manual */}
