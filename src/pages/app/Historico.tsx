@@ -13,6 +13,7 @@ type MediaJob = {
   pose: string | null;
   status: string;
   image_url: string | null;
+  image_storage_key: string | null;
   master_prompt: string | null;
   image_prompt: string | null;
   script_prompt: any;
@@ -30,7 +31,7 @@ const Historico = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("media_jobs")
-      .select("id, product_name, avatar_name, pose, status, image_url, master_prompt, image_prompt, script_prompt, veo3_prompt, error_message, created_at")
+        .select("id, product_name, avatar_name, pose, status, image_url, image_storage_key, master_prompt, image_prompt, script_prompt, veo3_prompt, error_message, created_at")
       .order("created_at", { ascending: false });
     if (error) {
       toast.error("Erro ao carregar histórico");
@@ -44,10 +45,11 @@ const Historico = () => {
     load();
   }, []);
 
-  const handleDelete = async (id: string) => {
-    const { error } = await supabase.from("media_jobs").delete().eq("id", id);
+  const handleDelete = async (job: MediaJob) => {
+    if (job.image_storage_key) await supabase.storage.from("ugc-media").remove([job.image_storage_key]);
+    const { error } = await supabase.from("media_jobs").delete().eq("id", job.id);
     if (error) return toast.error("Não foi possível excluir");
-    setJobs((s) => s.filter((j) => j.id !== id));
+    setJobs((s) => s.filter((j) => j.id !== job.id));
     setSelected(null);
     toast.success("Geração excluída");
   };
@@ -139,7 +141,7 @@ const Historico = () => {
                     {new Date(selected.created_at).toLocaleString("pt-BR")}
                   </p>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => handleDelete(selected.id)} className="rounded-xl text-destructive">
+                <Button variant="ghost" size="icon" onClick={() => handleDelete(selected)} className="rounded-xl text-destructive">
                   <Trash2 size={16} />
                 </Button>
               </div>
