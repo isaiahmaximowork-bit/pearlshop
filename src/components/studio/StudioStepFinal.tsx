@@ -223,7 +223,7 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
         if (data?.errorCode === "MODEL_OVERLOADED") { toast.error("Gemini sobrecarregado. Tente em 1-2 min."); return; }
         throw new Error(data?.error || "Falha na geração");
       }
-      updateState({ _generatedJob: data.job });
+      updateState({ _generatedJob: data.job, script: state.script || data.job?.script_prompt?.script || "" });
       fireConfetti();
       toast.success("UGC gerado! Avance para a etapa de Prompt Final.");
     } catch (err: any) {
@@ -273,8 +273,8 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
       const takes = ensureTakes(numTakes);
       const previousJobs = takes.slice(0, index).map((t) => t.imageJob).filter(Boolean);
       const job = await generateUGCJob(takes[index], previousJobs);
-      updateTake(index, { imageJob: job });
-      updateState({ _generatedJob: index === 0 ? job : state._generatedJob });
+      updateTake(index, { imageJob: job, dialogue: takes[index].dialogue || job?.script_prompt?.script || "" });
+      updateState({ _generatedJob: index === 0 ? job : state._generatedJob, script: state.script || job?.script_prompt?.script || "" });
       toast.success(`Take ${index + 1} gerado!`);
     } catch (err: any) {
       toast.error(err?.message || "Erro ao gerar take");
