@@ -348,7 +348,7 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground">{isAutomatic ? "Automático" : "Manual"}</span>
-              <Switch checked={isAutomatic} onCheckedChange={setIsAutomatic} />
+              <Switch checked={isAutomatic} onCheckedChange={(checked) => updateState({ generationMode: checked ? "automatico" : "manual" })} />
             </div>
           </div>
         </div>
