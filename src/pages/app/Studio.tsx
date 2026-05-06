@@ -148,7 +148,7 @@ const Studio = () => {
           >
             {currentStep === 1 && <StudioStepProduct state={state} updateState={updateState} onAdvance={next} />}
             {currentStep === 2 && <StudioStepConfig state={state} updateState={updateState} />}
-            {currentStep === 3 && <StudioStepFinal state={state} updateState={updateState} />}
+            {currentStep === 3 && <StudioStepFinal state={state} updateState={updateState} onAdvance={next} />}
             {currentStep === 4 && <StudioStepPrompt state={state} updateState={updateState} />}
           </motion.div>
         </AnimatePresence>
