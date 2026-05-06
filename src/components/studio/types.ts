@@ -38,11 +38,16 @@ export interface TakeConfig {
   durationSeconds: 8;
   scene: SceneType;
   cameraAngle: CameraAngle;
+  cameraStyle?: string;
+  videoStyle?: VideoStyle;
   lighting: LightingType;
   cameraMovement: CameraMovement;
   productInteraction: 'vestindo' | 'segurando' | 'espelho' | 'demonstrando';
+  interaction?: string;
+  scenarioText?: string;
   dialogue: string;
   veo3Prompt?: string;
+  imageJob?: any;
 }
 
 export const defaultTake = (n: number): TakeConfig => ({
