@@ -3,7 +3,6 @@ import { ChevronDown, User, Upload, Zap, ZoomIn, Gauge, Move } from "lucide-reac
 import { motion, AnimatePresence } from "framer-motion";
 import { glassCard, glassSelectable } from "./glass";
 import { Slider } from "@/components/ui/slider";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import type { StudioState } from "@/pages/app/Studio";
 import { handleSelectAndScroll } from "./useAutoScrollNext";
