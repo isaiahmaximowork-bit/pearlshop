@@ -161,6 +161,22 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
     updateState({ takes });
   };
 
+  const moveExtraTakesToLibrary = (nextCount: number) => {
+    const generated = (state.takes || []).slice(nextCount).map((t) => t.imageJob).filter(Boolean);
+    if (generated.length) updateState({ _generatedTakes: [...(state._generatedTakes || []), ...generated] });
+  };
+
+  const handleDurationChange = (d: typeof durations[number]) => {
+    const currentGenerated = (state.takes || []).filter((t) => t.imageJob).length;
+    if (d.takes < currentGenerated) {
+      const lost = Array.from({ length: currentGenerated - d.takes }, (_, i) => d.takes + i + 1).join(", ");
+      const ok = window.confirm(`Você está selecionando menos takes do que já foi gerado. Caso prossiga perderá o take ${lost}.`);
+      if (!ok) return;
+      moveExtraTakesToLibrary(d.takes);
+    }
+    updateState({ duration: d.id, numTakes: d.takes as 1|2|3|4|5, takes: ensureTakes(d.takes).slice(0, d.takes) });
+  };
+
   const showManualOptions = numTakes === 1 || (numTakes > 1 && !isAutomatic);
 
   const fetchAvatarAsDataUrl = async (src: string): Promise<string | null> => {
