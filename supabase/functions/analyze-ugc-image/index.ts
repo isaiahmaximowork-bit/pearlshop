@@ -165,8 +165,10 @@ async function callVision(apiKey: string, prompt: string, image: { mimeType: str
     throw e;
   }
   try {
+    console.log("[analyze-ugc-image] raw content from gemini:", content);
     return JSON.parse(content);
-  } catch {
+  } catch (err) {
+    console.error("[analyze-ugc-image] JSON parse error:", err, "Content:", content);
     const m = content.match(/\{[\s\S]*\}/);
     if (m) return JSON.parse(m[0]);
     const e: any = new Error("JSON inválido do Gemini.");
