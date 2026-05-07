@@ -104,6 +104,12 @@ export function StudioStepPrompt({ state, updateState }: Props) {
   };
 
   const handleGenerateVeo3Prompt = async () => {
+    console.log("[StudioStepPrompt] handleGenerateVeo3Prompt called");
+    console.log("[StudioStepPrompt] generatedJob:", JSON.stringify(generatedJob));
+    console.log("[StudioStepPrompt] state._generatedJob:", JSON.stringify(state._generatedJob));
+    console.log("[StudioStepPrompt] script:", state.script?.substring(0, 50));
+    console.log("[StudioStepPrompt] takes dialogues:", state.takes.map(t => t.dialogue?.substring(0, 30)));
+    
     if (!generatedJob?.image_url) { toast.error("Gere a imagem UGC na etapa anterior primeiro"); return; }
     if (!state.script.trim() && !state.takes.some((t) => t.dialogue?.trim())) { toast.error("Escreva ou gere o roteiro antes"); return; }
     if (veo3Loading) return;
@@ -222,6 +228,8 @@ export function StudioStepPrompt({ state, updateState }: Props) {
       fireConfetti();
       toast.success("Prompt(s) Veo 3 gerado(s) e copiado(s)!", { id: toastId });
     } catch (err: any) {
+      console.error("[StudioStepPrompt] Veo3 prompt error:", err);
+      console.error("[StudioStepPrompt] Error details:", JSON.stringify(err, Object.getOwnPropertyNames(err)));
       toast.error(err?.message || "Erro ao gerar prompt Veo 3", { id: toastId });
     } finally {
       setVeo3Loading(false);
