@@ -134,7 +134,7 @@ async function callVision(apiKey: string, prompt: string, image: { mimeType: str
     generationConfig: {
       responseMimeType: "application/json",
       temperature: 0.4,
-      maxOutputTokens: 1200,
+      maxOutputTokens: 2048,
     },
   };
 
