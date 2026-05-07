@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type { StudioState } from "@/pages/app/Studio";
 import { findAvatar } from "./avatars";
+import { defaultTake } from "./types";
 
 const voiceOptions = {
   voiceGender: { label: "Gênero", options: ["feminino", "masculino"] },
