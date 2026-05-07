@@ -228,6 +228,8 @@ export function StudioStepPrompt({ state, updateState }: Props) {
       fireConfetti();
       toast.success("Prompt(s) Veo 3 gerado(s) e copiado(s)!", { id: toastId });
     } catch (err: any) {
+      console.error("[StudioStepPrompt] Veo3 prompt error:", err);
+      console.error("[StudioStepPrompt] Error details:", JSON.stringify(err, Object.getOwnPropertyNames(err)));
       toast.error(err?.message || "Erro ao gerar prompt Veo 3", { id: toastId });
     } finally {
       setVeo3Loading(false);
