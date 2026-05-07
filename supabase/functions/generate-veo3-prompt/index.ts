@@ -364,7 +364,7 @@ async function callGemini(apiKey: string, system: string, user: string) {
     generationConfig: {
       responseMimeType: "application/json",
       temperature: 0.75,
-      maxOutputTokens: 3500,
+      maxOutputTokens: 8192,
     },
   };
   const res = await fetch(url, {
