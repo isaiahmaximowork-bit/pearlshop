@@ -111,8 +111,20 @@ export function StudioStepPrompt({ state, updateState }: Props) {
     console.log("[StudioStepPrompt] script:", state.script?.substring(0, 50));
     console.log("[StudioStepPrompt] takes dialogues:", state.takes.map(t => t.dialogue?.substring(0, 30)));
     
-    if (!generatedJob?.image_url) { toast.error("Gere a imagem UGC na etapa anterior primeiro"); return; }
-    if (!state.script.trim() && !state.takes.some((t) => t.dialogue?.trim())) { toast.error("Escreva ou gere o roteiro antes"); return; }
+    // Ensure we have an image job. In multi-take mode, each take has its own imageJob.
+    // In single take mode, we might use state._generatedJob.
+    const hasImage = (generatedJob && generatedJob.image_url) || (generatedTakes && generatedTakes.length > 0);
+    
+    if (!hasImage) { 
+      toast.error("Gere a imagem UGC na etapa anterior primeiro"); 
+      return; 
+    }
+
+    if (!state.script.trim() && !state.takes.some((t) => t.dialogue?.trim())) { 
+      toast.error("Escreva ou gere o roteiro antes"); 
+      return; 
+    }
+
     if (veo3Loading) return;
 
     setVeo3Loading(true);
@@ -120,114 +132,97 @@ export function StudioStepPrompt({ state, updateState }: Props) {
     const toastId = toast.loading("Analisando imagem UGC...");
 
     try {
-      const jobsForTakes = generatedTakes.length > 1 ? generatedTakes : [];
-      if (jobsForTakes.length > 1) {
-        const prompts: string[] = [];
-        const nextTakes = [...state.takes];
-        for (let i = 0; i < jobsForTakes.length; i++) {
-          const job = jobsForTakes[i];
-          const takeScript = nextTakes[i]?.dialogue?.trim() || state.script.trim();
-          toast.loading(`Analisando take ${i + 1}...`, { id: toastId });
-          const analyzeRes = await supabase.functions.invoke("analyze-ugc-image", {
-            body: { jobId: job.id, ugcImageUrl: job.image_url, productName: state.productName, productDescription: state.productDescription, productCategory: state.productCategory, avatarName: avatar?.name || state.avatarId },
-          });
-          if (analyzeRes.error) throw analyzeRes.error;
-          const analyzeData: any = analyzeRes.data;
-          if (!analyzeData?.success) throw new Error(analyzeData?.error || `Falha ao analisar take ${i + 1}`);
-          toast.loading(`Gerando prompt do take ${i + 1}...`, { id: toastId });
-          const scriptType = detectScriptType(takeScript);
-          const promptRes = await supabase.functions.invoke("generate-veo3-prompt", {
-            body: {
-              jobId: job.id, ugcImageUrl: job.image_url, analysisReport: analyzeData.report, script: takeScript, scriptType,
-              videoStyle: nextTakes[i]?.videoStyle || state.videoStyle, videoFormat: state.videoFormat,
-              numTakes: 1, takes: [nextTakes[i]],
-              voice: { gender: state.voiceGender, tone: state.voiceTone, energy: state.voiceEnergy, style: state.voiceStyle },
-              product: { name: state.productName, description: state.productDescription, category: state.productCategory },
-              avatar: { name: avatar?.name || state.avatarId },
+      // Logic for multi-take or single-take unified
+      const takesToProcess = state.takes.length > 0 ? state.takes : [{ ...defaultTake(1), imageJob: generatedJob, dialogue: state.script }];
+      
+      const prompts: string[] = [];
+      const nextTakes = [...state.takes];
+      
+      for (let i = 0; i < takesToProcess.length; i++) {
+        const currentTake = takesToProcess[i];
+        const job = currentTake.imageJob || (i === 0 ? generatedJob : null);
+        
+        if (!job || !job.image_url) {
+          console.warn(`[StudioStepPrompt] Skipping take ${i + 1} - no image job found`);
+          continue;
+        }
+
+        const takeScript = currentTake.dialogue?.trim() || state.script.trim();
+        toast.loading(`Analisando take ${i + 1}...`, { id: toastId });
+        
+        const analyzeRes = await supabase.functions.invoke("analyze-ugc-image", {
+          body: { 
+            jobId: job.id, 
+            ugcImageUrl: job.image_url, 
+            productName: state.productName, 
+            productDescription: state.productDescription, 
+            productCategory: state.productCategory, 
+            avatarName: avatar?.name || state.avatarId 
+          },
+        });
+        
+        if (analyzeRes.error) throw analyzeRes.error;
+        const analyzeData: any = analyzeRes.data;
+        if (!analyzeData?.success) throw new Error(analyzeData?.error || `Falha ao analisar take ${i + 1}`);
+        
+        toast.loading(`Gerando prompt do take ${i + 1}...`, { id: toastId });
+        const scriptType = detectScriptType(takeScript);
+        
+        const promptRes = await supabase.functions.invoke("generate-veo3-prompt", {
+          body: {
+            jobId: job.id, 
+            ugcImageUrl: job.image_url, 
+            analysisReport: analyzeData.report, 
+            script: takeScript, 
+            scriptType,
+            videoStyle: currentTake.videoStyle || state.videoStyle, 
+            videoFormat: state.videoFormat,
+            numTakes: 1, 
+            takes: [currentTake],
+            voice: { 
+              gender: state.voiceGender, 
+              tone: state.voiceTone, 
+              energy: state.voiceEnergy, 
+              style: state.voiceStyle 
             },
-          });
-          if (promptRes.error) throw promptRes.error;
-          const promptData: any = promptRes.data;
-          if (!promptData?.success) throw new Error(promptData?.error || `Falha ao gerar prompt do take ${i + 1}`);
-          prompts.push(promptData.veo3Prompt);
+            product: { 
+              name: state.productName, 
+              description: state.productDescription, 
+              category: state.productCategory 
+            },
+            avatar: { name: avatar?.name || state.avatarId },
+          },
+        });
+        
+        if (promptRes.error) throw promptRes.error;
+        const promptData: any = promptRes.data;
+        if (!promptData?.success) throw new Error(promptData?.error || `Falha ao gerar prompt do take ${i + 1}`);
+        
+        prompts.push(promptData.veo3Prompt);
+        if (nextTakes[i]) {
           nextTakes[i] = { ...nextTakes[i], veo3Prompt: promptData.veo3Prompt };
         }
-        setVeo3Prompts(prompts);
-        setVeo3Prompt(prompts[0]);
+      }
+      
+      if (prompts.length === 0) {
+        throw new Error("Nenhum prompt foi gerado. Verifique se as imagens foram criadas.");
+      }
+
+      setVeo3Prompts(prompts);
+      setVeo3Prompt(prompts[0]);
+      if (nextTakes.length > 0) {
         updateState({ takes: nextTakes });
-        setPromptGenerated(true);
-        setManualOpen(true);
-        navigator.clipboard.writeText(prompts.map((p, i) => `--- TAKE ${i + 1} ---\n${p}`).join("\n\n")).catch(() => {});
-        fireConfetti();
-        toast.success("Prompts por take gerados e copiados!", { id: toastId });
-        return;
       }
-
-      const analyzeRes = await supabase.functions.invoke("analyze-ugc-image", {
-        body: {
-          jobId: generatedJob.id, ugcImageUrl: generatedJob.image_url,
-          productName: state.productName, productDescription: state.productDescription,
-          productCategory: state.productCategory, avatarName: avatar?.name || state.avatarId,
-        },
-      });
-      if (analyzeRes.error) throw analyzeRes.error;
-      const analyzeData: any = analyzeRes.data;
-      if (!analyzeData?.success) {
-        const code = analyzeData?.errorCode;
-        if (code === "AI_CREDITS_EXHAUSTED") throw new Error("Créditos do Gemini esgotados.");
-        if (code === "RATE_LIMIT") throw new Error("Muitas requisições. Aguarde alguns segundos.");
-        if (code === "MODEL_OVERLOADED") throw new Error("Gemini sobrecarregado. Tente em 1-2 min.");
-        throw new Error(analyzeData?.error || "Falha ao analisar imagem");
-      }
-      const report = analyzeData.report;
-      setVeo3Analysis(report);
-
-      if (analyzeData.status === "regenerate") {
-        toast.warning(`Qualidade baixa (${report.qualityScore}/10). Considere regenerar.`, { id: toastId, duration: 6000 });
-      } else {
-        toast.loading(`Análise OK (${report.qualityScore}/10). Gerando prompt...`, { id: toastId });
-      }
-
-      setVeo3Stage("generating");
-      const scriptType = detectScriptType(state.script);
-      const promptRes = await supabase.functions.invoke("generate-veo3-prompt", {
-        body: {
-          jobId: generatedJob.id, ugcImageUrl: generatedJob.image_url,
-          analysisReport: report, script: state.script, scriptType,
-          videoStyle: state.videoStyle, videoFormat: state.videoFormat,
-          numTakes, takes: state.takes.length ? state.takes : undefined,
-          voice: { gender: state.voiceGender, tone: state.voiceTone, energy: state.voiceEnergy, style: state.voiceStyle },
-          product: { name: state.productName, description: state.productDescription, category: state.productCategory },
-          avatar: { name: avatar?.name || state.avatarId },
-        },
-      });
-      if (promptRes.error) throw promptRes.error;
-      const promptData: any = promptRes.data;
-      if (!promptData?.success) {
-        const code = promptData?.errorCode;
-        if (code === "AI_CREDITS_EXHAUSTED") throw new Error("Créditos do Gemini esgotados.");
-        if (code === "RATE_LIMIT") throw new Error("Muitas requisições. Aguarde alguns segundos.");
-        if (code === "MODEL_OVERLOADED") throw new Error("Gemini sobrecarregado. Tente em 1-2 min.");
-        throw new Error(promptData?.error || "Falha ao gerar prompt Veo 3");
-      }
-
-      if (promptData.prompts && Array.isArray(promptData.prompts)) {
-        setVeo3Prompts(promptData.prompts.map((p: any) => p.veo3Prompt || p));
-        setVeo3Prompt(promptData.prompts[0]?.veo3Prompt || promptData.prompts[0]);
-      } else {
-        setVeo3Prompt(promptData.veo3Prompt);
-        setVeo3Prompts([promptData.veo3Prompt]);
-      }
-      setVeo3Metadata(promptData.metadata);
       setPromptGenerated(true);
       setManualOpen(true);
-      navigator.clipboard.writeText(
-        promptData.prompts
-          ? promptData.prompts.map((p: any, i: number) => `--- TAKE ${i + 1} ---\n${p.veo3Prompt || p}`).join("\n\n")
-          : promptData.veo3Prompt
-      ).catch(() => {});
+      
+      const clipboardText = prompts.length > 1 
+        ? prompts.map((p, i) => `--- TAKE ${i + 1} ---\n${p}`).join("\n\n")
+        : prompts[0];
+        
+      navigator.clipboard.writeText(clipboardText).catch(() => {});
       fireConfetti();
-      toast.success("Prompt(s) Veo 3 gerado(s) e copiado(s)!", { id: toastId });
+      toast.success(prompts.length > 1 ? "Prompts por take gerados e copiados!" : "Prompt Veo 3 gerado e copiado!", { id: toastId });
     } catch (err: any) {
       console.error("[StudioStepPrompt] Veo3 prompt error:", err);
       console.error("[StudioStepPrompt] Error details:", JSON.stringify(err, Object.getOwnPropertyNames(err)));
