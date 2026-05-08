@@ -127,12 +127,12 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
   const [customPose, setCustomPose] = useState("");
   const [enhance, setEnhance] = useState<string[]>([]);
   const [generating, setGenerating] = useState(false);
+  const numTakes = durations.find((d) => d.id === state.duration)?.takes || 1;
   const isAutomatic = state.generationMode === "automatico" && numTakes > 1;
   const [directorLoading, setDirectorLoading] = useState(false);
   const [storyboard, setStoryboard] = useState<TakeConfig[] | null>(null);
 
   const avatar = findAvatar(state.avatarId);
-  const numTakes = durations.find((d) => d.id === state.duration)?.takes || 1;
 
   const productCategory = (state.productCategory || "").toLowerCase();
   const categoryModes = CATEGORY_VISIBILITY[productCategory] || allInteractionModes;
