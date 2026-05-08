@@ -273,8 +273,8 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
       const takes = ensureTakes(numTakes);
       const previousJobs = takes.slice(0, index).map((t) => t.imageJob).filter(Boolean);
       const job = await generateUGCJob(takes[index], previousJobs);
-      updateTake(index, { imageJob: job, dialogue: takes[index].dialogue || job?.script_prompt?.script || "" });
-      updateState({ _generatedJob: index === 0 ? job : state._generatedJob, script: state.script || job?.script_prompt?.script || "" });
+      updateTake(index, { imageJob: job });
+      updateState({ _generatedJob: index === 0 ? job : state._generatedJob });
       toast.success(`Take ${index + 1} gerado!`);
     } catch (err: any) {
       toast.error(err?.message || "Erro ao gerar take");
@@ -759,7 +759,7 @@ function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage,
                 </div>
               )}
 
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {/* 4. TIPO DE CÂMERA */}
                 <div className="bg-background/40 p-4 rounded-xl border border-border/40">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Tipo de Câmera</p>
@@ -807,27 +807,40 @@ function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage,
                 </div>
               </div>
               
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Cenário Personalizado</p>
-                <input value={take.scenarioText || ""} onChange={(e) => onUpdate({ scenarioText: e.target.value })}
-                  placeholder="Descreva o cenário deste take..."
-                  className="w-full h-9 rounded-lg bg-card/60 border border-border/60 px-2 text-xs focus:outline-none focus:border-primary" />
-              </div>
+              <div className="space-y-6 mt-4">
+                {/* 7. CENÁRIO */}
+                <div className="bg-background/40 p-4 rounded-xl border border-border/40">
+                  <h3 className="font-bold text-xs tracking-tight mb-3">Cenário</h3>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {scenarioOptionsPt.map((tag) => {
+                      const sel = (take.scenarioTags || []).includes(tag);
+                      return (
+                        <button key={tag} onClick={() => {
+                          const currentTags = take.scenarioTags || [];
+                          const nextTags = sel ? currentTags.filter((t) => t !== tag) : [...currentTags, tag];
+                          onUpdate({ scenarioTags: nextTags });
+                        }}
+                          className={`px-3 py-1.5 rounded-full text-[10px] font-bold transition-all ${
+                            sel ? "bg-primary/20 border border-primary text-primary shadow-[0_4px_12px_hsl(var(--primary)/0.25)]"
+                              : "bg-card/60 border border-border/60 text-muted-foreground hover:text-foreground"
+                          }`}>{tag}</button>
+                      );
+                    })}
+                  </div>
+                  <input value={take.scenarioText || ""} onChange={(e) => onUpdate({ scenarioText: e.target.value })}
+                    placeholder="Ou descreva o cenário em texto..."
+                    className="w-full h-9 rounded-lg bg-card/60 border border-border/60 px-3 text-xs focus:outline-none focus:border-primary" />
+                </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <SelectField label="Ambiente" value={take.scene} options={sceneOptions} onChange={(v) => onUpdate({ scene: v as SceneType })} />
-                <SelectField label="Ângulo" value={take.cameraAngle} options={angleOptions} onChange={(v) => onUpdate({ cameraAngle: v as CameraAngle })} />
-                <SelectField label="Luz" value={take.lighting} options={lightingOptions} onChange={(v) => onUpdate({ lighting: v as LightingType })} />
-                <SelectField label="Ação" value={take.productInteraction} options={interactionOptions} onChange={(v) => onUpdate({ productInteraction: v as TakeConfig["productInteraction"] })} />
-              </div>
-
-              <div className="pt-2">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Roteiro do Take (máx. 20 palavras)</p>
-                <Textarea value={take.dialogue} onChange={(e) => onUpdate({ dialogue: e.target.value })}
-                  placeholder="Roteiro para este take..." className="min-h-[60px] rounded-xl resize-none text-sm" />
-                <p className="text-[10px] text-muted-foreground text-right mt-1">
-                  {take.dialogue.trim() ? take.dialogue.trim().split(/\s+/).length : 0}/20 palavras
-                </p>
+                <div className="bg-background/40 p-4 rounded-xl border border-border/40">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Configurações de Câmera</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <SelectField label="Ambiente" value={take.scene} options={sceneOptions} onChange={(v) => onUpdate({ scene: v as SceneType })} />
+                    <SelectField label="Ângulo" value={take.cameraAngle} options={angleOptions} onChange={(v) => onUpdate({ cameraAngle: v as CameraAngle })} />
+                    <SelectField label="Luz" value={take.lighting} options={lightingOptions} onChange={(v) => onUpdate({ lighting: v as LightingType })} />
+                    <SelectField label="Ação" value={take.productInteraction} options={interactionOptions} onChange={(v) => onUpdate({ productInteraction: v as TakeConfig["productInteraction"] })} />
+                  </div>
+                </div>
               </div>
 
               <div className="pt-2">
