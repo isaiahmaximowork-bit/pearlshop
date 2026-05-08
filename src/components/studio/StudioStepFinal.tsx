@@ -744,10 +744,22 @@ function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage,
             </div>
           </motion.div>
         )}
-        {open && isUnlocked && (
+        {open && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
             <div className="px-4 pb-4 space-y-3">
-              <div className="flex justify-end mb-2">
+              <div className="flex items-center justify-end gap-2 mb-2">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button className="text-muted-foreground hover:text-primary transition-colors">
+                        <HelpCircle size={14} />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-[200px] text-xs">
+                      A IA analisa as informações do produto e do avatar para sugerir as melhores configurações para este take automaticamente.
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 <Button onClick={handleAuto} disabled={autoLoading} size="sm" className="h-8 rounded-full gap-1.5 bg-primary text-primary-foreground px-3 text-[11px]">
                   {autoLoading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
                   {autoLoading ? "Gerando..." : "Gerar com IA"}
