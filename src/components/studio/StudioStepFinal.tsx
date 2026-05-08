@@ -759,7 +759,7 @@ function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage,
                 </div>
               )}
 
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {/* 4. TIPO DE CÂMERA */}
                 <div className="bg-background/40 p-4 rounded-xl border border-border/40">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Tipo de Câmera</p>
