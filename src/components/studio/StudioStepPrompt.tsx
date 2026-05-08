@@ -290,8 +290,8 @@ export function StudioStepPrompt({ state, updateState }: Props) {
         </div>
       )}
 
-      {/* Configuração de Voz - Hidden if >1 take and automatico */}
-      {!(numTakes > 1 && state.generationMode === "automatico") && (
+      {/* Configuração de Voz - Hidden if >1 take (now per-take) or automatico */}
+      {numTakes === 1 && state.generationMode !== "automatico" && (
         <div className={`${glassCard} p-6`}>
           <h3 className="font-bold tracking-tight mb-4">Configuração de Voz</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -301,26 +301,15 @@ export function StudioStepPrompt({ state, updateState }: Props) {
                 <div className="flex flex-wrap gap-1.5">
                   {cfg.options.map((opt) => {
                     const sel = (state as any)[key] === opt;
-                      return (
-                        <button key={opt} onClick={() => {
-                          const applyChange = () => {
-                            updateState({ [key]: opt } as any);
-                          };
-
-                          if (numTakes > 1) {
-                            setSuccessWarningOpen({
-                              open: true,
-                              onConfirm: applyChange
-                            });
-                          } else {
-                            applyChange();
-                          }
-                        }}
+                    return (
+                      <button key={opt} onClick={() => {
+                        updateState({ [key]: opt } as any);
+                      }}
                         className={`px-3 py-1.5 rounded-full text-xs font-semibold capitalize transition-all ${
                           sel ? "bg-gradient-to-r from-primary to-purple-600 text-white shadow-md shadow-primary/30"
                             : "bg-card/60 border border-border/60 text-muted-foreground hover:text-foreground"
                         }`}>{opt}</button>
-                      );
+                    );
                   })}
                 </div>
               </div>
