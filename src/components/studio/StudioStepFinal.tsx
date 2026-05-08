@@ -273,8 +273,8 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
       const takes = ensureTakes(numTakes);
       const previousJobs = takes.slice(0, index).map((t) => t.imageJob).filter(Boolean);
       const job = await generateUGCJob(takes[index], previousJobs);
-      updateTake(index, { imageJob: job, dialogue: takes[index].dialogue || job?.script_prompt?.script || "" });
-      updateState({ _generatedJob: index === 0 ? job : state._generatedJob, script: state.script || job?.script_prompt?.script || "" });
+      updateTake(index, { imageJob: job });
+      updateState({ _generatedJob: index === 0 ? job : state._generatedJob });
       toast.success(`Take ${index + 1} gerado!`);
     } catch (err: any) {
       toast.error(err?.message || "Erro ao gerar take");
