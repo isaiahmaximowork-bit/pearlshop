@@ -696,10 +696,11 @@ function PillGroup({ label, options, value, onChange }: { label: string; options
   );
 }
 
-function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage, generating, cameraStyles, videoStyles, interactions }: {
+function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage, generating, cameraStyles, videoStyles, interactions, isUnlocked }: {
   index: number; take: TakeConfig; onUpdate: (patch: Partial<TakeConfig>) => void; onAutoGenerate: () => void;
   onGenerateImage: () => void; generating: boolean;
   cameraStyles: { id: string; label: string }[]; videoStyles: { id: VideoStyle; label: string }[]; interactions: string[];
+  isUnlocked: boolean;
 }) {
   const [open, setOpen] = useState(index === 0);
   const [autoLoading, setAutoLoading] = useState(false);
