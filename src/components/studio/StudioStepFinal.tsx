@@ -803,6 +803,25 @@ function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage,
                   <div className="space-y-3">
                     <PillGroup label="Modo de interação" options={interactions} value={take.interaction || interactions[0]} onChange={(v) => onUpdate({ interaction: v })} />
                     <PillGroup label="Pose do avatar" options={avatarPoses} value={take.pose || avatarPoses[0]} onChange={(v) => onUpdate({ pose: v })} />
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Melhorias opcionais</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {enhancements.map((e) => {
+                          const sel = (take.enhancements || []).includes(e);
+                          return (
+                            <button key={e} onClick={() => {
+                              const current = take.enhancements || [];
+                              const next = sel ? current.filter((x) => x !== e) : [...current, e];
+                              onUpdate({ enhancements: next });
+                            }}
+                              className={`px-3 py-1.5 rounded-full text-[11px] font-bold transition-all ${
+                                sel ? "bg-primary/20 border border-primary text-primary shadow-[0_4px_16px_hsl(var(--primary)/0.25)]"
+                                  : "bg-card/60 border border-border/60 text-muted-foreground hover:text-foreground"
+                              }`}>{e}</button>
+                          );
+                        })}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
