@@ -177,7 +177,7 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
     updateState({ duration: d.id, numTakes: d.takes as 1|2|3|4|5, takes: ensureTakes(d.takes).slice(0, d.takes) });
   };
 
-  const showManualOptions = numTakes === 1 || (numTakes > 1 && !isAutomatic);
+  const showManualOptions = numTakes === 1;
 
   const fetchAvatarAsDataUrl = async (src: string): Promise<string | null> => {
     try {
@@ -579,7 +579,8 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
               className="w-full h-11 rounded-xl bg-card/60 border border-border/60 px-3 text-sm focus:outline-none focus:border-primary" />
           </div>
 
-      {/* Manual per-take config — always show when takes > 1 and manual (Requested: Scenario, Style, Merge, Camera must appear in each take modal) */}
+        </>
+      )}
       {numTakes > 1 && !isAutomatic && (
         <div className={`${glassCard} p-6`}>
           <div className="flex items-center gap-2 mb-4">
@@ -612,9 +613,6 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
           </div>
         </div>
       )}
-        </>
-      )}
-
       {/* AUTO MODE: Director generate */}
       {numTakes > 1 && isAutomatic && (
         <div className={`${glassCard} p-6`}>
