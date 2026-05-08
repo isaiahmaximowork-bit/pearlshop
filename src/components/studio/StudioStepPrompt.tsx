@@ -378,8 +378,11 @@ export function StudioStepPrompt({ state, updateState }: Props) {
                 onVoiceChange={(key, val) => {
                   const applyChange = () => {
                     if (i === 0) {
-                      // Apply to all
+                      // Apply to all: first update global state
                       updateState({ [key]: val } as any);
+                      // Then update all takes to maintain UI consistency if they had overrides
+                      const nextTakes = state.takes.map(t => ({ ...t, [key]: val }));
+                      updateState({ takes: nextTakes });
                     } else {
                       // Only to this take
                       const nextTakes = [...state.takes];
