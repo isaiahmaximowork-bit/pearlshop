@@ -805,8 +805,6 @@ function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage,
                     <PillGroup label="Pose do avatar" options={avatarPoses} value={take.pose || avatarPoses[0]} onChange={(v) => onUpdate({ pose: v })} />
                   </div>
                 </div>
-              </div>
-              
                 {/* 7. CENÁRIO */}
                 <div className="bg-background/40 p-4 rounded-xl border border-border/40">
                   <h3 className="font-bold text-xs tracking-tight mb-3">Cenário</h3>
