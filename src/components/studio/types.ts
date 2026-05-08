@@ -47,6 +47,7 @@ export interface TakeConfig {
   pose?: string;
   scenarioText?: string;
   scenarioTags?: string[];
+  enhancements?: string[];
   dialogue: string;
   veo3Prompt?: string;
   imageJob?: any;
