@@ -181,10 +181,10 @@ export function StudioStepPrompt({ state, updateState }: Props) {
             numTakes: 1, 
             takes: [currentTake],
             voice: { 
-              gender: state.voiceGender, 
-              tone: state.voiceTone, 
-              energy: state.voiceEnergy, 
-              style: state.voiceStyle 
+              gender: currentTake.voiceGender || state.voiceGender, 
+              tone: currentTake.voiceTone || state.voiceTone, 
+              energy: currentTake.voiceEnergy || state.voiceEnergy, 
+              style: currentTake.voiceStyle || state.voiceStyle 
             },
             product: { 
               name: state.productName, 
