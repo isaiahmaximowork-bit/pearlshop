@@ -301,19 +301,26 @@ export function StudioStepPrompt({ state, updateState }: Props) {
                 <div className="flex flex-wrap gap-1.5">
                   {cfg.options.map((opt) => {
                     const sel = (state as any)[key] === opt;
-                    return (
-                      <button key={opt} onClick={() => {
-                        if (numTakes > 1 && (state as any)[key] !== opt) {
-                          const ok = window.confirm("Ao alterar as configurações de voz em múltiplos takes, a UGC pode ficar com voz não persistente. Deseja continuar?");
-                          if (!ok) return;
-                        }
-                        updateState({ [key]: opt } as any);
-                      }}
+                      return (
+                        <button key={opt} onClick={() => {
+                          const applyChange = () => {
+                            updateState({ [key]: opt } as any);
+                          };
+
+                          if (numTakes > 1) {
+                            setSuccessWarningOpen({
+                              open: true,
+                              onConfirm: applyChange
+                            });
+                          } else {
+                            applyChange();
+                          }
+                        }}
                         className={`px-3 py-1.5 rounded-full text-xs font-semibold capitalize transition-all ${
                           sel ? "bg-gradient-to-r from-primary to-purple-600 text-white shadow-md shadow-primary/30"
                             : "bg-card/60 border border-border/60 text-muted-foreground hover:text-foreground"
                         }`}>{opt}</button>
-                    );
+                      );
                   })}
                 </div>
               </div>
