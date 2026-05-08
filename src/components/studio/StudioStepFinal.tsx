@@ -482,8 +482,8 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
         </div>
       )}
 
-      {/* CONDITIONAL: Show camera, style, merge only when manual or 1 take */}
-      {showManualOptions && (
+      {/* 4. TIPO DE CÂMERA, ESTILO, MESCLAR, CENÁRIO - Only show here when it's exactly 1 take */}
+      {numTakes === 1 && (
         <>
           {/* 4. TIPO DE CÂMERA */}
           <div className={`${glassCard} p-6`}>
