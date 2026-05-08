@@ -329,8 +329,8 @@ export function StudioStepPrompt({ state, updateState }: Props) {
         </div>
       )}
 
-      {/* Diálogo - Hidden if >1 take and automatico */}
-      {!(numTakes > 1 && state.generationMode === "automatico") && (
+      {/* Diálogo - Hidden if >1 take (now using per-take config) or automatico */}
+      {numTakes === 1 && !(numTakes > 1 && state.generationMode === "automatico") && (
         <div className={`${glassCard} p-6`}>
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold tracking-tight">Diálogo (Roteiro)</h3>
