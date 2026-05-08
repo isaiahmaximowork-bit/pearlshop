@@ -579,6 +579,41 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
               className="w-full h-11 rounded-xl bg-card/60 border border-border/60 px-3 text-sm focus:outline-none focus:border-primary" />
           </div>
 
+        </>
+      )}
+
+      {/* Manual per-take config */}
+      {numTakes > 1 && !isAutomatic && (
+        <div className={`${glassCard} p-6`}>
+          <div className="flex items-center gap-2 mb-4">
+            <Smartphone size={18} className="text-primary" />
+            <h3 className="font-bold tracking-tight">Configuração por Take</h3>
+          </div>
+          <div className="space-y-4">
+            {Array.from({ length: numTakes }).map((_, i) => {
+              const takes = ensureTakes(numTakes);
+              const take = takes[i];
+              const isPreviousTakeGenerated = i === 0 || !!takes[i - 1]?.imageJob?.image_url;
+              
+              return (
+                <TakeAccordion
+                  key={i}
+                  index={i}
+                  take={take}
+                  onUpdate={(patch) => updateTake(i, patch)}
+                  onAutoGenerate={() => handleAutoGenerateTake(i)}
+                  onGenerateImage={() => handleGenerateTakeImage(i)}
+                  generating={generating}
+                  cameraStyles={cameraStyles}
+                  videoStyles={visibleVideoStyles}
+                  interactions={visibleInteractionModes}
+                  isUnlocked={isPreviousTakeGenerated}
+                  avatarPoses={avatarPoses}
+                />
+              );
+            })}
+          </div>
+        </div>
       )}
 
       {/* Manual per-take config */}
