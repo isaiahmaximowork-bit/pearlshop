@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Wand2, Copy, ChevronDown, ExternalLink, Sparkles,
   Loader2, Download, X, Rocket, Film, Megaphone, ThumbsUp, BookOpen,
-  FolderOpen,
+  FolderOpen, HelpCircle,
 } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
@@ -56,6 +56,7 @@ export function StudioStepPrompt({ state, updateState }: Props) {
   const [promptGenerated, setPromptGenerated] = useState(false);
   const [manualOpen, setManualOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
+  const [voiceWarningOpen, setSuccessWarningOpen] = useState<{ open: boolean; onConfirm: () => void } | null>(null);
 
   const avatar = findAvatar(state.avatarId);
   const numTakes = durations.find((d) => d.id === state.duration)?.takes || 1;
@@ -180,10 +181,10 @@ export function StudioStepPrompt({ state, updateState }: Props) {
             numTakes: 1, 
             takes: [currentTake],
             voice: { 
-              gender: state.voiceGender, 
-              tone: state.voiceTone, 
-              energy: state.voiceEnergy, 
-              style: state.voiceStyle 
+              gender: currentTake.voiceGender || state.voiceGender, 
+              tone: currentTake.voiceTone || state.voiceTone, 
+              energy: currentTake.voiceEnergy || state.voiceEnergy, 
+              style: currentTake.voiceStyle || state.voiceStyle 
             },
             product: { 
               name: state.productName, 
@@ -289,8 +290,8 @@ export function StudioStepPrompt({ state, updateState }: Props) {
         </div>
       )}
 
-      {/* Configuração de Voz - Hidden if >1 take and automatico */}
-      {!(numTakes > 1 && state.generationMode === "automatico") && (
+      {/* Configuração de Voz - Hidden if >1 take (now per-take) or automatico */}
+      {numTakes === 1 && state.generationMode !== "automatico" && (
         <div className={`${glassCard} p-6`}>
           <h3 className="font-bold tracking-tight mb-4">Configuração de Voz</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -302,10 +303,6 @@ export function StudioStepPrompt({ state, updateState }: Props) {
                     const sel = (state as any)[key] === opt;
                     return (
                       <button key={opt} onClick={() => {
-                        if (numTakes > 1 && (state as any)[key] !== opt) {
-                          const ok = window.confirm("Ao alterar as configurações de voz em múltiplos takes, a UGC pode ficar com voz não persistente. Deseja continuar?");
-                          if (!ok) return;
-                        }
                         updateState({ [key]: opt } as any);
                       }}
                         className={`px-3 py-1.5 rounded-full text-xs font-semibold capitalize transition-all ${
@@ -321,8 +318,8 @@ export function StudioStepPrompt({ state, updateState }: Props) {
         </div>
       )}
 
-      {/* Diálogo - Hidden if >1 take and automatico */}
-      {!(numTakes > 1 && state.generationMode === "automatico") && (
+      {/* Diálogo - Hidden if >1 take (now using per-take config) or automatico */}
+      {numTakes === 1 && !(numTakes > 1 && state.generationMode === "automatico") && (
         <div className={`${glassCard} p-6`}>
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold tracking-tight">Diálogo (Roteiro)</h3>
@@ -362,6 +359,85 @@ export function StudioStepPrompt({ state, updateState }: Props) {
           </div>
         </div>
       )}
+
+      {/* Multi-take Voice & Script Configuration */}
+      {numTakes > 1 && state.generationMode !== "automatico" && (
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-2 px-1">
+            <Film size={18} className="text-primary" />
+            <h3 className="font-bold tracking-tight text-lg">Configuração por Take</h3>
+          </div>
+          
+          <div className="space-y-4">
+            {Array.from({ length: numTakes }).map((_, i) => (
+              <TakePromptAccordion 
+                key={i}
+                index={i}
+                state={state}
+                updateState={updateState}
+                onVoiceChange={(key, val) => {
+                  const applyChange = () => {
+                    if (i === 0) {
+                      // Apply to all: first update global state
+                      updateState({ [key]: val } as any);
+                      // Then update all takes to maintain UI consistency if they had overrides
+                      const nextTakes = state.takes.map(t => ({ ...t, [key]: val }));
+                      updateState({ takes: nextTakes });
+                    } else {
+                      // Only to this take
+                      const nextTakes = [...state.takes];
+                      if (!nextTakes[i]) nextTakes[i] = defaultTake(i + 1);
+                      nextTakes[i] = { ...nextTakes[i], [key]: val };
+                      updateState({ takes: nextTakes });
+                    }
+                  };
+
+                  if (i > 0) {
+                    setSuccessWarningOpen({
+                      open: true,
+                      onConfirm: applyChange
+                    });
+                  } else {
+                    applyChange();
+                  }
+                }}
+                handleGenerateScriptAI={handleGenerateScriptAI}
+                scriptLoading={scriptLoading}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Voice Warning Dialog */}
+      <Dialog open={!!voiceWarningOpen?.open} onOpenChange={(open) => !open && setSuccessWarningOpen(null)}>
+        <DialogContent className="sm:max-w-md rounded-2xl">
+          <div className="space-y-4 py-4">
+            <div className="flex flex-col items-center text-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-yellow-500/10 flex items-center justify-center">
+                <HelpCircle size={24} className="text-yellow-600" />
+              </div>
+              <h3 className="font-bold text-xl">Aviso de Voz</h3>
+              <p className="text-muted-foreground text-sm">
+                Ao alterar as configurações de voz em um take individual (que não seja o primeiro), 
+                a inteligência artificial pode gerar uma voz com características diferentes das cenas anteriores.
+              </p>
+              <p className="text-sm font-semibold">Deseja continuar mesmo assim?</p>
+            </div>
+            <div className="flex gap-3 pt-2">
+              <Button variant="outline" className="flex-1 rounded-xl h-11" onClick={() => setSuccessWarningOpen(null)}>
+                Cancelar
+              </Button>
+              <Button className="flex-1 rounded-xl h-11 bg-primary hover:bg-primary/90" onClick={() => {
+                voiceWarningOpen?.onConfirm();
+                setSuccessWarningOpen(null);
+              }}>
+                Continuar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Gerar Prompt Veo 3 */}
       <div className={`${glassCard} p-6 relative overflow-hidden`}>
@@ -497,6 +573,142 @@ export function StudioStepPrompt({ state, updateState }: Props) {
           </Button>
         </div>
       )}
+    </div>
+  );
+}
+
+function TakePromptAccordion({ 
+  index, 
+  state, 
+  updateState, 
+  onVoiceChange, 
+  handleGenerateScriptAI, 
+  scriptLoading 
+}: { 
+  index: number; 
+  state: StudioState; 
+  updateState: (patch: Partial<StudioState>) => void; 
+  onVoiceChange: (key: string, val: string) => void;
+  handleGenerateScriptAI: (type: any, title: string) => Promise<void>;
+  scriptLoading: string | null;
+}) {
+  const [open, setOpen] = useState(index === 0);
+  const take = state.takes[index] || defaultTake(index + 1);
+  
+  // Voice settings prioritize take-specific, fall back to global
+  const currentVoice = {
+    voiceGender: take.voiceGender || state.voiceGender,
+    voiceTone: take.voiceTone || state.voiceTone,
+    voiceEnergy: take.voiceEnergy || state.voiceEnergy,
+    voiceStyle: take.voiceStyle || state.voiceStyle,
+  };
+
+  const updateTakeScript = (val: string) => {
+    const nextTakes = [...state.takes];
+    if (!nextTakes[index]) nextTakes[index] = defaultTake(index + 1);
+    nextTakes[index] = { ...nextTakes[index], dialogue: val };
+    updateState({ takes: nextTakes });
+  };
+
+  return (
+    <div className="rounded-xl border border-border/60 bg-card/40 backdrop-blur-md overflow-hidden">
+      <button onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center justify-between p-4 hover:bg-accent/20 transition-colors">
+        <div className="flex items-center gap-3 text-left">
+          <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-xs font-black text-primary">
+            {index + 1}
+          </div>
+          <div>
+            <p className="text-sm font-bold">Take {index + 1}</p>
+            <p className="text-[10px] text-muted-foreground line-clamp-1">
+              {take.dialogue || "Sem roteiro definido"}
+            </p>
+          </div>
+        </div>
+        <motion.div animate={{ rotate: open ? 180 : 0 }}>
+          <ChevronDown size={18} className="text-muted-foreground" />
+        </motion.div>
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
+            <div className="px-4 pb-5 space-y-5">
+              {/* Voice Config for this Take */}
+              <div className="pt-2 space-y-4">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-primary flex items-center gap-1.5">
+                  <Film size={10} /> Configuração de Voz {index === 0 && "(Mestra)"}
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {(Object.entries(voiceOptions) as [keyof typeof voiceOptions, { label: string; options: string[] }][]).map(([key, cfg]) => (
+                    <div key={key}>
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-1.5">{cfg.label}</p>
+                      <div className="flex flex-wrap gap-1">
+                        {cfg.options.map((opt) => {
+                          const sel = (currentVoice as any)[key] === opt;
+                          return (
+                            <button key={opt} onClick={() => onVoiceChange(key, opt)}
+                              className={`px-2.5 py-1 rounded-full text-[10px] font-semibold capitalize transition-all ${
+                                sel ? "bg-gradient-to-r from-primary to-purple-600 text-white shadow-md"
+                                  : "bg-background/60 border border-border/60 text-muted-foreground hover:text-foreground"
+                              }`}>{opt}</button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {index === 0 && (
+                  <p className="text-[9px] text-muted-foreground italic">
+                    * Alterações no Take 1 são replicadas para todos os outros takes.
+                  </p>
+                )}
+              </div>
+
+              {/* Script for this Take */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-primary">Diálogo (Roteiro)</p>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-7 rounded-lg gap-1.5 text-[10px]" disabled={!!scriptLoading}>
+                        {scriptLoading ? <Loader2 size={10} className="animate-spin" /> : <Wand2 size={10} />}
+                        Gerar com IA
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-64 rounded-xl">
+                      {scriptTemplates.map((tpl) => {
+                        const Icon = tpl.icon;
+                        return (
+                          <DropdownMenuItem key={tpl.id}
+                            onClick={async (e) => { 
+                              e.preventDefault(); 
+                              // Use existing logic but it might need adaptation for per-take script generation
+                              // For now, let's keep it simple
+                              handleGenerateScriptAI(tpl.id as any, tpl.title); 
+                            }}
+                            className="gap-3 py-2 cursor-pointer">
+                            <Icon size={14} className="text-primary" />
+                            <div>
+                              <p className="text-xs font-bold">{tpl.title}</p>
+                            </div>
+                          </DropdownMenuItem>
+                        );
+                      })}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+                <Textarea 
+                  value={take.dialogue} 
+                  onChange={(e) => updateTakeScript(e.target.value)}
+                  placeholder="Roteiro específico para este take..." 
+                  className="min-h-[100px] rounded-xl resize-none text-xs bg-background/40" 
+                />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
