@@ -733,17 +733,7 @@ function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage,
         </div>
       </button>
       <AnimatePresence>
-        {open && !isUnlocked && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
-            <div className="px-4 pb-4">
-              <div className="rounded-xl border border-dashed border-border/60 p-6 text-center">
-                <Smartphone size={24} className="mx-auto text-muted-foreground/40 mb-2" />
-                <p className="text-xs font-bold text-muted-foreground">Take Bloqueado</p>
-                <p className="text-[10px] text-muted-foreground mt-1">Gere a imagem do Take {index} para liberar as configurações deste take.</p>
-              </div>
-            </div>
-          </motion.div>
-        )}
+        {/* Note: Configuration is now always visible, only the "Generate" button is blocked if previous take is not ready */}
         {open && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
             <div className="px-4 pb-4 space-y-3">
