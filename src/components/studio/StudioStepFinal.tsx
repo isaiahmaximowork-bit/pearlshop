@@ -177,7 +177,7 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
     updateState({ duration: d.id, numTakes: d.takes as 1|2|3|4|5, takes: ensureTakes(d.takes).slice(0, d.takes) });
   };
 
-  const showManualOptions = numTakes === 1;
+  const showManualOptions = numTakes === 1 || (numTakes > 1 && !isAutomatic);
 
   const fetchAvatarAsDataUrl = async (src: string): Promise<string | null> => {
     try {
