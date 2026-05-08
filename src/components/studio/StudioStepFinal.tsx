@@ -127,7 +127,7 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
   const [customPose, setCustomPose] = useState("");
   const [enhance, setEnhance] = useState<string[]>([]);
   const [generating, setGenerating] = useState(false);
-  const isAutomatic = state.generationMode === "automatico";
+  const isAutomatic = state.generationMode === "automatico" && numTakes > 1;
   const [directorLoading, setDirectorLoading] = useState(false);
   const [storyboard, setStoryboard] = useState<TakeConfig[] | null>(null);
 
