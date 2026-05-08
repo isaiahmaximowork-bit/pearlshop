@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Wand2, Copy, ChevronDown, ExternalLink, Sparkles,
   Loader2, Download, X, Rocket, Film, Megaphone, ThumbsUp, BookOpen,
-  FolderOpen,
+  FolderOpen, HelpCircle,
 } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
@@ -56,6 +56,7 @@ export function StudioStepPrompt({ state, updateState }: Props) {
   const [promptGenerated, setPromptGenerated] = useState(false);
   const [manualOpen, setManualOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
+  const [voiceWarningOpen, setSuccessWarningOpen] = useState<{ open: boolean; onConfirm: () => void } | null>(null);
 
   const avatar = findAvatar(state.avatarId);
   const numTakes = durations.find((d) => d.id === state.duration)?.takes || 1;
@@ -362,6 +363,82 @@ export function StudioStepPrompt({ state, updateState }: Props) {
           </div>
         </div>
       )}
+
+      {/* Multi-take Voice & Script Configuration */}
+      {numTakes > 1 && (
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-2 px-1">
+            <Film size={18} className="text-primary" />
+            <h3 className="font-bold tracking-tight text-lg">Configuração por Take</h3>
+          </div>
+          
+          <div className="space-y-4">
+            {Array.from({ length: numTakes }).map((_, i) => (
+              <TakePromptAccordion 
+                key={i}
+                index={i}
+                state={state}
+                updateState={updateState}
+                onVoiceChange={(key, val) => {
+                  const applyChange = () => {
+                    if (i === 0) {
+                      // Apply to all
+                      updateState({ [key]: val } as any);
+                    } else {
+                      // Only to this take
+                      const nextTakes = [...state.takes];
+                      if (!nextTakes[i]) nextTakes[i] = defaultTake(i + 1);
+                      nextTakes[i] = { ...nextTakes[i], [key]: val };
+                      updateState({ takes: nextTakes });
+                    }
+                  };
+
+                  if (i > 0) {
+                    setSuccessWarningOpen({
+                      open: true,
+                      onConfirm: applyChange
+                    });
+                  } else {
+                    applyChange();
+                  }
+                }}
+                handleGenerateScriptAI={handleGenerateScriptAI}
+                scriptLoading={scriptLoading}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Voice Warning Dialog */}
+      <Dialog open={!!voiceWarningOpen?.open} onOpenChange={(open) => !open && setSuccessWarningOpen(null)}>
+        <DialogContent className="sm:max-w-md rounded-2xl">
+          <div className="space-y-4 py-4">
+            <div className="flex flex-col items-center text-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-yellow-500/10 flex items-center justify-center">
+                <HelpCircle size={24} className="text-yellow-600" />
+              </div>
+              <h3 className="font-bold text-xl">Aviso de Voz</h3>
+              <p className="text-muted-foreground text-sm">
+                Ao alterar as configurações de voz em um take individual (que não seja o primeiro), 
+                a inteligência artificial pode gerar uma voz com características diferentes das cenas anteriores.
+              </p>
+              <p className="text-sm font-semibold">Deseja continuar mesmo assim?</p>
+            </div>
+            <div className="flex gap-3 pt-2">
+              <Button variant="outline" className="flex-1 rounded-xl h-11" onClick={() => setSuccessWarningOpen(null)}>
+                Cancelar
+              </Button>
+              <Button className="flex-1 rounded-xl h-11 bg-primary hover:bg-primary/90" onClick={() => {
+                voiceWarningOpen?.onConfirm();
+                setSuccessWarningOpen(null);
+              }}>
+                Continuar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Gerar Prompt Veo 3 */}
       <div className={`${glassCard} p-6 relative overflow-hidden`}>
