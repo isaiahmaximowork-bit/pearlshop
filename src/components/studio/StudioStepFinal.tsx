@@ -340,7 +340,7 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
     }
   };
 
-  const handleDirectorGenerate = async () => {
+  const handleAutoGenerateTake = async (index: number) => {
     if (directorLoading) return;
     setDirectorLoading(true);
     const toastId = toast.loading("Agente Director gerando sequência...");
