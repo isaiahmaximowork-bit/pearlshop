@@ -48,6 +48,10 @@ export interface TakeConfig {
   scenarioText?: string;
   scenarioTags?: string[];
   enhancements?: string[];
+  voiceGender?: string;
+  voiceTone?: string;
+  voiceEnergy?: string;
+  voiceStyle?: string;
   dialogue: string;
   veo3Prompt?: string;
   imageJob?: any;
