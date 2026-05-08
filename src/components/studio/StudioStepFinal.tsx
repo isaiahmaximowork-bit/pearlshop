@@ -177,7 +177,7 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
     updateState({ duration: d.id, numTakes: d.takes as 1|2|3|4|5, takes: ensureTakes(d.takes).slice(0, d.takes) });
   };
 
-  const showManualOptions = numTakes === 1 || (numTakes > 1 && !isAutomatic);
+  const showManualOptions = numTakes === 1;
 
   const fetchAvatarAsDataUrl = async (src: string): Promise<string | null> => {
     try {
@@ -579,31 +579,38 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
               className="w-full h-11 rounded-xl bg-card/60 border border-border/60 px-3 text-sm focus:outline-none focus:border-primary" />
           </div>
 
-          {/* Manual per-take config — when takes > 1 and manual */}
-          {numTakes > 1 && !isAutomatic && (
-            <div className={`${glassCard} p-6`}>
-              <h3 className="font-bold tracking-tight mb-4">Configuração por Take</h3>
-              <div className="space-y-3">
-                {Array.from({ length: numTakes }).map((_, i) => {
-                  const take = ensureTakes(numTakes)[i];
-                  return (
-                    <TakeAccordion
-                      key={i}
-                      index={i}
-                      take={take}
-                      onUpdate={(patch) => updateTake(i, patch)}
-                      onAutoGenerate={() => handleAutoGenerateTake(i)}
-                      onGenerateImage={() => handleGenerateTakeImage(i)}
-                      generating={generating}
-                      cameraStyles={cameraStyles}
-                      videoStyles={visibleVideoStyles}
-                      interactions={visibleInteractionModes}
-                    />
-                  );
-                })}
-              </div>
-            </div>
-          )}
+      {/* Manual per-take config — always show when takes > 1 and manual (Requested: Scenario, Style, Merge, Camera must appear in each take modal) */}
+      {numTakes > 1 && !isAutomatic && (
+        <div className={`${glassCard} p-6`}>
+          <div className="flex items-center gap-2 mb-4">
+            <Smartphone size={18} className="text-primary" />
+            <h3 className="font-bold tracking-tight">Configuração por Take</h3>
+          </div>
+          <div className="space-y-4">
+            {Array.from({ length: numTakes }).map((_, i) => {
+              const takes = ensureTakes(numTakes);
+              const take = takes[i];
+              const isPreviousTakeGenerated = i === 0 || !!takes[i - 1]?.imageJob?.image_url;
+              
+              return (
+                <TakeAccordion
+                  key={i}
+                  index={i}
+                  take={take}
+                  onUpdate={(patch) => updateTake(i, patch)}
+                  onAutoGenerate={() => handleAutoGenerateTake(i)}
+                  onGenerateImage={() => handleGenerateTakeImage(i)}
+                  generating={generating}
+                  cameraStyles={cameraStyles}
+                  videoStyles={visibleVideoStyles}
+                  interactions={visibleInteractionModes}
+                  isUnlocked={isPreviousTakeGenerated}
+                />
+              );
+            })}
+          </div>
+        </div>
+      )}
         </>
       )}
 
@@ -689,10 +696,11 @@ function PillGroup({ label, options, value, onChange }: { label: string; options
   );
 }
 
-function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage, generating, cameraStyles, videoStyles, interactions }: {
+function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage, generating, cameraStyles, videoStyles, interactions, isUnlocked }: {
   index: number; take: TakeConfig; onUpdate: (patch: Partial<TakeConfig>) => void; onAutoGenerate: () => void;
   onGenerateImage: () => void; generating: boolean;
   cameraStyles: { id: string; label: string }[]; videoStyles: { id: VideoStyle; label: string }[]; interactions: string[];
+  isUnlocked: boolean;
 }) {
   const [open, setOpen] = useState(index === 0);
   const [autoLoading, setAutoLoading] = useState(false);
@@ -714,10 +722,24 @@ function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage,
             <p className="text-[10px] text-muted-foreground capitalize">{take.scene} · {take.cameraAngle.replace(/_/g, " ")}</p>
           </div>
         </div>
-        <motion.div animate={{ rotate: open ? 180 : 0 }}><ChevronDown size={16} className="text-muted-foreground" /></motion.div>
+        <div className="flex items-center gap-3">
+          {!isUnlocked && index > 0 && <Smartphone size={14} className="text-muted-foreground/40" />}
+          <motion.div animate={{ rotate: open ? 180 : 0 }}><ChevronDown size={16} className="text-muted-foreground" /></motion.div>
+        </div>
       </button>
       <AnimatePresence>
-        {open && (
+        {open && !isUnlocked && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
+            <div className="px-4 pb-4">
+              <div className="rounded-xl border border-dashed border-border/60 p-6 text-center">
+                <Smartphone size={24} className="mx-auto text-muted-foreground/40 mb-2" />
+                <p className="text-xs font-bold text-muted-foreground">Take Bloqueado</p>
+                <p className="text-[10px] text-muted-foreground mt-1">Gere a imagem do Take {index} para liberar as configurações deste take.</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+        {open && isUnlocked && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
             <div className="px-4 pb-4 space-y-3">
               <div className="flex justify-end mb-2">
@@ -726,43 +748,52 @@ function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage,
                   {autoLoading ? "Gerando..." : "Gerar com IA"}
                 </Button>
               </div>
-              <Button onClick={onGenerateImage} disabled={generating} variant="outline" size="sm" className="w-full rounded-xl gap-2 mb-2">
-                {generating ? <Loader2 size={14} className="animate-spin" /> : <Camera size={14} />}
-                {take.imageJob?.image_url ? "Gerar novamente a imagem" : "Gerar imagem deste take"}
-              </Button>
+
               {take.imageJob?.image_url && (
-                <div className="mx-auto w-32 aspect-[9/16] rounded-xl overflow-hidden border border-border/60 mb-2">
+                <div className="mx-auto w-32 aspect-[9/16] rounded-xl overflow-hidden border border-border/60 mb-2 relative group">
                   <img src={take.imageJob.image_url} alt={`Take ${index + 1}`} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <Button onClick={onGenerateImage} disabled={generating} size="sm" variant="ghost" className="text-white hover:text-white hover:bg-white/20">
+                      Regerar
+                    </Button>
+                  </div>
                 </div>
               )}
+
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <SelectField label="Tipo de Câmera" value={take.cameraStyle || "frente"} options={cameraStyles} onChange={(v) => onUpdate({ cameraStyle: v })} />
                 <SelectField label="Estilo do Vídeo" value={take.videoStyle || "ugc_autentico"} options={videoStyles} onChange={(v) => onUpdate({ videoStyle: v as VideoStyle })} />
                 <SelectField label="Mesclar com IA" value={take.interaction || interactions[0]} options={interactions.map((x) => ({ id: x, label: x }))} onChange={(v) => onUpdate({ interaction: v })} />
               </div>
+              
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Cenário</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Cenário Personalizado</p>
                 <input value={take.scenarioText || ""} onChange={(e) => onUpdate({ scenarioText: e.target.value })}
                   placeholder="Descreva o cenário deste take..."
                   className="w-full h-9 rounded-lg bg-card/60 border border-border/60 px-2 text-xs focus:outline-none focus:border-primary" />
               </div>
-              <Button onClick={handleAuto} disabled={autoLoading} variant="outline" size="sm" className="hidden">
-                {autoLoading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-                {autoLoading ? "Gerando..." : "Gerar automaticamente com IA"}
-              </Button>
+
               <div className="grid grid-cols-2 gap-3">
-                <SelectField label="Cenário" value={take.scene} options={sceneOptions} onChange={(v) => onUpdate({ scene: v as SceneType })} />
-                <SelectField label="Ângulo de Câmera" value={take.cameraAngle} options={angleOptions} onChange={(v) => onUpdate({ cameraAngle: v as CameraAngle })} />
-                <SelectField label="Iluminação" value={take.lighting} options={lightingOptions} onChange={(v) => onUpdate({ lighting: v as LightingType })} />
-                <SelectField label="Interação" value={take.productInteraction} options={interactionOptions} onChange={(v) => onUpdate({ productInteraction: v as TakeConfig["productInteraction"] })} />
+                <SelectField label="Ambiente" value={take.scene} options={sceneOptions} onChange={(v) => onUpdate({ scene: v as SceneType })} />
+                <SelectField label="Ângulo" value={take.cameraAngle} options={angleOptions} onChange={(v) => onUpdate({ cameraAngle: v as CameraAngle })} />
+                <SelectField label="Luz" value={take.lighting} options={lightingOptions} onChange={(v) => onUpdate({ lighting: v as LightingType })} />
+                <SelectField label="Ação" value={take.productInteraction} options={interactionOptions} onChange={(v) => onUpdate({ productInteraction: v as TakeConfig["productInteraction"] })} />
               </div>
-              <div>
+
+              <div className="pt-2">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Roteiro do Take (máx. 20 palavras)</p>
                 <Textarea value={take.dialogue} onChange={(e) => onUpdate({ dialogue: e.target.value })}
                   placeholder="Roteiro para este take..." className="min-h-[60px] rounded-xl resize-none text-sm" />
                 <p className="text-[10px] text-muted-foreground text-right mt-1">
                   {take.dialogue.trim() ? take.dialogue.trim().split(/\s+/).length : 0}/20 palavras
                 </p>
+              </div>
+
+              <div className="pt-2">
+                <Button onClick={onGenerateImage} disabled={generating} className="w-full rounded-xl gap-2 bg-gradient-to-r from-primary to-purple-600 shadow-md">
+                  {generating ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                  {take.imageJob?.image_url ? "Regerar imagem" : "Gerar UGC deste take"}
+                </Button>
               </div>
             </div>
           </motion.div>
