@@ -63,6 +63,7 @@ interface GenerateVeo3Input {
   analysisReport: AnalysisReport;
   script: string;
   scriptType: ScriptType;
+  videoFormat?: string; // Ex: "9:16", "16:9", "1:1"
   voice: VoiceConfig;
   product: ProductInfo;
   avatar: AvatarInfo;
@@ -113,7 +114,7 @@ RESPONSABILIDADES CRÍTICAS:
    - Lip-sync perfeito
 
 5. GARANTIR QUALIDADE AAA
-   - 4K, 60fps, 9:16
+   - 4K, 60fps, [ASPECT RATIO]
    - Iluminação profissional
    - Cores vibrantes e precisas
    - Realismo extremo (poros, cabelo, tecido, mãos)
@@ -171,7 +172,7 @@ CRITICAL: The person's mouth MUST move throughout the video, clearly articulatin
 === TECHNICAL SPECIFICATIONS ===
 Resolution: 4K (3840x2160)
 Frame rate: 60fps
-Aspect ratio: 9:16 (vertical)
+Aspect ratio: [VIDEO FORMAT]
 Duration: 8 seconds
 Quality: Highest
 Color depth: 10-bit
@@ -235,7 +236,7 @@ OUTPUT OBRIGATÓRIO — APENAS JSON VÁLIDO (sem markdown, sem cercas, sem texto
   "technicalSpecs": {
     "resolution": "4K",
     "fps": 60,
-    "aspectRatio": "9:16",
+    "aspectRatio": "[VIDEO FORMAT]",
     "duration": 8,
     "colorDepth": "10-bit",
     "dynamicRange": "HDR"
@@ -288,6 +289,7 @@ async function retry<T>(fn: () => Promise<T>, label: string, maxAttempts = 3): P
 
 function buildUserPrompt(input: GenerateVeo3Input): string {
   const a = input.analysisReport;
+  const videoFormat = input.videoFormat || "9:16";
   return `GERE UM PROMPT VEO 3 OTIMIZADO BASEADO EM ANÁLISE DE IMAGEM
 
 === ANALYSIS REPORT ===
@@ -348,12 +350,12 @@ Generate a COMPLETE, DETAILED, and PROFESSIONAL Veo 3 prompt that:
 8. Ensures PERFECT LIP-SYNC — mouth MUST move throughout
 9. Preserves avatar consistency 100%
 10. Ensures product visibility and manipulation of "${input.product.name || ""}"
-11. Includes ALL technical specifications (4K, 60fps, 9:16, 8s)
+11. Includes ALL technical specifications (4K, 60fps, ${videoFormat}, 8s)
 
 REMINDER: The SPOKEN DIALOGUE block with the COMPLETE script MUST be the FIRST section
 in your veo3Prompt. Without it, the video will be MUTE which is UNACCEPTABLE.
 
-The prompt MUST be in ENGLISH (for Veo 3). Apenas JSON no formato definido no system prompt — nada fora.`;
+The prompt MUST be in ENGLISH (for Veo 3). Substitua [VIDEO FORMAT] e [ASPECT RATIO] por "${videoFormat}" em todo o prompt. Apenas JSON no formato definido no system prompt — nada fora.`;
 }
 
 async function callGemini(apiKey: string, system: string, user: string) {
