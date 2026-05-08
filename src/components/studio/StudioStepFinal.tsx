@@ -1,8 +1,14 @@
 import { useState } from "react";
 import {
   Sparkles, Loader2, Camera, Zap, Eye, Hand, Smartphone, Music,
-  MonitorSmartphone, Ratio, ToggleLeft, ToggleRight, ChevronDown,
+  MonitorSmartphone, Ratio, ToggleLeft, ToggleRight, ChevronDown, HelpCircle,
 } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import { glassCard, glassSelectable } from "./glass";
@@ -727,21 +733,23 @@ function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage,
         </div>
       </button>
       <AnimatePresence>
-        {open && !isUnlocked && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
-            <div className="px-4 pb-4">
-              <div className="rounded-xl border border-dashed border-border/60 p-6 text-center">
-                <Smartphone size={24} className="mx-auto text-muted-foreground/40 mb-2" />
-                <p className="text-xs font-bold text-muted-foreground">Take Bloqueado</p>
-                <p className="text-[10px] text-muted-foreground mt-1">Gere a imagem do Take {index} para liberar as configurações deste take.</p>
-              </div>
-            </div>
-          </motion.div>
-        )}
-        {open && isUnlocked && (
+        {/* Note: Configuration is now always visible, only the "Generate" button is blocked if previous take is not ready */}
+        {open && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
             <div className="px-4 pb-4 space-y-3">
-              <div className="flex justify-end mb-2">
+              <div className="flex items-center justify-end gap-2 mb-2">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button className="text-muted-foreground hover:text-primary transition-colors">
+                        <HelpCircle size={14} />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-[200px] text-xs">
+                      A IA analisa as informações do produto e do avatar para sugerir as melhores configurações para este take automaticamente.
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 <Button onClick={handleAuto} disabled={autoLoading} size="sm" className="h-8 rounded-full gap-1.5 bg-primary text-primary-foreground px-3 text-[11px]">
                   {autoLoading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
                   {autoLoading ? "Gerando..." : "Gerar com IA"}
@@ -863,9 +871,13 @@ function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage,
               </div>
 
               <div className="pt-2">
-                <Button onClick={onGenerateImage} disabled={generating} className="w-full rounded-xl gap-2 bg-gradient-to-r from-primary to-purple-600 shadow-md">
+                <Button 
+                  onClick={onGenerateImage} 
+                  disabled={generating || !isUnlocked} 
+                  className="w-full rounded-xl gap-2 bg-gradient-to-r from-primary to-purple-600 shadow-md disabled:grayscale disabled:opacity-50"
+                >
                   {generating ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                  {take.imageJob?.image_url ? "Regerar imagem" : "Gerar UGC deste take"}
+                  {!isUnlocked ? `Gere o Take ${index} primeiro` : (take.imageJob?.image_url ? "Regerar imagem" : "Gerar UGC deste take")}
                 </Button>
               </div>
             </div>
