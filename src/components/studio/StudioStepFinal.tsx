@@ -722,10 +722,13 @@ function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage,
             <p className="text-[10px] text-muted-foreground capitalize">{take.scene} · {take.cameraAngle.replace(/_/g, " ")}</p>
           </div>
         </div>
-        <motion.div animate={{ rotate: open ? 180 : 0 }}><ChevronDown size={16} className="text-muted-foreground" /></motion.div>
+        <div className="flex items-center gap-3">
+          {!isUnlocked && index > 0 && <Smartphone size={14} className="text-muted-foreground/40" />}
+          <motion.div animate={{ rotate: open ? 180 : 0 }}><ChevronDown size={16} className="text-muted-foreground" /></motion.div>
+        </div>
       </button>
       <AnimatePresence>
-        {open && (
+        {open && isUnlocked && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
             <div className="px-4 pb-4 space-y-3">
               <div className="flex justify-end mb-2">
