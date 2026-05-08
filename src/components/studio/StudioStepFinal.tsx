@@ -1,8 +1,14 @@
 import { useState } from "react";
 import {
   Sparkles, Loader2, Camera, Zap, Eye, Hand, Smartphone, Music,
-  MonitorSmartphone, Ratio, ToggleLeft, ToggleRight, ChevronDown,
+  MonitorSmartphone, Ratio, ToggleLeft, ToggleRight, ChevronDown, HelpCircle,
 } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import { glassCard, glassSelectable } from "./glass";
