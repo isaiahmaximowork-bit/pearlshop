@@ -881,9 +881,13 @@ function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage,
               </div>
 
               <div className="pt-2">
-                <Button onClick={onGenerateImage} disabled={generating} className="w-full rounded-xl gap-2 bg-gradient-to-r from-primary to-purple-600 shadow-md">
+                <Button 
+                  onClick={onGenerateImage} 
+                  disabled={generating || !isUnlocked} 
+                  className="w-full rounded-xl gap-2 bg-gradient-to-r from-primary to-purple-600 shadow-md disabled:grayscale disabled:opacity-50"
+                >
                   {generating ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                  {take.imageJob?.image_url ? "Regerar imagem" : "Gerar UGC deste take"}
+                  {!isUnlocked ? `Gere o Take ${index} primeiro` : (take.imageJob?.image_url ? "Regerar imagem" : "Gerar UGC deste take")}
                 </Button>
               </div>
             </div>
