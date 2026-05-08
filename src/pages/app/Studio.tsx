@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Package, Settings2, Wand2, ChevronLeft, ChevronRight, Sparkles, Film } from "lucide-react";
+import { Package, Settings2, Wand2, ChevronLeft, ChevronRight, Sparkles, Film, RotateCcw } from "lucide-react";
+import { toast } from "sonner";
 import { StudioStepProduct } from "@/components/studio/StudioStepProduct";
 import { StudioStepConfig } from "@/components/studio/StudioStepConfig";
 import { StudioStepFinal } from "@/components/studio/StudioStepFinal";
@@ -112,6 +113,34 @@ const Studio = () => {
   const next = () => setCurrentStep((s) => Math.min(4, s + 1));
   const prev = () => setCurrentStep((s) => Math.max(1, s - 1));
 
+  const resetStepData = () => {
+    if (currentStep === 3) {
+      updateState({
+        _generatedJob: null,
+        _generatedTakes: [],
+        takes: state.takes.map(t => ({ ...t, imageJob: null, veo3Prompt: null })),
+        script: "",
+      });
+      toast.success("Configurações do Passo 3 resetadas!");
+    } else if (currentStep === 4) {
+      updateState({
+        script: "",
+        takes: state.takes.map(t => ({ ...t, veo3Prompt: null })),
+      });
+      toast.success("Configurações do Passo 4 resetadas!");
+    }
+  };
+
+  const hasDataToReset = () => {
+    if (currentStep === 3) {
+      return !!state._generatedJob || state._generatedTakes.length > 0 || state.takes.some(t => t.imageJob) || !!state.script;
+    }
+    if (currentStep === 4) {
+      return !!state.script || state.takes.some(t => t.veo3Prompt);
+    }
+    return false;
+  };
+
   return (
     <div className="relative min-h-[calc(100vh-4rem)] bg-gradient-to-br from-background via-background to-primary/5">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -119,8 +148,8 @@ const Studio = () => {
         <div className="absolute top-1/2 -left-40 w-96 h-96 rounded-full bg-purple-500/10 blur-[120px]" />
       </div>
 
-      <div className="relative px-6 pt-8 pb-4 max-w-6xl mx-auto">
-        <div className="flex items-center gap-3 mb-2">
+      <div className="relative px-6 pt-8 pb-4 max-w-6xl mx-auto flex items-center justify-between">
+        <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-lg shadow-primary/30">
             <Sparkles size={20} className="text-white" />
           </div>
@@ -129,6 +158,16 @@ const Studio = () => {
             <p className="text-sm text-muted-foreground">Crie vídeos com IA em 4 passos</p>
           </div>
         </div>
+        {(currentStep === 3 || currentStep === 4) && hasDataToReset() && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={resetStepData}
+            className="rounded-xl text-muted-foreground hover:text-red-500 gap-2 transition-colors"
+          >
+            <RotateCcw size={16} /> Resetar Etapa
+          </Button>
+        )}
       </div>
 
       <div className="relative sticky top-0 z-30 backdrop-blur-xl bg-background/70 border-b border-border/50">

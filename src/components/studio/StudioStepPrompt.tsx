@@ -210,9 +210,12 @@ export function StudioStepPrompt({ state, updateState }: Props) {
 
       setVeo3Prompts(prompts);
       setVeo3Prompt(prompts[0]);
-      if (nextTakes.length > 0) {
-        updateState({ takes: nextTakes });
-      }
+      // Note: We don't save the veo3Prompt back to the state here anymore as requested, 
+      // but we need it for the UI/clipboard. 
+      // If we want it to NOT persist, we just don't call updateState with prompts.
+      // However, the user said "saves in library and it's done", but here it's prompts.
+      // For now, let's keep it in local state only for this step session if they want it not to persist in the main state.
+      // But they specifically said "sistema nao salve ali a foto, e as configuracoes".
       setPromptGenerated(true);
       setManualOpen(true);
       
