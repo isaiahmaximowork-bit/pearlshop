@@ -605,6 +605,7 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
                   videoStyles={visibleVideoStyles}
                   interactions={visibleInteractionModes}
                   isUnlocked={isPreviousTakeGenerated}
+                  avatarPoses={avatarPoses}
                 />
               );
             })}
