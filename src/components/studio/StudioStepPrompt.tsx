@@ -577,3 +577,139 @@ export function StudioStepPrompt({ state, updateState }: Props) {
     </div>
   );
 }
+
+function TakePromptAccordion({ 
+  index, 
+  state, 
+  updateState, 
+  onVoiceChange, 
+  handleGenerateScriptAI, 
+  scriptLoading 
+}: { 
+  index: number; 
+  state: StudioState; 
+  updateState: (patch: Partial<StudioState>) => void; 
+  onVoiceChange: (key: string, val: string) => void;
+  handleGenerateScriptAI: (type: any, title: string) => Promise<void>;
+  scriptLoading: string | null;
+}) {
+  const [open, setOpen] = useState(index === 0);
+  const take = state.takes[index] || defaultTake(index + 1);
+  
+  // Voice settings prioritize take-specific, fall back to global
+  const currentVoice = {
+    voiceGender: take.voiceGender || state.voiceGender,
+    voiceTone: take.voiceTone || state.voiceTone,
+    voiceEnergy: take.voiceEnergy || state.voiceEnergy,
+    voiceStyle: take.voiceStyle || state.voiceStyle,
+  };
+
+  const updateTakeScript = (val: string) => {
+    const nextTakes = [...state.takes];
+    if (!nextTakes[index]) nextTakes[index] = defaultTake(index + 1);
+    nextTakes[index] = { ...nextTakes[index], dialogue: val };
+    updateState({ takes: nextTakes });
+  };
+
+  return (
+    <div className="rounded-xl border border-border/60 bg-card/40 backdrop-blur-md overflow-hidden">
+      <button onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center justify-between p-4 hover:bg-accent/20 transition-colors">
+        <div className="flex items-center gap-3 text-left">
+          <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-xs font-black text-primary">
+            {index + 1}
+          </div>
+          <div>
+            <p className="text-sm font-bold">Take {index + 1}</p>
+            <p className="text-[10px] text-muted-foreground line-clamp-1">
+              {take.dialogue || "Sem roteiro definido"}
+            </p>
+          </div>
+        </div>
+        <motion.div animate={{ rotate: open ? 180 : 0 }}>
+          <ChevronDown size={18} className="text-muted-foreground" />
+        </motion.div>
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
+            <div className="px-4 pb-5 space-y-5">
+              {/* Voice Config for this Take */}
+              <div className="pt-2 space-y-4">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-primary flex items-center gap-1.5">
+                  <Film size={10} /> Configuração de Voz {index === 0 && "(Mestra)"}
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {(Object.entries(voiceOptions) as [keyof typeof voiceOptions, { label: string; options: string[] }][]).map(([key, cfg]) => (
+                    <div key={key}>
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-1.5">{cfg.label}</p>
+                      <div className="flex flex-wrap gap-1">
+                        {cfg.options.map((opt) => {
+                          const sel = (currentVoice as any)[key] === opt;
+                          return (
+                            <button key={opt} onClick={() => onVoiceChange(key, opt)}
+                              className={`px-2.5 py-1 rounded-full text-[10px] font-semibold capitalize transition-all ${
+                                sel ? "bg-gradient-to-r from-primary to-purple-600 text-white shadow-md"
+                                  : "bg-background/60 border border-border/60 text-muted-foreground hover:text-foreground"
+                              }`}>{opt}</button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {index === 0 && (
+                  <p className="text-[9px] text-muted-foreground italic">
+                    * Alterações no Take 1 são replicadas para todos os outros takes.
+                  </p>
+                )}
+              </div>
+
+              {/* Script for this Take */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-primary">Diálogo (Roteiro)</p>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-7 rounded-lg gap-1.5 text-[10px]" disabled={!!scriptLoading}>
+                        {scriptLoading ? <Loader2 size={10} className="animate-spin" /> : <Wand2 size={10} />}
+                        Gerar com IA
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-64 rounded-xl">
+                      {scriptTemplates.map((tpl) => {
+                        const Icon = tpl.icon;
+                        return (
+                          <DropdownMenuItem key={tpl.id}
+                            onClick={async (e) => { 
+                              e.preventDefault(); 
+                              // Use existing logic but it might need adaptation for per-take script generation
+                              // For now, let's keep it simple
+                              handleGenerateScriptAI(tpl.id as any, tpl.title); 
+                            }}
+                            className="gap-3 py-2 cursor-pointer">
+                            <Icon size={14} className="text-primary" />
+                            <div>
+                              <p className="text-xs font-bold">{tpl.title}</p>
+                            </div>
+                          </DropdownMenuItem>
+                        );
+                      })}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+                <Textarea 
+                  value={take.dialogue} 
+                  onChange={(e) => updateTakeScript(e.target.value)}
+                  placeholder="Roteiro específico para este take..." 
+                  className="min-h-[100px] rounded-xl resize-none text-xs bg-background/40" 
+                />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
