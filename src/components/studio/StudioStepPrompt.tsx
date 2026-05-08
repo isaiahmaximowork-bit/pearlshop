@@ -372,7 +372,7 @@ export function StudioStepPrompt({ state, updateState }: Props) {
       )}
 
       {/* Multi-take Voice & Script Configuration */}
-      {numTakes > 1 && (
+      {numTakes > 1 && state.generationMode !== "automatico" && (
         <div className="space-y-4">
           <div className="flex items-center gap-2 mb-2 px-1">
             <Film size={18} className="text-primary" />
