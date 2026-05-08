@@ -286,75 +286,79 @@ export function StudioStepPrompt({ state, updateState }: Props) {
         </div>
       )}
 
-      {/* Configuração de Voz */}
-      <div className={`${glassCard} p-6`}>
-        <h3 className="font-bold tracking-tight mb-4">Configuração de Voz</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {(Object.entries(voiceOptions) as [keyof typeof voiceOptions, { label: string; options: string[] }][]).map(([key, cfg]) => (
-            <div key={key}>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">{cfg.label}</p>
-              <div className="flex flex-wrap gap-1.5">
-                {cfg.options.map((opt) => {
-                  const sel = (state as any)[key] === opt;
+      {/* Configuração de Voz - Hidden if >1 take and automatico */}
+      {!(numTakes > 1 && state.generationMode === "automatico") && (
+        <div className={`${glassCard} p-6`}>
+          <h3 className="font-bold tracking-tight mb-4">Configuração de Voz</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {(Object.entries(voiceOptions) as [keyof typeof voiceOptions, { label: string; options: string[] }][]).map(([key, cfg]) => (
+              <div key={key}>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">{cfg.label}</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {cfg.options.map((opt) => {
+                    const sel = (state as any)[key] === opt;
+                    return (
+                      <button key={opt} onClick={() => {
+                        if (numTakes > 1 && (state as any)[key] !== opt) {
+                          const ok = window.confirm("Ao alterar as configurações de voz em múltiplos takes, a UGC pode ficar com voz não persistente. Deseja continuar?");
+                          if (!ok) return;
+                        }
+                        updateState({ [key]: opt } as any);
+                      }}
+                        className={`px-3 py-1.5 rounded-full text-xs font-semibold capitalize transition-all ${
+                          sel ? "bg-gradient-to-r from-primary to-purple-600 text-white shadow-md shadow-primary/30"
+                            : "bg-card/60 border border-border/60 text-muted-foreground hover:text-foreground"
+                        }`}>{opt}</button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Diálogo - Hidden if >1 take and automatico */}
+      {!(numTakes > 1 && state.generationMode === "automatico") && (
+        <div className={`${glassCard} p-6`}>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold tracking-tight">Diálogo (Roteiro)</h3>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="rounded-xl gap-2" disabled={!!scriptLoading}>
+                  {scriptLoading ? <Loader2 size={14} className="animate-spin" /> : <Wand2 size={14} />}
+                  {scriptLoading ? "Gerando..." : "Preencher com IA"}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-72 rounded-xl">
+                {scriptTemplates.map((tpl) => {
+                  const Icon = tpl.icon;
+                  const isLoading = scriptLoading === tpl.id;
                   return (
-                    <button key={opt} onClick={() => {
-                      if (numTakes > 1 && (state as any)[key] !== opt) {
-                        const ok = window.confirm("Ao alterar as configurações de voz em múltiplos takes, a UGC pode ficar com voz não persistente. Deseja continuar?");
-                        if (!ok) return;
-                      }
-                      updateState({ [key]: opt } as any);
-                    }}
-                      className={`px-3 py-1.5 rounded-full text-xs font-semibold capitalize transition-all ${
-                        sel ? "bg-gradient-to-r from-primary to-purple-600 text-white shadow-md shadow-primary/30"
-                          : "bg-card/60 border border-border/60 text-muted-foreground hover:text-foreground"
-                      }`}>{opt}</button>
+                    <DropdownMenuItem key={tpl.id}
+                      onClick={(e) => { e.preventDefault(); handleGenerateScriptAI(tpl.id as any, tpl.title); }}
+                      disabled={!!scriptLoading} className="gap-3 py-2.5 cursor-pointer">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shrink-0">
+                        {isLoading ? <Loader2 size={16} className="text-primary animate-spin" /> : <Icon size={16} className="text-primary" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold">{tpl.title}</p>
+                        <p className="text-[11px] text-muted-foreground leading-snug">{tpl.desc}</p>
+                      </div>
+                    </DropdownMenuItem>
                   );
                 })}
-              </div>
-            </div>
-          ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          <Textarea value={state.script} onChange={(e) => updateState({ script: e.target.value })}
+            placeholder="Escreva o roteiro do vídeo aqui..." className="min-h-[140px] rounded-xl resize-none" />
+          <div className="flex justify-between mt-2">
+            <p className="text-[10px] text-muted-foreground">Máx. {numTakes * 20} palavras ({numTakes} take{numTakes > 1 ? "s" : ""} × 20)</p>
+            <p className={`text-[10px] ${wordCount > numTakes * 20 ? "text-red-400" : "text-muted-foreground"}`}>{wordCount} palavras</p>
+          </div>
         </div>
-      </div>
-
-      {/* Diálogo */}
-      <div className={`${glassCard} p-6`}>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-bold tracking-tight">Diálogo (Roteiro)</h3>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="rounded-xl gap-2" disabled={!!scriptLoading}>
-                {scriptLoading ? <Loader2 size={14} className="animate-spin" /> : <Wand2 size={14} />}
-                {scriptLoading ? "Gerando..." : "Preencher com IA"}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-72 rounded-xl">
-              {scriptTemplates.map((tpl) => {
-                const Icon = tpl.icon;
-                const isLoading = scriptLoading === tpl.id;
-                return (
-                  <DropdownMenuItem key={tpl.id}
-                    onClick={(e) => { e.preventDefault(); handleGenerateScriptAI(tpl.id as any, tpl.title); }}
-                    disabled={!!scriptLoading} className="gap-3 py-2.5 cursor-pointer">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shrink-0">
-                      {isLoading ? <Loader2 size={16} className="text-primary animate-spin" /> : <Icon size={16} className="text-primary" />}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold">{tpl.title}</p>
-                      <p className="text-[11px] text-muted-foreground leading-snug">{tpl.desc}</p>
-                    </div>
-                  </DropdownMenuItem>
-                );
-              })}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-        <Textarea value={state.script} onChange={(e) => updateState({ script: e.target.value })}
-          placeholder="Escreva o roteiro do vídeo aqui..." className="min-h-[140px] rounded-xl resize-none" />
-        <div className="flex justify-between mt-2">
-          <p className="text-[10px] text-muted-foreground">Máx. {numTakes * 20} palavras ({numTakes} take{numTakes > 1 ? "s" : ""} × 20)</p>
-          <p className={`text-[10px] ${wordCount > numTakes * 20 ? "text-red-400" : "text-muted-foreground"}`}>{wordCount} palavras</p>
-        </div>
-      </div>
+      )}
 
       {/* Gerar Prompt Veo 3 */}
       <div className={`${glassCard} p-6 relative overflow-hidden`}>
