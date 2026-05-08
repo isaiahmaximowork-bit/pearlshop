@@ -807,7 +807,7 @@ function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage,
                 </div>
               </div>
               
-              <div className="space-y-4">
+              <div className="space-y-6 mt-4">
                 {/* 7. CENÁRIO */}
                 <div className="bg-background/40 p-4 rounded-xl border border-border/40">
                   <h3 className="font-bold text-xs tracking-tight mb-3">Cenário</h3>
