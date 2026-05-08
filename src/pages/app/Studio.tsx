@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Package, Settings2, Wand2, ChevronLeft, ChevronRight, Sparkles, Film } from "lucide-react";
+import { Package, Settings2, Wand2, ChevronLeft, ChevronRight, Sparkles, Film, RotateCcw } from "lucide-react";
+import { toast } from "sonner";
 import { StudioStepProduct } from "@/components/studio/StudioStepProduct";
 import { StudioStepConfig } from "@/components/studio/StudioStepConfig";
 import { StudioStepFinal } from "@/components/studio/StudioStepFinal";
