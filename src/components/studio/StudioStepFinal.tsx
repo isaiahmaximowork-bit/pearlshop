@@ -340,7 +340,7 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
     }
   };
 
-  const handleDirectorGenerate = async () => {
+  const handleDirectorSequence = async () => {
     if (directorLoading) return;
     setDirectorLoading(true);
     const toastId = toast.loading("Agente Director gerando sequência...");
@@ -482,8 +482,8 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
         </div>
       )}
 
-      {/* CONDITIONAL: Show camera, style, merge only when manual or 1 take */}
-      {showManualOptions && (
+      {/* 4. TIPO DE CÂMERA, ESTILO, MESCLAR, CENÁRIO - Only show here when it's exactly 1 take */}
+      {numTakes === 1 && (
         <>
           {/* 4. TIPO DE CÂMERA */}
           <div className={`${glassCard} p-6`}>
@@ -605,6 +605,7 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
                   videoStyles={visibleVideoStyles}
                   interactions={visibleInteractionModes}
                   isUnlocked={isPreviousTakeGenerated}
+                  avatarPoses={avatarPoses}
                 />
               );
             })}
@@ -699,8 +700,8 @@ function PillGroup({ label, options, value, onChange }: { label: string; options
 function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage, generating, cameraStyles, videoStyles, interactions, isUnlocked }: {
   index: number; take: TakeConfig; onUpdate: (patch: Partial<TakeConfig>) => void; onAutoGenerate: () => void;
   onGenerateImage: () => void; generating: boolean;
-  cameraStyles: { id: string; label: string }[]; videoStyles: { id: VideoStyle; label: string }[]; interactions: string[];
-  isUnlocked: boolean;
+  cameraStyles: { id: string; label: string; img: any }[]; videoStyles: { id: VideoStyle; label: string; icon: any }[]; interactions: string[];
+  isUnlocked: boolean; avatarPoses: string[];
 }) {
   const [open, setOpen] = useState(index === 0);
   const [autoLoading, setAutoLoading] = useState(false);
@@ -760,10 +761,52 @@ function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage,
                 </div>
               )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <SelectField label="Tipo de Câmera" value={take.cameraStyle || "frente"} options={cameraStyles} onChange={(v) => onUpdate({ cameraStyle: v })} />
-                <SelectField label="Estilo do Vídeo" value={take.videoStyle || "ugc_autentico"} options={videoStyles} onChange={(v) => onUpdate({ videoStyle: v as VideoStyle })} />
-                <SelectField label="Mesclar com IA" value={take.interaction || interactions[0]} options={interactions.map((x) => ({ id: x, label: x }))} onChange={(v) => onUpdate({ interaction: v })} />
+              <div className="space-y-4">
+                {/* 4. TIPO DE CÂMERA */}
+                <div className="bg-background/40 p-4 rounded-xl border border-border/40">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Tipo de Câmera</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {cameraStyles.map((c: any) => {
+                      const sel = (take.cameraStyle || "frente") === c.id;
+                      return (
+                        <div key={c.id} onClick={() => onUpdate({ cameraStyle: c.id })} className={`${glassSelectable(sel)} p-2 text-center`}>
+                          <div className={`relative aspect-square w-full rounded-lg overflow-hidden mb-2 ring-1 transition-all ${sel ? "ring-primary shadow-md" : "ring-transparent"}`}>
+                            <img src={c.img} alt={c.label} className="w-full h-full object-cover" />
+                          </div>
+                          <p className="font-bold text-[11px]">{c.label}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 5. ESTILO DO VÍDEO */}
+                <div className="bg-background/40 p-4 rounded-xl border border-border/40">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Estilo do Vídeo</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {videoStyles.map((v) => {
+                      const Icon = v.icon;
+                      const sel = (take.videoStyle || "ugc_autentico") === v.id;
+                      return (
+                        <div key={v.id} onClick={() => onUpdate({ videoStyle: v.id })} className={`${glassSelectable(sel)} p-3 flex flex-col items-center text-center`}>
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center mb-1.5 ${
+                            sel ? "bg-gradient-to-br from-primary to-purple-600 text-white" : "bg-accent"
+                          }`}><Icon size={14} /></div>
+                          <p className="font-bold text-[10px]">{v.label}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 6. MESCLAR COM IA (Interação e Pose) */}
+                <div className="bg-background/40 p-4 rounded-xl border border-border/40">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Mesclar com IA</p>
+                  <div className="space-y-3">
+                    <PillGroup label="Modo de interação" options={interactions} value={take.interaction || interactions[0]} onChange={(v) => onUpdate({ interaction: v })} />
+                    <PillGroup label="Pose do avatar" options={avatarPoses} value={take.pose || avatarPoses[0]} onChange={(v) => onUpdate({ pose: v })} />
+                  </div>
+                </div>
               </div>
               
               <div>

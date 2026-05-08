@@ -44,6 +44,7 @@ export interface TakeConfig {
   cameraMovement: CameraMovement;
   productInteraction: 'vestindo' | 'segurando' | 'espelho' | 'demonstrando';
   interaction?: string;
+  pose?: string;
   scenarioText?: string;
   dialogue: string;
   veo3Prompt?: string;
