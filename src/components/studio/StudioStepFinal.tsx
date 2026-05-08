@@ -852,7 +852,7 @@ function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage,
                 </div>
 
                 <div className="bg-background/40 p-4 rounded-xl border border-border/40">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Configurações de Câmera</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Enquadramento</p>
                   <div className="grid grid-cols-2 gap-3">
                     <SelectField label="Ambiente" value={take.scene} options={sceneOptions} onChange={(v) => onUpdate({ scene: v as SceneType })} />
                     <SelectField label="Ângulo" value={take.cameraAngle} options={angleOptions} onChange={(v) => onUpdate({ cameraAngle: v as CameraAngle })} />
