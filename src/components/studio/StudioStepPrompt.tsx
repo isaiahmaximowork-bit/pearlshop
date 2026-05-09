@@ -97,7 +97,7 @@ export function StudioStepPrompt({ state, updateState }: Props) {
     return "promocional";
   };
 
-  const handleGenerateScriptAI = async (type: "promocional" | "indicacional" | "storytelling", title: string) => {
+  const handleGenerateScriptAI = async (type: "promocional" | "indicacional" | "storytelling", title: string, takeIndex?: number) => {
     if (scriptLoading) return;
     setScriptLoading(type);
     const toastId = toast.loading(`Gerando roteiro ${title}...`);
@@ -108,7 +108,8 @@ export function StudioStepPrompt({ state, updateState }: Props) {
           productName: state.productName, productDescription: state.productDescription,
           productCategory: state.productCategory, voiceGender: state.voiceGender,
           voiceTone: state.voiceTone, voiceEnergy: state.voiceEnergy, voiceStyle: state.voiceStyle,
-          duration: state.duration, videoStyle: state.videoStyle, numTakes,
+          duration: takeIndex !== undefined ? "1take" : state.duration, videoStyle: state.videoStyle, numTakes: takeIndex !== undefined ? 1 : numTakes,
+          isSingleTake: takeIndex !== undefined,
         },
       });
       if (error) throw error;
@@ -118,7 +119,14 @@ export function StudioStepPrompt({ state, updateState }: Props) {
         if (data?.errorCode === "MODEL_OVERLOADED") { toast.error("Gemini sobrecarregado. Tente em 1-2 min.", { id: toastId }); return; }
         throw new Error(data?.error || "Falha ao gerar roteiro");
       }
-      updateState({ script: data.script });
+      if (takeIndex !== undefined) {
+        const nextTakes = [...state.takes];
+        if (!nextTakes[takeIndex]) nextTakes[takeIndex] = defaultTake(takeIndex + 1);
+        nextTakes[takeIndex] = { ...nextTakes[takeIndex], dialogue: data.script };
+        updateState({ takes: nextTakes });
+      } else {
+        updateState({ script: data.script });
+      }
       toast.success(`Roteiro ${title} pronto!`, { id: toastId });
     } catch (err: any) {
       toast.error(err?.message || "Erro ao gerar roteiro", { id: toastId });
@@ -644,7 +652,7 @@ function TakePromptAccordion({
   state: StudioState; 
   updateState: (patch: Partial<StudioState>) => void; 
   onVoiceChange: (key: string, val: string) => void;
-  handleGenerateScriptAI: (type: any, title: string) => Promise<void>;
+  handleGenerateScriptAI: (type: any, title: string, index?: number) => Promise<void>;
   scriptLoading: string | null;
 }) {
   const [open, setOpen] = useState(index === 0);
@@ -740,7 +748,7 @@ function TakePromptAccordion({
                               e.preventDefault(); 
                               // Use existing logic but it might need adaptation for per-take script generation
                               // For now, let's keep it simple
-                              handleGenerateScriptAI(tpl.id as any, tpl.title); 
+                              handleGenerateScriptAI(tpl.id as any, tpl.title, index); 
                             }}
                             className="gap-3 py-2 cursor-pointer">
                             <Icon size={14} className="text-primary" />
