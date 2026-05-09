@@ -130,39 +130,7 @@ const row2 = allReviews.slice(9, 18);
 const ReviewSection = () => {
   return (
     <section className="relative z-10 py-12 md:py-24 px-4 md:px-6">
-      <style>{`
-        @keyframes marquee-left {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        @keyframes marquee-right {
-          0% { transform: translateX(-50%); }
-          100% { transform: translateX(0); }
-        }
-        .animate-marquee-left {
-          animation: marquee-left 60s linear infinite;
-        }
-        .animate-marquee-right {
-          animation: marquee-right 60s linear infinite;
-        }
-        .pause-on-hover:hover {
-          animation-play-state: paused;
-        }
-        .mask-fade {
-          mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-          -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-        }
-        @keyframes card-float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-6px); }
-        }
-        .review-card-float {
-          animation: card-float 4s ease-in-out infinite;
-        }
-        .review-card-float:nth-child(2n) { animation-delay: 0.5s; }
-        .review-card-float:nth-child(3n) { animation-delay: 1s; }
-        .review-card-float:nth-child(5n) { animation-delay: 1.5s; }
-      `}</style>
+      {/* Animations moved to index.css */}
 
       <div className="w-full max-w-[1600px] mx-auto">
         <div className="text-center mb-20 space-y-6 px-6">

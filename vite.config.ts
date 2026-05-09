@@ -13,8 +13,8 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
-    target: "es2020",
-    cssTarget: "chrome80", // Standardizes CSS
+    target: "es2015",
+    cssTarget: "safari13", // Better compatibility for iPhone
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
