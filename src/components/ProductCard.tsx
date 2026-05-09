@@ -40,7 +40,7 @@ export function ProductCard({ title, price, status, imageUrl, isVerified, isAffi
           {title}
         </h4>
         <div className="flex items-center justify-between">
-          <span className="text-lg font-black text-foreground">{price}</span>
+          <span className="text-lg text-foreground">{price}</span>
           <button
             onClick={(e) => e.stopPropagation()}
             className="p-1.5 rounded-lg bg-muted text-muted-foreground hover:bg-accent transition-colors"
