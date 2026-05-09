@@ -54,8 +54,15 @@ SEMPRE:
 - Garanta visibilidade (nunca escondido ou fora de foco)
 - Refira-se como "the product from the second reference image"
 
-=== REGRA #3 — FRAMING POR INTERAÇÃO ===
-Mapeie a "interaction" para um framing OBRIGATÓRIO:
+=== REGRA #3 — FRAMING POR INTERAÇÃO & CÂMERA ===
+Mapeie a "interaction" e "cameraStyle" para um framing OBRIGATÓRIO:
+
+"pov" / cameraStyle="pov":
+→ FIRST-PERSON perspective (POV)
+→ ONLY hands visible, NO FACE, NO HEAD, NO SHOULDERS visible.
+→ Hands holding/interacting with the {productName} from the user's perspective.
+→ Close-up shot of hands and product.
+→ Exemplo: "first-person POV shot, only hands visible holding the {productName}, looking down at hands, no face in frame"
 
 "wearing" / "Vestindo o produto":
 → FULL-BODY shot (head-to-toe)
@@ -68,10 +75,11 @@ Mapeie a "interaction" para um framing OBRIGATÓRIO:
 → Mãos com 5 dedos exatos, produto em foco nas mãos
 → Exemplo: "holding the {productName} in her right hand, looking at it with a soft smile, medium shot"
 
-"selfie" / "Selfie no espelho":
-→ MEDIUM CLOSE-UP
-→ Produto visível (no espelho ou na mão)
-→ Exemplo: "taking a selfie in the mirror, holding the {productName}, medium close-up shot"
+"selfie" / "Selfie no espelho" / videoStyle="mirror_selfie":
+→ MIRROR REFLECTION shot
+→ Profile or 3/4 pose, looking at the mirror reflection.
+→ Visible phone in hand, mirror frame or edges visible, vanity or ambient room lighting.
+→ Exemplo: "taking a mirror selfie, side profile, looking at own reflection in the mirror, holding the {productName}, mirror reflection visible"
 
 "unboxing" / "Unboxing":
 → CLOSE-UP
@@ -82,6 +90,7 @@ Outros:
 → MEDIUM SHOT
 → Produto bem visível
 → Exemplo: "medium shot, product clearly visible"
+
 
 === FÓRMULA DE 6 BLOCOS (OBRIGATÓRIA, EM INGLÊS) ===
 
@@ -226,9 +235,14 @@ RESTRIÇÕES OBRIGATÓRIAS:
 - "Authentic emotion and expression."
 - "Aspect ratio: STRICTLY the requested format — fill entire frame, NO letterboxing, NO pillarboxing."
 
+### REGRAS ESPECÍFICAS DE CÂMERA (CRÍTICO)
+- Se cameraStyle="pov": O prompt DEVE ser em primeira pessoa. NÃO PODE APARECER ROSTO NEM CABEÇA. Apenas as mãos segurando o produto. Use termos como "first-person POV", "only hands visible", "from user's perspective".
+- Se videoStyle="mirror_selfie": O prompt DEVE descrever um reflexo no espelho. Use termos como "mirror reflection", "taking a mirror selfie", "visible mirror edges".
+
 ### REGRAS PARA scriptPrompt
 - script em PORTUGUÊS DO BRASIL, natural, no tom solicitado.
 - 8s: 1 frase de impacto. 16s: gancho + benefício + CTA. 24s+: gancho + storytelling + CTA.
+
 
 ### SAÍDA OBRIGATÓRIA (apenas JSON, sem markdown):
 {
@@ -579,6 +593,7 @@ Deno.serve(async (req) => {
       );
 
       // ===== IMAGE GEN com 2 referências =====
+      console.log(`[generate-ugc] Final Image Prompt for Job ${job.id}:`, agent2.imagePrompt);
       const imageDataUrl = await retry(
         () => generateImage(agent2.imagePrompt, referenceImageUrl, product.productImageUrl, GEMINI_API_KEY),
         "image-gen"
