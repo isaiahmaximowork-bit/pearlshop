@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
+import { AlertCircle } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -71,7 +72,7 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
               <AlertCircle size={48} />
             </div>
             
-            <h1 style={{ fontSize: '28px', fontWeight: '900', marginBottom: '16px', tracking: '-0.05em' }}>
+            <h1 style={{ fontSize: '28px', fontWeight: '900', marginBottom: '16px', letterSpacing: '-0.05em' }}>
               Ops! Algo deu errado.
             </h1>
             
