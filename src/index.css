@@ -96,11 +96,24 @@
     @apply border-border;
   }
 
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
   body {
     font-family: 'Poppins', sans-serif;
     @apply bg-background text-foreground;
+    /* Prevent iOS Safari from auto-zooming on form focus */
+    -webkit-text-size-adjust: 100%;
   }
-}
+
+  /* Ensure no element accidentally pushes the viewport wider on iOS */
+  #root {
+    max-width: 100%;
+    overflow-x: clip;
+  }
 
 /* Gemini animated border - Simplified for better browser compatibility */
 .gemini-star {
