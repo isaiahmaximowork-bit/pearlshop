@@ -2,6 +2,8 @@ import { useState } from "react";
 import {
   Sparkles, Loader2, Camera, Zap, Eye, Hand, Smartphone, Music,
   MonitorSmartphone, Ratio, ToggleLeft, ToggleRight, ChevronDown, HelpCircle,
+  PackageOpen, MousePointer2, Scissors, Box, Layers, PlayCircle, Move, Rotate3d,
+  ShoppingBag,
 } from "lucide-react";
 import {
   Tooltip,
@@ -10,6 +12,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { motion, AnimatePresence } from "framer-motion";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import confetti from "canvas-confetti";
 import { glassCard, glassSelectable } from "./glass";
 import { Button } from "@/components/ui/button";
