@@ -45,18 +45,38 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-background p-4 text-center">
+      return (
+        <div style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#020105',
+          color: 'white',
+          padding: '20px',
+          textAlign: 'center',
+          fontFamily: 'sans-serif'
+        }}>
           <div>
-            <h1 className="text-2xl font-bold mb-4">Ops! Algo deu errado.</h1>
-            <p className="text-muted-foreground mb-6">Tente recarregar a página ou limpe o cache do seu navegador.</p>
+            <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>Ops! Algo deu errado.</h1>
+            <p style={{ color: '#a1a1aa', marginBottom: '24px' }}>Tente recarregar a página ou limpe o cache do seu navegador.</p>
             <button 
               onClick={() => window.location.reload()}
-              className="px-6 py-2 bg-primary text-primary-foreground rounded-xl font-bold"
+              style={{
+                padding: '12px 24px',
+                backgroundColor: '#7c3aed',
+                color: 'white',
+                border: 'none',
+                borderRadius: '12px',
+                fontWeight: 'bold',
+                cursor: 'pointer'
+              }}
             >
               Recarregar Página
             </button>
           </div>
         </div>
+      );
       );
     }
 
