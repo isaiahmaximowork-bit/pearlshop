@@ -26,11 +26,49 @@ import UgcBuilder from "./pages/app/UgcBuilder.tsx";
 import Turbinar from "./pages/app/Turbinar.tsx";
 import StorePage from "./pages/StorePage.tsx";
 import AvisoLegal from "./pages/AvisoLegal.tsx";
+import React from "react";
+
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error("Uncaught error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-background p-4 text-center">
+          <div>
+            <h1 className="text-2xl font-bold mb-4">Ops! Algo deu errado.</h1>
+            <p className="text-muted-foreground mb-6">Tente recarregar a página ou limpe o cache do seu navegador.</p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="px-6 py-2 bg-primary text-primary-foreground rounded-xl font-bold"
+            >
+              Recarregar Página
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -65,7 +103,8 @@ const App = () => (
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
-  </QueryClientProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

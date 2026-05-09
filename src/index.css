@@ -101,22 +101,14 @@
   }
 }
 
-/* Gemini animated border */
-@property --rotation {
-  syntax: '<angle>';
-  inherits: false;
-  initial-value: 0deg;
-}
-
+/* Gemini animated border - Simplified for better browser compatibility */
 .gemini-star {
-  --gradient: conic-gradient(from var(--rotation) at 52% 49% in oklab, oklch(0.55 0.25 285) 0%, oklch(0.65 0.28 320) 25%, oklch(0.50 0.22 260) 50%, oklch(0.60 0.26 300) 75%, oklch(0.55 0.25 285) 100%);
-  animation: rotate-gemini 5s infinite linear;
-  background: var(--gradient);
+  background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
   font-size: 20px;
-  filter: drop-shadow(0 0 5px hsl(262 83% 58% / 0.3));
+  filter: drop-shadow(0 0 5px rgba(168, 85, 247, 0.3));
 }
 
 .gemini-pill-wrapper {
@@ -124,7 +116,7 @@
   position: relative;
   border-radius: 1.25rem;
   padding: var(--border-size);
-  transition: --border-size 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .gemini-pill-wrapper:hover {
@@ -137,12 +129,13 @@
   inset: 0;
   border-radius: inherit;
   padding: var(--border-size);
-  background: conic-gradient(from var(--rotation) at 52% 49% in oklab, oklch(0.55 0.25 285) 0%, oklch(0.65 0.28 320) 25%, oklch(0.50 0.22 260) 50%, oklch(0.60 0.26 300) 75%, oklch(0.55 0.25 285) 100%);
+  background: linear-gradient(90deg, #a855f7, #7c3aed, #ec4899, #a855f7);
+  background-size: 300% 100%;
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
-  animation: rotate-gemini 5s infinite linear;
+  animation: rotate-gradient 3s infinite linear;
 }
 
 .gemini-pill-wrapper.hover-only::before {
@@ -159,8 +152,9 @@
   padding: var(--border-size);
 }
 
-@keyframes rotate-gemini {
-  to { --rotation: 360deg; }
+@keyframes rotate-gradient {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 150% 50%; }
 }
 
 @keyframes marquee {
