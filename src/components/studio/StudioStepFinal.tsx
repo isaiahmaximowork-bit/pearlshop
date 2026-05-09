@@ -37,14 +37,40 @@ const cameraStyles = [
   { id: "frente", label: "De Frente", desc: "Avatar olhando para câmera", img: camFrente },
 ];
 
-const videoStyles: { id: VideoStyle; label: string; desc: string; icon: any }[] = [
-  { id: "ugc_autentico", label: "UGC Autêntico", desc: "Estilo natural, gravação caseira", icon: Camera },
-  { id: "publicitario", label: "Publicitário", desc: "Visual polido e cinematográfico", icon: Sparkles },
-  { id: "viral_tiktok", label: "Viral TikTok", desc: "Cortes rápidos, dinâmico", icon: Zap },
-  { id: "dancinha", label: "Dancinha", desc: "Movimentos rítmicos com produto", icon: Music },
-  { id: "close_up", label: "Close-up", desc: "Expressões faciais íntimas", icon: Eye },
-  { id: "mirror_selfie", label: "Mirror Selfie", desc: "Reveal de outfit no espelho", icon: Smartphone },
-  { id: "hook_mao_camera", label: "Hook Mão", desc: "Dedo na câmera → reveal", icon: Hand },
+const videoStyles: { id: VideoStyle; label: string; desc: string; icon: any; category: string }[] = [
+  // Hooks
+  { id: "hook_mao_camera", label: "Mão na Câmera", desc: "Revelação com a mão", icon: Hand, category: "hooks" },
+  { id: "hook_apontando", label: "Apontando", desc: "Apontando para textos", icon: MousePointer2, category: "hooks" },
+  { id: "hook_estalo", label: "Estalo de Dedos", desc: "Transição com estalo", icon: Zap, category: "hooks" },
+  { id: "hook_zoom", label: "Zoom Impacto", desc: "Zoom rápido no sujeito", icon: ZoomIn, category: "hooks" },
+  { id: "hook_lancamento", label: "Lançamento", desc: "Joga o produto na câmera", icon: Move, category: "hooks" },
+  
+  // Dancinhas
+  { id: "dance_batida", label: "Sincronia Batida", desc: "Toques no ritmo", icon: Music, category: "dancinhas" },
+  { id: "dance_passarela", label: "Passarela", desc: "Caminhada elegante", icon: PlayCircle, category: "dancinhas" },
+  { id: "dance_360", label: "Giro 360", desc: "Giro completo", icon: Rotate3d, category: "dancinhas" },
+  { id: "dance_tiktok", label: "Vibe TikTok", desc: "Movimentos vibrantes", icon: Zap, category: "dancinhas" },
+  { id: "dance_look", label: "Mudança Look", desc: "Troca de roupa dançando", icon: ShoppingBag, category: "dancinhas" },
+
+  // Unboxing
+  { id: "unboxing_lacre", label: "Rasgando Lacre", desc: "Foco tátil no lacre", icon: Scissors, category: "unboxing" },
+  { id: "unboxing_abertura", label: "Abrindo Caixa", desc: "Revelação do conteúdo", icon: PackageOpen, category: "unboxing" },
+  { id: "unboxing_seda", label: "Papel de Seda", desc: "Removendo proteção", icon: Layers, category: "unboxing" },
+  { id: "unboxing_contato", label: "Primeiro Contato", desc: "Reação ao pegar item", icon: Sparkles, category: "unboxing" },
+  { id: "unboxing_minimalista", label: "Minimalista", desc: "Foco total nas mãos", icon: Box, category: "unboxing" },
+
+  // Outros
+  { id: "ugc_autentico", label: "UGC Autêntico", desc: "Estilo natural e real", icon: Camera, category: "outros" },
+  { id: "publicitario", label: "Publicitário", desc: "Visual polido e comercial", icon: Sparkles, category: "outros" },
+  { id: "close_up", label: "Close-up", desc: "Foco em expressões", icon: Eye, category: "outros" },
+  { id: "mirror_selfie", label: "Mirror Selfie", desc: "Reflexo no espelho", icon: Smartphone, category: "outros" },
+];
+
+const videoStyleCategories = [
+  { id: "hooks", label: "Hooks" },
+  { id: "unboxing", label: "Unboxing" },
+  { id: "dancinhas", label: "Dancinhas" },
+  { id: "outros", label: "Outros" },
 ];
 
 const videoFormats: { id: VideoFormat; label: string; desc: string }[] = [
