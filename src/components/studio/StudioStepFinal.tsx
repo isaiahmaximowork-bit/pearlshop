@@ -32,7 +32,6 @@ import camDemo from "@/assets/camera/demo.webp";
 const cameraStyles = [
   { id: "frente", label: "De Frente", desc: "Avatar olhando para câmera", img: camFrente },
   { id: "pov", label: "Mãos (POV)", desc: "Vista em primeira pessoa", img: camPov },
-  { id: "demo", label: "Demonstração", desc: "Foco no produto em uso", img: camDemo },
 ];
 
 const videoStyles: { id: VideoStyle; label: string; desc: string; icon: any }[] = [
