@@ -114,6 +114,7 @@
     max-width: 100%;
     overflow-x: clip;
   }
+}
 
 /* Gemini animated border - Simplified for better browser compatibility */
 .gemini-star {
@@ -301,7 +302,6 @@
   align-items: center;
   gap: 6px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  }
 }
 
 
