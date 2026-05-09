@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { safeDateParse } from "@/lib/safari-compat";
 import { motion } from "framer-motion";
 import { Loader2, Copy, Download, Sparkles, Trash2, ImageIcon, Clock, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -121,7 +122,7 @@ const Historico = () => {
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2.5">
                 <p className="text-[11px] font-bold text-white truncate">{job.product_name || "Sem produto"}</p>
                 <p className="text-[9px] text-white/70 flex items-center gap-1">
-                  <Clock size={9} /> {new Date(job.created_at).toLocaleDateString("pt-BR")}
+                  <Clock size={9} /> {safeDateParse(job.created_at).toLocaleDateString("pt-BR")}
                 </p>
               </div>
             </motion.button>
@@ -138,7 +139,7 @@ const Historico = () => {
                   <h3 className="text-xl font-black tracking-tight">{selected.product_name || "UGC"}</h3>
                   <p className="text-xs text-muted-foreground">
                     {selected.avatar_name && `Avatar: ${selected.avatar_name} · `}
-                    {new Date(selected.created_at).toLocaleString("pt-BR")}
+                    {safeDateParse(selected.created_at).toLocaleString("pt-BR")}
                   </p>
                 </div>
                 <Button variant="ghost" size="icon" onClick={() => handleDelete(selected)} className="rounded-xl text-destructive">

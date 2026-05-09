@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
+import { AlertCircle } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -56,46 +57,64 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
           color: 'white',
           padding: '20px',
           textAlign: 'center',
-          fontFamily: 'monospace',
+          fontFamily: 'sans-serif',
           overflow: 'auto'
         }}>
           <div style={{ maxWidth: '600px', width: '100%' }}>
-            <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px', color: '#ef4444' }}>
-              ERRO DETECTADO (iPhone Debug)
-            </h1>
             <div style={{ 
-              backgroundColor: '#1a1a1a', 
-              padding: '16px', 
-              borderRadius: '8px', 
-              textAlign: 'left',
-              marginBottom: '24px',
-              border: '1px solid #ef4444',
-              whiteSpace: 'pre-wrap',
-              fontSize: '14px',
-              color: '#f87171'
+              marginBottom: '32px',
+              display: 'inline-flex',
+              padding: '12px',
+              borderRadius: '20px',
+              backgroundColor: 'rgba(239, 68, 68, 0.1)',
+              color: '#ef4444'
             }}>
-              <strong>Mensagem:</strong><br />
-              {this.state.error?.toString()}<br /><br />
-              <strong>Stack:</strong><br />
-              {this.state.error?.stack}
+              <AlertCircle size={48} />
             </div>
-            <p style={{ color: '#a1a1aa', marginBottom: '24px' }}>
-              Tire um print desta tela e envie para o suporte.
+            
+            <h1 style={{ fontSize: '28px', fontWeight: '900', marginBottom: '16px', letterSpacing: '-0.05em' }}>
+              Ops! Algo deu errado.
+            </h1>
+            
+            <p style={{ color: '#a1a1aa', marginBottom: '32px', fontSize: '16px' }}>
+              Ocorreu um erro inesperado. Tente recarregar o estúdio.
             </p>
+
             <button 
               onClick={() => window.location.reload()}
               style={{
-                padding: '12px 24px',
+                padding: '16px 32px',
                 backgroundColor: '#ef4444',
                 color: 'white',
                 border: 'none',
-                borderRadius: '12px',
-                fontWeight: 'bold',
-                cursor: 'pointer'
+                borderRadius: '16px',
+                fontWeight: '900',
+                cursor: 'pointer',
+                fontSize: '16px',
+                boxShadow: '0 10px 15px -3px rgba(239, 68, 68, 0.4)'
               }}
             >
-              Recarregar Página
+              Recarregar Estúdio
             </button>
+
+            {/* Hidden Debug Info - visible on click or specific action if needed */}
+            <details style={{ marginTop: '48px', textAlign: 'left', cursor: 'pointer' }}>
+              <summary style={{ color: '#3f3f46', fontSize: '12px' }}>Informações técnicas (Debug)</summary>
+              <pre style={{ 
+                marginTop: '16px',
+                padding: '16px',
+                backgroundColor: '#111',
+                borderRadius: '12px',
+                fontSize: '11px',
+                color: '#71717a',
+                overflow: 'auto',
+                border: '1px solid #27272a'
+              }}>
+                {this.state.error?.toString()}
+                {"\n\n"}
+                {this.state.error?.stack}
+              </pre>
+            </details>
           </div>
         </div>
       );
