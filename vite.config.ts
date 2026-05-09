@@ -12,6 +12,10 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
   },
+  build: {
+    target: "es2020",
+    cssTarget: "chrome80", // Standardizes CSS
+  },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
     alias: {
