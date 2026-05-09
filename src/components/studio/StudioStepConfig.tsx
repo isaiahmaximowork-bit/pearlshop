@@ -108,7 +108,11 @@ export function StudioStepConfig({ state, updateState }: Props) {
               return (
                 <div
                   key={a.id}
-                  onClick={(e) => { updateState({ avatarId: a.id }); handleSelectAndScroll(e); }}
+                  onClick={(e) => { 
+                    updateState({ avatarId: a.id }); 
+                    // Use a slight delay to ensure state update doesn't cause a layout shift mid-scroll
+                    setTimeout(() => handleSelectAndScroll(e), 50);
+                  }}
                   className={`${glassSelectable(sel)} p-2`}
                 >
                   <div className="aspect-square rounded-xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center overflow-hidden">

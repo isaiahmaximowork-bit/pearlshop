@@ -114,7 +114,8 @@ const Studio = () => {
 
   useEffect(() => {
     try {
-      safeStorage.setItem("pearlshop-studio-state", JSON.stringify(state));
+      const { _generatedJob, _generationProgress, _generatedTakes, ...persistentState } = state;
+      safeStorage.setItem("pearlshop-studio-state", JSON.stringify(persistentState));
     } catch (e) {
       console.error("Failed to save state:", e);
     }
@@ -122,7 +123,12 @@ const Studio = () => {
 
   useEffect(() => {
     try {
-      safeStorage.setItem("pearlshop-studio-step", currentStep.toString());
+      // Don't save step if it's the final one to prevent "stuck" on success
+      if (currentStep < 4) {
+        safeStorage.setItem("pearlshop-studio-step", currentStep.toString());
+      } else {
+        safeStorage.removeItem("pearlshop-studio-step");
+      }
     } catch (e) {
       console.error("Failed to save step:", e);
     }

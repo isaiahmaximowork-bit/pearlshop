@@ -146,7 +146,10 @@ export function StudioStepProduct({ state, updateState, onAdvance }: Props) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 whileHover={{ y: -4 }}
-                onClick={() => openModal(item)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  openModal(item);
+                }}
                 className={`bg-card rounded-3xl border p-4 shadow-sm hover:shadow-xl transition-all group flex flex-col h-full cursor-pointer relative ${
                   isSelected
                     ? "border-primary ring-2 ring-primary/30 shadow-lg shadow-primary/20"

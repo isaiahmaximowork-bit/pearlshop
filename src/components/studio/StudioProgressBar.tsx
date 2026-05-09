@@ -34,7 +34,11 @@ export function StudioProgressBar({ steps, currentStep, onStepClick }: Props) {
               <motion.button
                 type="button"
                 disabled={!clickable}
-                onClick={() => clickable && onStepClick?.(step.id)}
+                onClick={(e) => {
+                  if (clickable && onStepClick) {
+                    onStepClick(step.id);
+                  }
+                }}
                 whileHover={clickable ? { scale: 1.1 } : undefined}
                 whileTap={clickable ? { scale: 0.95 } : undefined}
                 animate={{ scale: isActive ? 1.05 : 1 }}
