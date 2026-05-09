@@ -98,10 +98,45 @@ Mapeie a "interaction" e "cameraStyle" para um framing OBRIGATÓRIO:
 → Framing: Close-up focus on the product and hands.
 → Exemplo: "unboxing the {productName}, close-up macro shot, hands visible carefully removing product from a premium packaging box, soft studio lighting, ultra-realistic textures"
 
+"unboxing":
+→ CLOSE-UP / MACRO SHOT
+→ Product being taken out of its packaging or being presented in its open box.
+→ Packaging must be visible, brand-new feel.
+→ Hands visible interacting with the box and {productName}.
+→ High attention to detail on textures (cardboard, plastic, product surface).
+→ Lighting: Bright, clean, "studio-like" commercial lighting.
+→ Framing: Close-up focus on the product and hands.
+→ ASMR visual cues: tactile touch, slow peeling, delicate unfolding.
+
 Outros:
 → MEDIUM SHOT
 → Produto bem visível
 → Exemplo: "medium shot, product clearly visible"
+
+
+=== REGRA #4 — LOGICA DE ESTILO DE VÍDEO (PROFISSIONAL) ===
+Aplique estas sequências de ação no masterPrompt conforme o videoStyle selecionado:
+
+HOOKS (Captura de atenção):
+- hook_mao_camera: [Shot specification: extreme close-up] Hand covers the lens, then moves away rapidly in a smooth fluid motion revealing the product. Fast zoom out.
+- hook_apontando: [Shot specification: medium shot] Person pointing with their index finger to specific screen areas. Precise and natural arm movement.
+- hook_estalo: [Shot specification: medium shot] Snapping fingers with the right hand. Instant fluid transition of scenery or product state at the exact moment of the snap.
+- hook_zoom: [Shot specification: close-up] Extreme fast smooth zoom in on the face or a product detail. 
+- hook_lancamento: [Shot specification: medium shot] Gently throwing the product towards the camera. Fluid and controlled movement.
+
+UNBOXING (Experiência tátil):
+- unboxing_lacre: [Shot specification: macro detail] Hands slowly tearing the plastic seal/tape. Focus on texture and visual ASMR of the material breaking.
+- unboxing_abertura: [Shot specification: POV] Opening the lid of a premium box, gradually revealing the product inside.
+- unboxing_seda: [Shot specification: detail shot] Delicate hands moving aside soft colored tissue paper wrapping the product.
+- unboxing_contato: [Shot specification: medium shot] Removing the item from its packaging and examining it closely with genuine surprise and satisfaction.
+- unboxing_minimalista: [Shot specification: detail shot] Slow, elegant, and deliberate hand movements unboxing a minimalist product. High focus on tactile interaction.
+
+DANCINHAS (Rítmicos):
+- dance_batida: [Shot specification: medium shot] Rhythmic taps and movements with the product following a music beat. Energetic and precise.
+- dance_passarela: [Shot specification: full body] Model walking confidently towards the camera (dolly in) showing the outfit/accessory usage.
+- dance_360: [Shot specification: full body] Smooth 360-degree rotation holding the product, revealing the entire environment.
+- dance_tiktok: [Shot specification: medium shot] Viral trend energetic and expressive dance movements, incorporating the product.
+- dance_look: [Shot specification: full body] Instant magic transition of outfit at the peak of a fluid dance movement.
 
 
 === FÓRMULA DE 6 BLOCOS (OBRIGATÓRIA, EM INGLÊS) ===
