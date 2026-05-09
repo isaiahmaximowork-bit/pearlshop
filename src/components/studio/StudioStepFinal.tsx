@@ -823,7 +823,7 @@ function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage,
                     {videoStyleCategories.map(cat => (
                       <TabsContent key={cat.id} value={cat.id} className="mt-0">
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                          {videoStyles.filter(v => (v as any).category === cat.id && (CATEGORY_VIDEOSTYLE_VISIBILITY[productCategory] || []).includes(v.id)).map((v) => {
+                          {videoStyles.filter(v => (v as any).category === cat.id && (CATEGORY_VIDEOSTYLE_VISIBILITY[(state.productCategory || "").toLowerCase()] || []).includes(v.id)).map((v) => {
                             const Icon = v.icon;
                             const sel = (take.videoStyle || "ugc_autentico") === v.id;
                             return (
