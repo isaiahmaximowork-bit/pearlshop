@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_logs: {
+        Row: {
+          context: string | null
+          created_at: string
+          id: string
+          level: string
+          message: string
+          metadata: Json | null
+          url: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          context?: string | null
+          created_at?: string
+          id?: string
+          level: string
+          message: string
+          metadata?: Json | null
+          url?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          context?: string | null
+          created_at?: string
+          id?: string
+          level?: string
+          message?: string
+          metadata?: Json | null
+          url?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       catalog_products: {
         Row: {
           affiliate_link: string | null
@@ -402,7 +438,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      delete_old_app_logs: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
