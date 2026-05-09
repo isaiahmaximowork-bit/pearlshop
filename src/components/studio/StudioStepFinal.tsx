@@ -103,14 +103,14 @@ const CAMERA_INTERACTION_VISIBILITY: Record<string, string[]> = {
   pov: ["Segurando o produto", "Unboxing"],
 };
 const CATEGORY_VIDEOSTYLE_VISIBILITY: Record<string, VideoStyle[]> = {
-  clothing: ["ugc_autentico", "publicitario", "viral_tiktok", "dancinha", "close_up", "mirror_selfie", "hook_mao_camera"],
-  footwear: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "hook_mao_camera"],
-  accessories: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "hook_mao_camera"],
-  beauty: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "mirror_selfie", "hook_mao_camera"],
-  electronics: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "hook_mao_camera"],
-  home: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up"],
-  food_beverage: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up"],
-  fitness: ["ugc_autentico", "publicitario", "viral_tiktok", "dancinha", "close_up", "mirror_selfie"],
+  clothing: ["ugc_autentico", "publicitario", "viral_tiktok", "dancinha", "close_up", "mirror_selfie", "hook_mao_camera", "hook_apontando", "hook_estalo", "hook_zoom", "hook_lancamento", "dance_batida", "dance_passarela", "dance_360", "dance_tiktok", "dance_look", "unboxing_lacre", "unboxing_abertura", "unboxing_seda", "unboxing_contato", "unboxing_minimalista"],
+  footwear: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "hook_mao_camera", "hook_apontando", "hook_estalo", "hook_zoom", "hook_lancamento", "dance_batida", "dance_passarela", "dance_360", "dance_tiktok", "dance_look", "unboxing_lacre", "unboxing_abertura", "unboxing_seda", "unboxing_contato", "unboxing_minimalista"],
+  accessories: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "hook_mao_camera", "hook_apontando", "hook_estalo", "hook_zoom", "hook_lancamento", "unboxing_lacre", "unboxing_abertura", "unboxing_seda", "unboxing_contato", "unboxing_minimalista"],
+  beauty: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "mirror_selfie", "hook_mao_camera", "hook_apontando", "hook_estalo", "hook_zoom", "hook_lancamento", "unboxing_lacre", "unboxing_abertura", "unboxing_seda", "unboxing_contato", "unboxing_minimalista"],
+  electronics: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "hook_mao_camera", "hook_apontando", "hook_estalo", "hook_zoom", "hook_lancamento", "unboxing_lacre", "unboxing_abertura", "unboxing_seda", "unboxing_contato", "unboxing_minimalista"],
+  home: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "unboxing_lacre", "unboxing_abertura", "unboxing_seda", "unboxing_contato", "unboxing_minimalista"],
+  food_beverage: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "unboxing_lacre", "unboxing_abertura", "unboxing_seda", "unboxing_contato", "unboxing_minimalista"],
+  fitness: ["ugc_autentico", "publicitario", "viral_tiktok", "dancinha", "close_up", "mirror_selfie", "dance_batida", "dance_passarela", "dance_360", "dance_tiktok", "dance_look"],
 };
 
 const allInteractionModes = ["Vestindo o produto", "Segurando o produto", "Selfie no espelho", "Selfie", "Unboxing"];
