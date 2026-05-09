@@ -3,7 +3,7 @@ import {
   Sparkles, Loader2, Camera, Zap, Eye, Hand, Smartphone, Music,
   MonitorSmartphone, Ratio, ToggleLeft, ToggleRight, ChevronDown, HelpCircle,
   PackageOpen, MousePointer2, Scissors, Box, Layers, PlayCircle, Move, Rotate3d,
-  ShoppingBag,
+  ShoppingBag, ZoomIn,
 } from "lucide-react";
 import {
   Tooltip,
@@ -807,20 +807,38 @@ function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage,
                 {/* 5. ESTILO DO VÍDEO */}
                 <div className="bg-background/40 p-4 rounded-xl border border-border/40">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Estilo do Vídeo</p>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {videoStyles.map((v) => {
-                      const Icon = v.icon;
-                      const sel = (take.videoStyle || "ugc_autentico") === v.id;
-                      return (
-                        <div key={v.id} onClick={() => onUpdate({ videoStyle: v.id })} className={`${glassSelectable(sel)} p-3 flex flex-col items-center text-center`}>
-                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center mb-1.5 ${
-                            sel ? "bg-gradient-to-br from-primary to-purple-600 text-white" : "bg-accent"
-                          }`}><Icon size={14} /></div>
-                          <p className="font-bold text-[10px]">{v.label}</p>
+                  
+                  <Tabs value={take.videoStyle ? videoStyles.find(s => s.id === take.videoStyle)?.category || "outros" : "outros"} onValueChange={(val) => {
+                    const firstStyleInCat = videoStyles.find(s => s.category === val);
+                    if (firstStyleInCat) onUpdate({ videoStyle: firstStyleInCat.id });
+                  }} className="w-full">
+                    <TabsList className="grid grid-cols-4 h-9 bg-background/60 p-1 mb-4">
+                      {videoStyleCategories.map(cat => (
+                        <TabsTrigger key={cat.id} value={cat.id} className="text-[10px] font-bold h-7">
+                          {cat.label}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+
+                    {videoStyleCategories.map(cat => (
+                      <TabsContent key={cat.id} value={cat.id} className="mt-0">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                          {videoStyles.filter(v => v.category === cat.id && visibleVideoStyleIds.includes(v.id)).map((v) => {
+                            const Icon = v.icon;
+                            const sel = (take.videoStyle || "ugc_autentico") === v.id;
+                            return (
+                              <div key={v.id} onClick={() => onUpdate({ videoStyle: v.id })} className={`${glassSelectable(sel)} p-3 flex flex-col items-center text-center transition-all`}>
+                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center mb-1.5 ${
+                                  sel ? "bg-gradient-to-br from-primary to-purple-600 text-white shadow-lg" : "bg-accent"
+                                }`}><Icon size={14} /></div>
+                                <p className="font-bold text-[10px]">{v.label}</p>
+                              </div>
+                            );
+                          })}
                         </div>
-                      );
-                    })}
-                  </div>
+                      </TabsContent>
+                    ))}
+                  </Tabs>
                 </div>
 
                 {/* 6. MESCLAR COM IA (Interação e Pose) */}
