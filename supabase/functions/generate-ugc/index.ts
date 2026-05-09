@@ -75,11 +75,18 @@ Mapeie a "interaction" e "cameraStyle" para um framing OBRIGATÓRIO:
 → Mãos com 5 dedos exatos, produto em foco nas mãos
 → Exemplo: "holding the {productName} in her right hand, looking at it with a soft smile, medium shot"
 
-"selfie" / "Selfie no espelho" / videoStyle="mirror_selfie":
+"selfie" / "Selfie":
+→ CANDID FIRST-PERSON SELFIE shot
+→ One arm (usually left) extended into the immediate foreground, heavily out of focus (foreground bokeh) to simulate holding the camera.
+→ Subject positioned center-frame, smiling directly at the lens.
+→ 35mm lens perspective (natural field of view, no wide-angle distortion).
+→ Exemplo: "first-person selfie photograph, candid, left arm extended into the immediate foreground (heavily out of focus), smiling directly at the lens, 35mm lens, photorealistic"
+
+"mirror_selfie" / "Selfie no espelho":
 → MIRROR REFLECTION shot
 → Profile or 3/4 pose, looking at the mirror reflection.
-→ Visible phone in hand, mirror frame or edges visible, vanity or ambient room lighting.
-→ Exemplo: "taking a mirror selfie, side profile, looking at own reflection in the mirror, holding the {productName}, mirror reflection visible"
+→ Visible phone in hand, mirror frame or edges visible.
+→ Exemplo: "taking a mirror selfie, side profile, looking at own reflection in the mirror, mirror reflection visible"
 
 "unboxing" / "Unboxing":
 → CLOSE-UP
