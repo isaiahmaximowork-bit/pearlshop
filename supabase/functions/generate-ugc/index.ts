@@ -75,11 +75,18 @@ Mapeie a "interaction" e "cameraStyle" para um framing OBRIGATÓRIO:
 → Mãos com 5 dedos exatos, produto em foco nas mãos
 → Exemplo: "holding the {productName} in her right hand, looking at it with a soft smile, medium shot"
 
-"selfie" / "Selfie no espelho" / videoStyle="mirror_selfie":
+"selfie" / "Selfie":
+→ CANDID FIRST-PERSON SELFIE shot
+→ One arm (usually left) extended into the immediate foreground, heavily out of focus (foreground bokeh) to simulate holding the camera.
+→ Subject positioned center-frame, smiling directly at the lens.
+→ 35mm lens perspective (natural field of view, no wide-angle distortion).
+→ Exemplo: "first-person selfie photograph, candid, left arm extended into the immediate foreground (heavily out of focus), smiling directly at the lens, 35mm lens, photorealistic"
+
+"mirror_selfie" / "Selfie no espelho":
 → MIRROR REFLECTION shot
 → Profile or 3/4 pose, looking at the mirror reflection.
-→ Visible phone in hand, mirror frame or edges visible, vanity or ambient room lighting.
-→ Exemplo: "taking a mirror selfie, side profile, looking at own reflection in the mirror, holding the {productName}, mirror reflection visible"
+→ Visible phone in hand, mirror frame or edges visible.
+→ Exemplo: "taking a mirror selfie, side profile, looking at own reflection in the mirror, mirror reflection visible"
 
 "unboxing" / "Unboxing":
 → CLOSE-UP
@@ -236,7 +243,8 @@ RESTRIÇÕES OBRIGATÓRIAS:
 - "Aspect ratio: STRICTLY the requested format — fill entire frame, NO letterboxing, NO pillarboxing."
 
 ### REGRAS ESPECÍFICAS DE CÂMERA (CRÍTICO)
-- Se cameraStyle="pov": O prompt DEVE ser em primeira pessoa. NÃO PODE APARECER ROSTO NEM CABEÇA. Apenas as mãos segurando o produto. Use termos como "first-person POV", "only hands visible", "from user's perspective".
+- Se cameraStyle="pov": O prompt DEVE ser em primeira pessoa. NÃO PODE APARECER ROSTO NEM CABEÇA. Apenas as mãos segurando o produto. Use termos como "first-person POV shot, only hands visible, looking down at hands, from user's perspective".
+- Se interaction="selfie": O prompt DEVE ser uma "first-person selfie photograph". O braço que segura a câmera DEVE estar no primeiro plano imediato e MUITO desfocado ("arm extended into the immediate foreground, heavily out of focus, foreground bokeh"). A pessoa deve sorrir diretamente para a lente. Use "35mm lens" para evitar distorção.
 - Se videoStyle="mirror_selfie": O prompt DEVE descrever um reflexo no espelho. Use termos como "mirror reflection", "taking a mirror selfie", "visible mirror edges".
 
 ### REGRAS PARA scriptPrompt
