@@ -7,7 +7,21 @@ export type VideoStyle =
   | 'dancinha'
   | 'close_up'
   | 'mirror_selfie'
-  | 'hook_mao_camera';
+  | 'hook_mao_camera'
+  | 'hook_apontando'
+  | 'hook_estalo'
+  | 'hook_zoom'
+  | 'hook_lancamento'
+  | 'unboxing_lacre'
+  | 'unboxing_abertura'
+  | 'unboxing_seda'
+  | 'unboxing_contato'
+  | 'unboxing_minimalista'
+  | 'dance_batida'
+  | 'dance_passarela'
+  | 'dance_360'
+  | 'dance_tiktok'
+  | 'dance_look';
 
 export type VideoFormat = '9:16' | '16:9' | '3:4' | '1:1';
 

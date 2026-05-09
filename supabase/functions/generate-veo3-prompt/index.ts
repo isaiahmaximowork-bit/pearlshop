@@ -152,14 +152,37 @@ O roteiro INTEIRO deve aparecer entre aspas como diálogo falado.
 - overallQuality     < 8 → "Enhance hyper-realistic details, no AI artifacts"
 
 === MOVEMENT CHOREOGRAPHY ===
-PROMOCIONAL:
-"Energetic hand movements highlighting product features, confident posture with direct eye contact, animated facial expressions showing enthusiasm, hand gestures emphasizing key benefits, product manipulation (holding, rotating, displaying), pointing to product features while speaking, nodding and head movements for emphasis, bright smile and positive facial expressions, dynamic body positioning and natural transitions"
+Aplique estas sequências conforme o videoStyle e scriptType:
 
-INDICACIONAL:
-"Friendly, approachable body language, natural hand gestures as if talking to a friend, warm facial expressions and genuine smile, hand on product as if sharing personal recommendation, leaning slightly forward (engaging, intimate), natural head movements and authentic eye contact, relaxed posture, comfortable positioning, occasional hand-to-heart gesture, authentic, non-salesy demeanor, spontaneous micro-movements"
+HOOKS:
+- hook_mao_camera: Reveal action - hand covers lens, moves away rapidly revealing product. Fast zoom out.
+- hook_apontando: Precise pointing at screen corners, carismatic facial expression, subtle zoom in on face.
+- hook_estalo: Finger snap with instant background/product transition. Quick cut on snap.
+- hook_zoom: Ultra-fast smooth zoom in on face or product detail. Surprise/curiosity expression.
+- hook_lancamento: Smoothly throwing object towards camera. Object focus. Dynamic movement.
 
-STORYTELLING:
-"Expressive hand movements following narrative arc, varied facial expressions showing emotional journey, natural transitions between poses, hand movements following story rhythm, eye movements showing reflection or memory, body positioning changes for different story beats, authentic emotional expressions, natural pacing with story rhythm, genuine reactions and authentic moments, spontaneous, unscripted feel"
+UNBOXING:
+- unboxing_lacre: Macro focus on hands tearing plastic seal. ASMR visual textures. slow-motion feel.
+- unboxing_abertura: POV shot opening box lid carefully. Gradual reveal. rich colors. immersive.
+- unboxing_seda: Graceful hands removing tissue paper. Focus on product shine. luxury feel.
+- unboxing_contato: Removing item from box, genuine surprise/satisfaction expression. Eyes shining.
+- unboxing_minimalista: Elegant slow-motion unboxing, focus strictly on hands and product. high contrast.
+
+DANCINHAS:
+- dance_batida: Rhythmic taps on product following pop beat. Energetic movements. dynamic lighting.
+- dance_passarela: Professional model runway walk towards camera. Fashion focus. dolly in.
+- dance_360: Full 360-degree rotation holding product. Smooth continuous turn. wide shot.
+- dance_tiktok: Viral trend energetic dance. Pop colors. handheld camera. youth vibe.
+- dance_look: Magic outfit transition during peak dance movement. Rapid transition.
+
+PROMOCIONAL (Fallback):
+"Energetic hand movements highlighting product features, confident posture with direct eye contact..."
+
+INDICACIONAL (Fallback):
+"Friendly, approachable body language, natural hand gestures as if talking to a friend..."
+
+STORYTELLING (Fallback):
+"Expressive hand movements following narrative arc, varied facial expressions showing emotional journey..."
 
 === VOICE & DIALOGUE SYNCHRONIZATION ===
 "Voice characteristics: [gender, tone, energy, style]

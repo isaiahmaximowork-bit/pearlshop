@@ -2,6 +2,8 @@ import { useState } from "react";
 import {
   Sparkles, Loader2, Camera, Zap, Eye, Hand, Smartphone, Music,
   MonitorSmartphone, Ratio, ToggleLeft, ToggleRight, ChevronDown, HelpCircle,
+  PackageOpen, MousePointer2, Scissors, Box, Layers, PlayCircle, Move, Rotate3d,
+  ShoppingBag, ZoomIn,
 } from "lucide-react";
 import {
   Tooltip,
@@ -10,6 +12,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { motion, AnimatePresence } from "framer-motion";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import confetti from "canvas-confetti";
 import { glassCard, glassSelectable } from "./glass";
 import { Button } from "@/components/ui/button";
@@ -34,14 +37,40 @@ const cameraStyles = [
   { id: "frente", label: "De Frente", desc: "Avatar olhando para câmera", img: camFrente },
 ];
 
-const videoStyles: { id: VideoStyle; label: string; desc: string; icon: any }[] = [
-  { id: "ugc_autentico", label: "UGC Autêntico", desc: "Estilo natural, gravação caseira", icon: Camera },
-  { id: "publicitario", label: "Publicitário", desc: "Visual polido e cinematográfico", icon: Sparkles },
-  { id: "viral_tiktok", label: "Viral TikTok", desc: "Cortes rápidos, dinâmico", icon: Zap },
-  { id: "dancinha", label: "Dancinha", desc: "Movimentos rítmicos com produto", icon: Music },
-  { id: "close_up", label: "Close-up", desc: "Expressões faciais íntimas", icon: Eye },
-  { id: "mirror_selfie", label: "Mirror Selfie", desc: "Reveal de outfit no espelho", icon: Smartphone },
-  { id: "hook_mao_camera", label: "Hook Mão", desc: "Dedo na câmera → reveal", icon: Hand },
+const videoStyles: { id: VideoStyle; label: string; desc: string; icon: any; category: string }[] = [
+  // Hooks
+  { id: "hook_mao_camera", label: "Mão na Câmera", desc: "Revelação com a mão", icon: Hand, category: "hooks" },
+  { id: "hook_apontando", label: "Apontando", desc: "Apontando para textos", icon: MousePointer2, category: "hooks" },
+  { id: "hook_estalo", label: "Estalo de Dedos", desc: "Transição com estalo", icon: Zap, category: "hooks" },
+  { id: "hook_zoom", label: "Zoom Impacto", desc: "Zoom rápido no sujeito", icon: ZoomIn, category: "hooks" },
+  { id: "hook_lancamento", label: "Lançamento", desc: "Joga o produto na câmera", icon: Move, category: "hooks" },
+  
+  // Dancinhas
+  { id: "dance_batida", label: "Sincronia Batida", desc: "Toques no ritmo", icon: Music, category: "dancinhas" },
+  { id: "dance_passarela", label: "Passarela", desc: "Caminhada elegante", icon: PlayCircle, category: "dancinhas" },
+  { id: "dance_360", label: "Giro 360", desc: "Giro completo", icon: Rotate3d, category: "dancinhas" },
+  { id: "dance_tiktok", label: "Vibe TikTok", desc: "Movimentos vibrantes", icon: Zap, category: "dancinhas" },
+  { id: "dance_look", label: "Mudança Look", desc: "Troca de roupa dançando", icon: ShoppingBag, category: "dancinhas" },
+
+  // Unboxing
+  { id: "unboxing_lacre", label: "Rasgando Lacre", desc: "Foco tátil no lacre", icon: Scissors, category: "unboxing" },
+  { id: "unboxing_abertura", label: "Abrindo Caixa", desc: "Revelação do conteúdo", icon: PackageOpen, category: "unboxing" },
+  { id: "unboxing_seda", label: "Papel de Seda", desc: "Removendo proteção", icon: Layers, category: "unboxing" },
+  { id: "unboxing_contato", label: "Primeiro Contato", desc: "Reação ao pegar item", icon: Sparkles, category: "unboxing" },
+  { id: "unboxing_minimalista", label: "Minimalista", desc: "Foco total nas mãos", icon: Box, category: "unboxing" },
+
+  // Outros
+  { id: "ugc_autentico", label: "UGC Autêntico", desc: "Estilo natural e real", icon: Camera, category: "outros" },
+  { id: "publicitario", label: "Publicitário", desc: "Visual polido e comercial", icon: Sparkles, category: "outros" },
+  { id: "close_up", label: "Close-up", desc: "Foco em expressões", icon: Eye, category: "outros" },
+  { id: "mirror_selfie", label: "Mirror Selfie", desc: "Reflexo no espelho", icon: Smartphone, category: "outros" },
+];
+
+const videoStyleCategories = [
+  { id: "hooks", label: "Hooks" },
+  { id: "unboxing", label: "Unboxing" },
+  { id: "dancinhas", label: "Dancinhas" },
+  { id: "outros", label: "Outros" },
 ];
 
 const videoFormats: { id: VideoFormat; label: string; desc: string }[] = [
@@ -74,14 +103,14 @@ const CAMERA_INTERACTION_VISIBILITY: Record<string, string[]> = {
   pov: ["Segurando o produto", "Unboxing"],
 };
 const CATEGORY_VIDEOSTYLE_VISIBILITY: Record<string, VideoStyle[]> = {
-  clothing: ["ugc_autentico", "publicitario", "viral_tiktok", "dancinha", "close_up", "mirror_selfie", "hook_mao_camera"],
-  footwear: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "hook_mao_camera"],
-  accessories: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "hook_mao_camera"],
-  beauty: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "mirror_selfie", "hook_mao_camera"],
-  electronics: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "hook_mao_camera"],
-  home: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up"],
-  food_beverage: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up"],
-  fitness: ["ugc_autentico", "publicitario", "viral_tiktok", "dancinha", "close_up", "mirror_selfie"],
+  clothing: ["ugc_autentico", "publicitario", "viral_tiktok", "dancinha", "close_up", "mirror_selfie", "hook_mao_camera", "hook_apontando", "hook_estalo", "hook_zoom", "hook_lancamento", "dance_batida", "dance_passarela", "dance_360", "dance_tiktok", "dance_look", "unboxing_lacre", "unboxing_abertura", "unboxing_seda", "unboxing_contato", "unboxing_minimalista"],
+  footwear: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "hook_mao_camera", "hook_apontando", "hook_estalo", "hook_zoom", "hook_lancamento", "dance_batida", "dance_passarela", "dance_360", "dance_tiktok", "dance_look", "unboxing_lacre", "unboxing_abertura", "unboxing_seda", "unboxing_contato", "unboxing_minimalista"],
+  accessories: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "hook_mao_camera", "hook_apontando", "hook_estalo", "hook_zoom", "hook_lancamento", "unboxing_lacre", "unboxing_abertura", "unboxing_seda", "unboxing_contato", "unboxing_minimalista"],
+  beauty: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "mirror_selfie", "hook_mao_camera", "hook_apontando", "hook_estalo", "hook_zoom", "hook_lancamento", "unboxing_lacre", "unboxing_abertura", "unboxing_seda", "unboxing_contato", "unboxing_minimalista"],
+  electronics: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "hook_mao_camera", "hook_apontando", "hook_estalo", "hook_zoom", "hook_lancamento", "unboxing_lacre", "unboxing_abertura", "unboxing_seda", "unboxing_contato", "unboxing_minimalista"],
+  home: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "unboxing_lacre", "unboxing_abertura", "unboxing_seda", "unboxing_contato", "unboxing_minimalista"],
+  food_beverage: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "unboxing_lacre", "unboxing_abertura", "unboxing_seda", "unboxing_contato", "unboxing_minimalista"],
+  fitness: ["ugc_autentico", "publicitario", "viral_tiktok", "dancinha", "close_up", "mirror_selfie", "dance_batida", "dance_passarela", "dance_360", "dance_tiktok", "dance_look"],
 };
 
 const allInteractionModes = ["Vestindo o produto", "Segurando o produto", "Selfie no espelho", "Selfie", "Unboxing"];
@@ -534,11 +563,48 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
                   </motion.div>
                 )}
               </AnimatePresence>
+
+              {/* Added Estilo do Vídeo in Step 3 for single take */}
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Estilo do Vídeo</p>
+                <Tabs value={videoStyles.find(s => s.id === state.videoStyle)?.category || "outros"} onValueChange={(val) => {
+                  const firstStyleInCat = videoStyles.find(s => (s as any).category === val);
+                  if (firstStyleInCat) updateState({ videoStyle: firstStyleInCat.id });
+                }} className="w-full">
+                  <TabsList className="grid grid-cols-4 h-9 bg-background/60 p-1 mb-4">
+                    {videoStyleCategories.map(cat => (
+                      <TabsTrigger key={cat.id} value={cat.id} className="text-[10px] font-bold h-7">
+                        {cat.label}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+
+                  {videoStyleCategories.map(cat => (
+                    <TabsContent key={cat.id} value={cat.id} className="mt-0">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {videoStyles.filter(v => (v as any).category === cat.id && visibleVideoStyleIds.includes(v.id)).map((v) => {
+                          const Icon = v.icon;
+                          const sel = state.videoStyle === v.id;
+                          return (
+                            <div key={v.id} onClick={() => updateState({ videoStyle: v.id })} className={`${glassSelectable(sel)} p-3 flex flex-col items-center text-center transition-all`}>
+                              <div className={`w-8 h-8 rounded-lg flex items-center justify-center mb-1.5 ${
+                                sel ? "bg-gradient-to-br from-primary to-purple-600 text-white shadow-lg" : "bg-accent"
+                              }`}><Icon size={14} /></div>
+                              <p className="font-bold text-[10px]">{v.label}</p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </TabsContent>
+                  ))}
+                </Tabs>
+              </div>
               
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Melhorias opcionais</p>
                 <div className="flex flex-wrap gap-1.5">
                   {enhancements.map((e) => {
+                    if (e === "Cabelo real") return null; // Remove as requested
                     const sel = enhance.includes(e);
                     return (
                       <button key={e} onClick={() => setEnhance(sel ? enhance.filter((x) => x !== e) : [...enhance, e])}
@@ -778,20 +844,38 @@ function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage,
                 {/* 5. ESTILO DO VÍDEO */}
                 <div className="bg-background/40 p-4 rounded-xl border border-border/40">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Estilo do Vídeo</p>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {videoStyles.map((v) => {
-                      const Icon = v.icon;
-                      const sel = (take.videoStyle || "ugc_autentico") === v.id;
-                      return (
-                        <div key={v.id} onClick={() => onUpdate({ videoStyle: v.id })} className={`${glassSelectable(sel)} p-3 flex flex-col items-center text-center`}>
-                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center mb-1.5 ${
-                            sel ? "bg-gradient-to-br from-primary to-purple-600 text-white" : "bg-accent"
-                          }`}><Icon size={14} /></div>
-                          <p className="font-bold text-[10px]">{v.label}</p>
+                  
+                  <Tabs value={take.videoStyle ? (videoStyles.find(s => s.id === take.videoStyle) as any)?.category || "outros" : "outros"} onValueChange={(val) => {
+                    const firstStyleInCat = videoStyles.find(s => (s as any).category === val);
+                    if (firstStyleInCat) onUpdate({ videoStyle: firstStyleInCat.id });
+                  }} className="w-full">
+                    <TabsList className="grid grid-cols-4 h-9 bg-background/60 p-1 mb-4">
+                      {videoStyleCategories.map(cat => (
+                        <TabsTrigger key={cat.id} value={cat.id} className="text-[10px] font-bold h-7">
+                          {cat.label}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+
+                    {videoStyleCategories.map(cat => (
+                      <TabsContent key={cat.id} value={cat.id} className="mt-0">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                          {videoStyles.filter(v => (v as any).category === cat.id && (CATEGORY_VIDEOSTYLE_VISIBILITY[(take.productInteraction === "vestindo" ? "clothing" : "general")] || []).includes(v.id)).map((v) => {
+                            const Icon = v.icon;
+                            const sel = (take.videoStyle || "ugc_autentico") === v.id;
+                            return (
+                              <div key={v.id} onClick={() => onUpdate({ videoStyle: v.id })} className={`${glassSelectable(sel)} p-3 flex flex-col items-center text-center transition-all`}>
+                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center mb-1.5 ${
+                                  sel ? "bg-gradient-to-br from-primary to-purple-600 text-white shadow-lg" : "bg-accent"
+                                }`}><Icon size={14} /></div>
+                                <p className="font-bold text-[10px]">{v.label}</p>
+                              </div>
+                            );
+                          })}
                         </div>
-                      );
-                    })}
-                  </div>
+                      </TabsContent>
+                    ))}
+                  </Tabs>
                 </div>
 
                 {/* 6. MESCLAR COM IA (Interação e Pose) */}

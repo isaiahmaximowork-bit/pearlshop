@@ -4,11 +4,14 @@ import {
   Wand2, Copy, ChevronDown, ExternalLink, Sparkles,
   Loader2, Download, X, Rocket, Film, Megaphone, ThumbsUp, BookOpen,
   FolderOpen, HelpCircle, Camera, Zap, Music, Eye, Smartphone, Hand,
+  PackageOpen, MousePointer2, Scissors, Box, Layers, PlayCircle, Move, Rotate3d,
+  ShoppingBag, ZoomIn,
 } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { motion, AnimatePresence } from "framer-motion";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import confetti from "canvas-confetti";
 import { glassCard } from "./glass";
 import { Button } from "@/components/ui/button";
@@ -28,25 +31,51 @@ const voiceOptions = {
   voiceStyle: { label: "Estilo", options: ["conversacional", "narrativo", "publicitario"] },
 };
 
-const videoStyles: { id: VideoStyle; label: string; desc: string; icon: any }[] = [
-  { id: "ugc_autentico", label: "UGC Autêntico", desc: "Estilo natural, gravação caseira", icon: Camera },
-  { id: "publicitario", label: "Publicitário", desc: "Visual polido e cinematográfico", icon: Sparkles },
-  { id: "viral_tiktok", label: "Viral TikTok", desc: "Cortes rápidos, dinâmico", icon: Zap },
-  { id: "dancinha", label: "Dancinha", desc: "Movimentos rítmicos com produto", icon: Music },
-  { id: "close_up", label: "Close-up", desc: "Expressões faciais íntimas", icon: Eye },
-  { id: "mirror_selfie", label: "Mirror Selfie", desc: "Reveal de outfit no espelho", icon: Smartphone },
-  { id: "hook_mao_camera", label: "Hook Mão", desc: "Dedo na câmera → reveal", icon: Hand },
+const videoStyles: { id: VideoStyle; label: string; desc: string; icon: any; category: string }[] = [
+  // Hooks
+  { id: "hook_mao_camera", label: "Mão na Câmera", desc: "Revelação com a mão", icon: Hand, category: "hooks" },
+  { id: "hook_apontando", label: "Apontando", desc: "Apontando para textos", icon: MousePointer2, category: "hooks" },
+  { id: "hook_estalo", label: "Estalo de Dedos", desc: "Transição com estalo", icon: Zap, category: "hooks" },
+  { id: "hook_zoom", label: "Zoom Impacto", desc: "Zoom rápido no sujeito", icon: ZoomIn, category: "hooks" },
+  { id: "hook_lancamento", label: "Lançamento", desc: "Joga o produto na câmera", icon: Move, category: "hooks" },
+  
+  // Dancinhas
+  { id: "dance_batida", label: "Sincronia Batida", desc: "Toques no ritmo", icon: Music, category: "dancinhas" },
+  { id: "dance_passarela", label: "Passarela", desc: "Caminhada elegante", icon: PlayCircle, category: "dancinhas" },
+  { id: "dance_360", label: "Giro 360", desc: "Giro completo", icon: Rotate3d, category: "dancinhas" },
+  { id: "dance_tiktok", label: "Vibe TikTok", desc: "Movimentos vibrantes", icon: Zap, category: "dancinhas" },
+  { id: "dance_look", label: "Mudança Look", desc: "Troca de roupa dançando", icon: ShoppingBag, category: "dancinhas" },
+
+  // Unboxing
+  { id: "unboxing_lacre", label: "Rasgando Lacre", desc: "Foco tátil no lacre", icon: Scissors, category: "unboxing" },
+  { id: "unboxing_abertura", label: "Abrindo Caixa", desc: "Revelação do conteúdo", icon: PackageOpen, category: "unboxing" },
+  { id: "unboxing_seda", label: "Papel de Seda", desc: "Removendo proteção", icon: Layers, category: "unboxing" },
+  { id: "unboxing_contato", label: "Primeiro Contato", desc: "Reação ao pegar item", icon: Sparkles, category: "unboxing" },
+  { id: "unboxing_minimalista", label: "Minimalista", desc: "Foco total nas mãos", icon: Box, category: "unboxing" },
+
+  // Outros
+  { id: "ugc_autentico", label: "UGC Autêntico", desc: "Estilo natural e real", icon: Camera, category: "outros" },
+  { id: "publicitario", label: "Publicitário", desc: "Visual polido e comercial", icon: Sparkles, category: "outros" },
+  { id: "close_up", label: "Close-up", desc: "Foco em expressões", icon: Eye, category: "outros" },
+  { id: "mirror_selfie", label: "Mirror Selfie", desc: "Reflexo no espelho", icon: Smartphone, category: "outros" },
+];
+
+const videoStyleCategories = [
+  { id: "hooks", label: "Hooks" },
+  { id: "unboxing", label: "Unboxing" },
+  { id: "dancinhas", label: "Dancinhas" },
+  { id: "outros", label: "Outros" },
 ];
 
 const CATEGORY_VIDEOSTYLE_VISIBILITY: Record<string, VideoStyle[]> = {
-  clothing: ["ugc_autentico", "publicitario", "viral_tiktok", "dancinha", "close_up", "mirror_selfie", "hook_mao_camera"],
-  footwear: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "hook_mao_camera"],
-  accessories: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "hook_mao_camera"],
-  beauty: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "mirror_selfie", "hook_mao_camera"],
-  electronics: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "hook_mao_camera"],
-  home: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up"],
-  food_beverage: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up"],
-  fitness: ["ugc_autentico", "publicitario", "viral_tiktok", "dancinha", "close_up", "mirror_selfie"],
+  clothing: ["ugc_autentico", "publicitario", "viral_tiktok", "dancinha", "close_up", "mirror_selfie", "hook_mao_camera", "hook_apontando", "hook_estalo", "hook_zoom", "hook_lancamento", "dance_batida", "dance_passarela", "dance_360", "dance_tiktok", "dance_look", "unboxing_lacre", "unboxing_abertura", "unboxing_seda", "unboxing_contato", "unboxing_minimalista"],
+  footwear: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "hook_mao_camera", "hook_apontando", "hook_estalo", "hook_zoom", "hook_lancamento", "dance_batida", "dance_passarela", "dance_360", "dance_tiktok", "dance_look", "unboxing_lacre", "unboxing_abertura", "unboxing_seda", "unboxing_contato", "unboxing_minimalista"],
+  accessories: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "hook_mao_camera", "hook_apontando", "hook_estalo", "hook_zoom", "hook_lancamento", "unboxing_lacre", "unboxing_abertura", "unboxing_seda", "unboxing_contato", "unboxing_minimalista"],
+  beauty: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "mirror_selfie", "hook_mao_camera", "hook_apontando", "hook_estalo", "hook_zoom", "hook_lancamento", "unboxing_lacre", "unboxing_abertura", "unboxing_seda", "unboxing_contato", "unboxing_minimalista"],
+  electronics: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "hook_mao_camera", "hook_apontando", "hook_estalo", "hook_zoom", "hook_lancamento", "unboxing_lacre", "unboxing_abertura", "unboxing_seda", "unboxing_contato", "unboxing_minimalista"],
+  home: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "unboxing_lacre", "unboxing_abertura", "unboxing_seda", "unboxing_contato", "unboxing_minimalista"],
+  food_beverage: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "unboxing_lacre", "unboxing_abertura", "unboxing_seda", "unboxing_contato", "unboxing_minimalista"],
+  fitness: ["ugc_autentico", "publicitario", "viral_tiktok", "dancinha", "close_up", "mirror_selfie", "dance_batida", "dance_passarela", "dance_360", "dance_tiktok", "dance_look"],
 };
 
 const scriptTemplates = [
@@ -302,25 +331,42 @@ export function StudioStepPrompt({ state, updateState }: Props) {
             <h3 className="font-bold tracking-tight">Estilo do Vídeo</h3>
           </div>
           <p className="text-xs text-muted-foreground mb-4">Tom geral da produção que a IA deve seguir</p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {visibleVideoStyles.map((v) => {
-              const Icon = v.icon;
-              const sel = state.videoStyle === v.id;
-              return (
-                <div key={v.id} onClick={() => updateState({ videoStyle: v.id })}
-                  className={`p-4 rounded-xl border transition-all cursor-pointer ${
-                    sel ? "bg-primary/10 border-primary ring-1 ring-primary shadow-lg shadow-primary/20"
-                      : "bg-card/40 border-border/60 hover:border-primary/40 hover:bg-card/60"
-                  }`}>
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${
-                    sel ? "bg-gradient-to-br from-primary to-purple-600 text-white" : "bg-accent"
-                  }`}><Icon size={18} /></div>
-                  <p className="font-bold text-sm">{v.label}</p>
-                  <p className="text-[10px] text-muted-foreground mt-1 leading-snug">{v.desc}</p>
+          <Tabs value={videoStyles.find(s => s.id === state.videoStyle)?.category || "outros"} onValueChange={(val) => {
+            const firstStyleInCat = videoStyles.find(s => (s as any).category === val);
+            if (firstStyleInCat) updateState({ videoStyle: firstStyleInCat.id });
+          }} className="w-full">
+            <TabsList className="grid grid-cols-4 h-9 bg-background/60 p-1 mb-4">
+              {videoStyleCategories.map(cat => (
+                <TabsTrigger key={cat.id} value={cat.id} className="text-[10px] font-bold h-7">
+                  {cat.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+
+            {videoStyleCategories.map(cat => (
+              <TabsContent key={cat.id} value={cat.id} className="mt-0">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {visibleVideoStyles.filter(v => (v as any).category === cat.id).map((v) => {
+                    const Icon = v.icon;
+                    const sel = state.videoStyle === v.id;
+                    return (
+                      <div key={v.id} onClick={() => updateState({ videoStyle: v.id })}
+                        className={`p-4 rounded-xl border transition-all cursor-pointer ${
+                          sel ? "bg-primary/10 border-primary ring-1 ring-primary shadow-lg shadow-primary/20"
+                            : "bg-card/40 border-border/60 hover:border-primary/40 hover:bg-card/60"
+                        }`}>
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${
+                          sel ? "bg-gradient-to-br from-primary to-purple-600 text-white" : "bg-accent"
+                        }`}><Icon size={18} /></div>
+                        <p className="font-bold text-sm">{v.label}</p>
+                        <p className="text-[10px] text-muted-foreground mt-1 leading-snug">{v.desc}</p>
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
-          </div>
+              </TabsContent>
+            ))}
+          </Tabs>
         </div>
       )}
 
