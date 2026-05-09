@@ -235,9 +235,14 @@ RESTRIÇÕES OBRIGATÓRIAS:
 - "Authentic emotion and expression."
 - "Aspect ratio: STRICTLY the requested format — fill entire frame, NO letterboxing, NO pillarboxing."
 
+### REGRAS ESPECÍFICAS DE CÂMERA (CRÍTICO)
+- Se cameraStyle="pov": O prompt DEVE ser em primeira pessoa. NÃO PODE APARECER ROSTO NEM CABEÇA. Apenas as mãos segurando o produto. Use termos como "first-person POV", "only hands visible", "from user's perspective".
+- Se videoStyle="mirror_selfie": O prompt DEVE descrever um reflexo no espelho. Use termos como "mirror reflection", "taking a mirror selfie", "visible mirror edges".
+
 ### REGRAS PARA scriptPrompt
 - script em PORTUGUÊS DO BRASIL, natural, no tom solicitado.
 - 8s: 1 frase de impacto. 16s: gancho + benefício + CTA. 24s+: gancho + storytelling + CTA.
+
 
 ### SAÍDA OBRIGATÓRIA (apenas JSON, sem markdown):
 {
