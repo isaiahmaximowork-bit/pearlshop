@@ -243,7 +243,8 @@ RESTRIÇÕES OBRIGATÓRIAS:
 - "Aspect ratio: STRICTLY the requested format — fill entire frame, NO letterboxing, NO pillarboxing."
 
 ### REGRAS ESPECÍFICAS DE CÂMERA (CRÍTICO)
-- Se cameraStyle="pov": O prompt DEVE ser em primeira pessoa. NÃO PODE APARECER ROSTO NEM CABEÇA. Apenas as mãos segurando o produto. Use termos como "first-person POV", "only hands visible", "from user's perspective".
+- Se cameraStyle="pov": O prompt DEVE ser em primeira pessoa. NÃO PODE APARECER ROSTO NEM CABEÇA. Apenas as mãos segurando o produto. Use termos como "first-person POV shot, only hands visible, looking down at hands, from user's perspective".
+- Se interaction="selfie": O prompt DEVE ser uma "first-person selfie photograph". O braço que segura a câmera DEVE estar no primeiro plano imediato e MUITO desfocado ("arm extended into the immediate foreground, heavily out of focus, foreground bokeh"). A pessoa deve sorrir diretamente para a lente. Use "35mm lens" para evitar distorção.
 - Se videoStyle="mirror_selfie": O prompt DEVE descrever um reflexo no espelho. Use termos como "mirror reflection", "taking a mirror selfie", "visible mirror edges".
 
 ### REGRAS PARA scriptPrompt
