@@ -28,6 +28,7 @@ import Turbinar from "./pages/app/Turbinar.tsx";
 import StorePage from "./pages/StorePage.tsx";
 import AvisoLegal from "./pages/AvisoLegal.tsx";
 import React from "react";
+import { logError } from "@/lib/safari-compat";
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: Error | null, errorInfo: React.ErrorInfo | null }> {
   constructor(props: { children: React.ReactNode }) {
@@ -42,6 +43,7 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error("Uncaught error:", error, errorInfo);
     this.setState({ error, errorInfo });
+    logError(error.message, 'ErrorBoundary', { error, errorInfo });
   }
 
   render() {
