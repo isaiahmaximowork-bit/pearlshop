@@ -801,7 +801,7 @@ function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage,
                     <PillGroup label="Modo de interação" options={interactions} value={take.interaction || interactions[0]} onChange={(v) => onUpdate({ interaction: v })} />
                     
                     <AnimatePresence mode="wait">
-                      {(take.cameraStyle || state.cameraStyle) === "frente" && (
+                      {(take.cameraStyle || "frente") === "frente" && (
                         <motion.div
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: "auto" }}
