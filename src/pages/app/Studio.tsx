@@ -111,11 +111,19 @@ const Studio = () => {
   const updateState = (patch: Partial<StudioState>) => setState((s) => ({ ...s, ...patch }));
 
   useEffect(() => {
-    safeStorage.setItem("pearlshop-studio-state", JSON.stringify(state));
+    try {
+      safeStorage.setItem("pearlshop-studio-state", JSON.stringify(state));
+    } catch (e) {
+      console.error("Failed to save state:", e);
+    }
   }, [state]);
 
   useEffect(() => {
-    safeStorage.setItem("pearlshop-studio-step", currentStep.toString());
+    try {
+      safeStorage.setItem("pearlshop-studio-step", currentStep.toString());
+    } catch (e) {
+      console.error("Failed to save step:", e);
+    }
   }, [currentStep]);
 
   useEffect(() => {
