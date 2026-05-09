@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { safeStorage } from "@/lib/safari-compat";
 import { Moon, Sun, LogOut } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -16,15 +17,15 @@ const Opcoes = () => {
   useEffect(() => {
     if (isDark) {
       document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
+      safeStorage.setItem("theme", "dark");
     } else {
       document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
+      safeStorage.setItem("theme", "light");
     }
   }, [isDark]);
 
   useEffect(() => {
-    const saved = localStorage.getItem("theme");
+    const saved = safeStorage.getItem("theme");
     if (saved === "dark") {
       setIsDark(true);
       document.documentElement.classList.add("dark");

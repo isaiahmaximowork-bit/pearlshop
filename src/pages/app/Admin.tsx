@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { safeDateParse } from "@/lib/safari-compat";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -179,7 +180,7 @@ const Admin = () => {
                     <td className="px-4 py-3 text-xs text-muted-foreground font-mono">{p.user_id.slice(0, 8)}...</td>
                     <td className="px-4 py-3 text-xs">{p.tiktok_handle || "—"}</td>
                     <td className="px-4 py-3 text-xs text-muted-foreground">
-                      {new Date(p.created_at).toLocaleDateString("pt-BR")}
+                      {safeDateParse(p.created_at).toLocaleDateString("pt-BR")}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <Button variant="ghost" size="icon"

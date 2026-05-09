@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { safeStorage } from "@/lib/safari-compat";
 import { motion, AnimatePresence } from "framer-motion";
 import { Package, Settings2, Wand2, ChevronLeft, ChevronRight, Sparkles, Film, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
@@ -86,18 +87,14 @@ const steps = [
 const Studio = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [state, setState] = useState<StudioState>(() => {
-    try {
-      const saved = localStorage.getItem("pearlshop-studio-state");
-      return saved ? { ...initialState, ...JSON.parse(saved) } : initialState;
-    } catch {
-      return initialState;
-    }
+    const saved = safeStorage.getItem("pearlshop-studio-state");
+    return saved ? { ...initialState, ...JSON.parse(saved) } : initialState;
   });
 
   const updateState = (patch: Partial<StudioState>) => setState((s) => ({ ...s, ...patch }));
 
   useEffect(() => {
-    localStorage.setItem("pearlshop-studio-state", JSON.stringify(state));
+    safeStorage.setItem("pearlshop-studio-state", JSON.stringify(state));
   }, [state]);
 
   useEffect(() => {
