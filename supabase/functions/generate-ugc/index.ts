@@ -593,6 +593,7 @@ Deno.serve(async (req) => {
       );
 
       // ===== IMAGE GEN com 2 referências =====
+      console.log(`[generate-ugc] Final Image Prompt for Job ${job.id}:`, agent2.imagePrompt);
       const imageDataUrl = await retry(
         () => generateImage(agent2.imagePrompt, referenceImageUrl, product.productImageUrl, GEMINI_API_KEY),
         "image-gen"
