@@ -176,7 +176,7 @@ export function StudioStepProduct({ state, updateState, onAdvance }: Props) {
                   <h4 className="text-sm font-medium text-foreground leading-tight line-clamp-2">
                     {product.product_name}
                   </h4>
-                  <span className="text-base font-black text-foreground">{getPrice(product)}</span>
+                  <span className="text-base text-foreground">{getPrice(product)}</span>
                   {item.category && (
                     <div className="flex items-center gap-1">
                       <Tag size={10} className="text-muted-foreground" />

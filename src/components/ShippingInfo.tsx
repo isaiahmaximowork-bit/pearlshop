@@ -104,10 +104,10 @@ export function ShippingInfo({ packageWeight, packageDimensions, sellerRegion }:
           {isFree ? (
             <>
               <span className="text-sm line-through text-muted-foreground">R$8,39</span>
-              <span className="text-sm font-bold text-green-500">R$0,00</span>
+              <span className="text-sm text-green-500">R$0,00</span>
             </>
           ) : (
-            <span className="text-sm font-bold text-foreground">R${rate.price.toFixed(2).replace('.', ',')}</span>
+            <span className="text-sm text-foreground">R${rate.price.toFixed(2).replace('.', ',')}</span>
           )}
         </div>
       </div>
