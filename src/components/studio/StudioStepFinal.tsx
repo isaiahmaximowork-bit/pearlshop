@@ -808,8 +808,8 @@ function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage,
                 <div className="bg-background/40 p-4 rounded-xl border border-border/40">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Estilo do Vídeo</p>
                   
-                  <Tabs value={take.videoStyle ? videoStyles.find(s => s.id === take.videoStyle)?.category || "outros" : "outros"} onValueChange={(val) => {
-                    const firstStyleInCat = videoStyles.find(s => s.category === val);
+                  <Tabs value={take.videoStyle ? (videoStyles.find(s => s.id === take.videoStyle) as any)?.category || "outros" : "outros"} onValueChange={(val) => {
+                    const firstStyleInCat = videoStyles.find(s => (s as any).category === val);
                     if (firstStyleInCat) onUpdate({ videoStyle: firstStyleInCat.id });
                   }} className="w-full">
                     <TabsList className="grid grid-cols-4 h-9 bg-background/60 p-1 mb-4">
@@ -823,7 +823,7 @@ function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage,
                     {videoStyleCategories.map(cat => (
                       <TabsContent key={cat.id} value={cat.id} className="mt-0">
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                          {videoStyles.filter(v => v.category === cat.id && visibleVideoStyleIds.includes(v.id)).map((v) => {
+                          {videoStyles.filter(v => (v as any).category === cat.id && (CATEGORY_VIDEOSTYLE_VISIBILITY[productCategory] || []).includes(v.id)).map((v) => {
                             const Icon = v.icon;
                             const sel = (take.videoStyle || "ugc_autentico") === v.id;
                             return (
