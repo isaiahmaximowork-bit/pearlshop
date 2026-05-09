@@ -85,10 +85,27 @@ const steps = [
 ];
 
 const Studio = () => {
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(() => {
+    try {
+      const savedStep = safeStorage.getItem("pearlshop-studio-step");
+      return savedStep ? Math.max(1, Math.min(4, parseInt(savedStep))) : 1;
+    } catch (e) {
+      return 1;
+    }
+  });
   const [state, setState] = useState<StudioState>(() => {
-    const saved = safeStorage.getItem("pearlshop-studio-state");
-    return saved ? { ...initialState, ...JSON.parse(saved) } : initialState;
+    try {
+      const saved = safeStorage.getItem("pearlshop-studio-state");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Ensure critical fields are initialized if missing from old saved state
+        return { ...initialState, ...parsed };
+      }
+      return initialState;
+    } catch (e) {
+      console.error("Error parsing studio state:", e);
+      return initialState;
+    }
   });
 
   const updateState = (patch: Partial<StudioState>) => setState((s) => ({ ...s, ...patch }));
@@ -96,6 +113,10 @@ const Studio = () => {
   useEffect(() => {
     safeStorage.setItem("pearlshop-studio-state", JSON.stringify(state));
   }, [state]);
+
+  useEffect(() => {
+    safeStorage.setItem("pearlshop-studio-step", currentStep.toString());
+  }, [currentStep]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -111,7 +132,11 @@ const Studio = () => {
   const prev = () => setCurrentStep((s) => Math.max(1, s - 1));
 
   const resetStepData = () => {
-    if (currentStep === 3) {
+    if (currentStep === 1) {
+      updateState(initialState);
+      setCurrentStep(1);
+      toast.success("Estúdio resetado!");
+    } else if (currentStep === 3) {
       updateState({
         _generatedJob: null,
         _generatedTakes: [],
@@ -129,6 +154,7 @@ const Studio = () => {
   };
 
   const hasDataToReset = () => {
+    if (currentStep === 1) return !!state.productId;
     if (currentStep === 3) {
       return !!state._generatedJob || state._generatedTakes.length > 0 || state.takes.some(t => t.imageJob) || !!state.script;
     }

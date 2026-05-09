@@ -143,7 +143,8 @@ export function StudioStepPrompt({ state, updateState }: Props) {
       return; 
     }
 
-    if (!state.script.trim() && !state.takes.some((t) => t.dialogue?.trim())) { 
+    const hasRoteiro = state.script.trim() || state.takes.some((t) => t.dialogue?.trim());
+    if (!hasRoteiro) { 
       toast.error("Escreva ou gere o roteiro antes"); 
       return; 
     }

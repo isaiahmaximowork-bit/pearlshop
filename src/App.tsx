@@ -41,9 +41,19 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("Uncaught error:", error, errorInfo);
+    console.error("Uncaught error captured by boundary:", error, errorInfo);
     this.setState({ error, errorInfo });
-    logError(error.message, 'ErrorBoundary', { error, errorInfo });
+    try {
+      logError(error.message, 'ErrorBoundary', { 
+        error_name: error.name,
+        error_stack: error.stack,
+        component_stack: errorInfo?.componentStack,
+        url: window.location.href,
+        timestamp: new Date().toISOString()
+      });
+    } catch (logErr) {
+      console.error("Failed to log error to database:", logErr);
+    }
   }
 
   render() {
