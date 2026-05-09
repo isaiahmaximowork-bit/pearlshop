@@ -41,21 +41,7 @@ const AvatarCard = ({ step, icon, title, description, visual, delay }: {
 
 const AvatarSection = () => (
   <section className="relative z-10 w-full py-12 md:py-24 px-4 md:px-6">
-    <style>{`
-      .avatar-label {
-        position: absolute;
-        bottom: 12px;
-        right: 12px;
-        background: rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(8px);
-        padding: 4px 10px;
-        border-radius: 99px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-    `}</style>
+    {/* avatar-label style moved to index.css */}
 
     <div className="max-w-7xl mx-auto w-full">
       {/* HEADER */}
