@@ -64,75 +64,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-[#020105] text-white font-poppins selection:bg-purple-500/30 overflow-x-hidden antialiased">
       
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap');
-        
-        .font-poppins { font-family: 'Poppins', sans-serif; }
-
-        @keyframes gradient-flow {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-
-        .btn-purple-flow {
-          background: linear-gradient(-45deg, #7c3aed, #a855f7, #6b21a8, #4c1d95);
-          background-size: 300% 300%;
-          animation: gradient-flow 6s ease infinite;
-          transition: animation-duration 0.3s ease;
-        }
-
-        .btn-purple-flow:hover {
-          animation-duration: 3s;
-        }
-        
-        @keyframes marquee-h {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        .animate-marquee-h {
-          animation: marquee-h 25s linear infinite;
-        }
-
-        @keyframes marquee-v-up {
-          0% { transform: translateY(0); }
-          100% { transform: translateY(-50%); }
-        }
-        .animate-marquee-v-up {
-          animation: marquee-v-up 30s linear infinite;
-        }
-
-        @keyframes marquee-v-down {
-          0% { transform: translateY(-50%); }
-          100% { transform: translateY(0); }
-        }
-        .animate-marquee-v-down {
-          animation: marquee-v-down 30s linear infinite;
-        }
-
-        .marquee-paused {
-          animation-play-state: paused !important;
-        }
-        
-        .mask-fade-edges-h {
-          mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
-          -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
-        }
-
-        .mask-fade-edges-v {
-          mask-image: linear-gradient(to bottom, transparent, transparent 2%, black 15%, black 85%, transparent 98%, transparent);
-          -webkit-mask-image: linear-gradient(to bottom, transparent, transparent 2%, black 15%, black 85%, transparent 98%, transparent);
-        }
-
-        .text-gradient-purple {
-          background: linear-gradient(to bottom, #c084fc 10%, #6b21a8 95%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          display: inline-block;
-          padding-right: 0.15em;
-          line-height: 1.1;
-        }
-      `}</style>
+      {/* Styles moved to index.css for better Safari compatibility */}
 
       {/* AURORA BACKGROUND */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">

@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap');
 
 #lovable-badge {
   display: none !important;
@@ -161,3 +162,83 @@
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
+
+/* Landing Page Specific Styles - Fixed for Safari compatibility */
+.font-poppins { font-family: 'Poppins', sans-serif; }
+
+@keyframes gradient-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.btn-purple-flow {
+  background: linear-gradient(-45deg, #7c3aed, #a855f7, #6b21a8, #4c1d95);
+  background-size: 300% 300%;
+  animation: gradient-flow 6s ease infinite;
+  transition: animation-duration 0.3s ease;
+}
+
+.btn-purple-flow:hover {
+  animation-duration: 3s;
+}
+
+@keyframes marquee-h {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee-h {
+  animation: marquee-h 25s linear infinite;
+}
+
+@keyframes marquee-v-up {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
+}
+.animate-marquee-v-up {
+  animation: marquee-v-up 30s linear infinite;
+}
+
+@keyframes marquee-v-down {
+  0% { transform: translateY(-50%); }
+  100% { transform: translateY(0); }
+}
+.animate-marquee-v-down {
+  animation: marquee-v-down 30s linear infinite;
+}
+
+.marquee-paused {
+  animation-play-state: paused !important;
+}
+
+.mask-fade-edges-h {
+  mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+}
+
+.mask-fade-edges-v {
+  mask-image: linear-gradient(to bottom, transparent, transparent 2%, black 15%, black 85%, transparent 98%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, transparent 2%, black 15%, black 85%, transparent 98%, transparent);
+}
+
+.text-gradient-purple {
+  background: linear-gradient(to bottom, #c084fc 10%, #6b21a8 95%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  padding-right: 0.15em;
+  line-height: 1.1;
+}
+
+/* Global Safari Backdrop Blur Fix */
+[class*="backdrop-blur"] {
+  -webkit-backdrop-filter: blur(var(--tw-backdrop-blur)) !important;
+  backdrop-filter: blur(var(--tw-backdrop-blur)) !important;
+}
+
+.backdrop-blur-sm { --tw-backdrop-blur: 4px; }
+.backdrop-blur-md { --tw-backdrop-blur: 12px; }
+.backdrop-blur-lg { --tw-backdrop-blur: 16px; }
+.backdrop-blur-xl { --tw-backdrop-blur: 24px; }
+.backdrop-blur-2xl { --tw-backdrop-blur: 40px; }
+
