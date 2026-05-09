@@ -72,7 +72,6 @@ const CATEGORY_VISIBILITY: Record<string, string[]> = {
 const CAMERA_INTERACTION_VISIBILITY: Record<string, string[]> = {
   frente: ["Vestindo o produto", "Segurando o produto", "Selfie no espelho", "Selfie"],
   pov: ["Segurando o produto", "Selfie"],
-  demo: ["Segurando o produto", "Vestindo o produto", "Selfie"],
 };
 const CATEGORY_VIDEOSTYLE_VISIBILITY: Record<string, VideoStyle[]> = {
   clothing: ["ugc_autentico", "publicitario", "viral_tiktok", "dancinha", "close_up", "mirror_selfie", "hook_mao_camera"],
