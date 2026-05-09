@@ -142,7 +142,7 @@ const Studio = () => {
   };
 
   return (
-    <div className="relative min-h-[calc(100vh-4rem)] bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="relative min-h-[calc(100dvh-4rem)] bg-gradient-to-br from-background via-background to-primary/5">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-primary/20 blur-[120px]" />
         <div className="absolute top-1/2 -left-40 w-96 h-96 rounded-full bg-purple-500/10 blur-[120px]" />
