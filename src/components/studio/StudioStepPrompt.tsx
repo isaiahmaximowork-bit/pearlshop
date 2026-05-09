@@ -294,33 +294,35 @@ export function StudioStepPrompt({ state, updateState }: Props) {
         <p className="text-muted-foreground">Configure o estilo, voz, roteiro e gere o prompt para o Veo 3.</p>
       </div>
 
-      {/* Estilo do Vídeo */}
-      <div className={`${glassCard} p-6`}>
-        <div className="flex items-center gap-2 mb-1">
-          <Camera size={18} className="text-primary" />
-          <h3 className="font-bold tracking-tight">Estilo do Vídeo</h3>
+      {/* Estilo do Vídeo - Visível se numTakes=1 ou se estiver em modo Manual com >1 takes */}
+      {(numTakes === 1 || (numTakes > 1 && state.generationMode === "manual")) && (
+        <div className={`${glassCard} p-6`}>
+          <div className="flex items-center gap-2 mb-1">
+            <Camera size={18} className="text-primary" />
+            <h3 className="font-bold tracking-tight">Estilo do Vídeo</h3>
+          </div>
+          <p className="text-xs text-muted-foreground mb-4">Tom geral da produção que a IA deve seguir</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {visibleVideoStyles.map((v) => {
+              const Icon = v.icon;
+              const sel = state.videoStyle === v.id;
+              return (
+                <div key={v.id} onClick={() => updateState({ videoStyle: v.id })}
+                  className={`p-4 rounded-xl border transition-all cursor-pointer ${
+                    sel ? "bg-primary/10 border-primary ring-1 ring-primary shadow-lg shadow-primary/20"
+                      : "bg-card/40 border-border/60 hover:border-primary/40 hover:bg-card/60"
+                  }`}>
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${
+                    sel ? "bg-gradient-to-br from-primary to-purple-600 text-white" : "bg-accent"
+                  }`}><Icon size={18} /></div>
+                  <p className="font-bold text-sm">{v.label}</p>
+                  <p className="text-[10px] text-muted-foreground mt-1 leading-snug">{v.desc}</p>
+                </div>
+              );
+            })}
+          </div>
         </div>
-        <p className="text-xs text-muted-foreground mb-4">Tom geral da produção que a IA deve seguir</p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {visibleVideoStyles.map((v) => {
-            const Icon = v.icon;
-            const sel = state.videoStyle === v.id;
-            return (
-              <div key={v.id} onClick={() => updateState({ videoStyle: v.id })}
-                className={`p-4 rounded-xl border transition-all cursor-pointer ${
-                  sel ? "bg-primary/10 border-primary ring-1 ring-primary shadow-lg shadow-primary/20"
-                    : "bg-card/40 border-border/60 hover:border-primary/40 hover:bg-card/60"
-                }`}>
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${
-                  sel ? "bg-gradient-to-br from-primary to-purple-600 text-white" : "bg-accent"
-                }`}><Icon size={18} /></div>
-                <p className="font-bold text-sm">{v.label}</p>
-                <p className="text-[10px] text-muted-foreground mt-1 leading-snug">{v.desc}</p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+      )}
 
       {progress?.active && (
         <div className={`${glassCard} p-6 text-center`}>

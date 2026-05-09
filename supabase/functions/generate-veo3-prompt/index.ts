@@ -345,7 +345,7 @@ Generate a COMPLETE, DETAILED, and PROFESSIONAL Veo 3 prompt that:
 3. Maintains all strengths from analysis
 4. Addresses all weaknesses from analysis
 5. Synchronizes perfectly with the Portuguese script
-6. Includes humanized movement choreography matching scriptType="${input.scriptType}"
+6. Includes humanized movement choreography matching scriptType="${input.scriptType}" and videoStyle="${input.videoStyle || "ugc_autentico"}"
 7. Specifies AAA quality requirements
 8. Ensures PERFECT LIP-SYNC — mouth MUST move throughout
 9. Preserves avatar consistency 100%
