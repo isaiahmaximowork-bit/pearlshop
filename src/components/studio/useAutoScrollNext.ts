@@ -11,12 +11,17 @@ export function scrollToNextSection(fromEl: HTMLElement | null) {
   const idx = all.indexOf(current);
   const next = all[idx + 1];
   if (!next) return;
-  // Wait a frame so selection state/animations don't fight the scroll
-  requestAnimationFrame(() => {
-    const headerOffset = 96; // account for sticky header + progress bar
-    const top = next.getBoundingClientRect().top + window.scrollY - headerOffset;
-    window.scrollTo({ top, behavior: "smooth" });
-  });
+  // Wait for React to finish re-rendering and DOM to stabilize
+  setTimeout(() => {
+    const headerOffset = 140; // Increased offset to account for dynamic heights and sticky elements
+    const rect = next.getBoundingClientRect();
+    const top = rect.top + window.pageYOffset - headerOffset;
+    
+    window.scrollTo({ 
+      top: Math.max(0, top), 
+      behavior: "smooth" 
+    });
+  }, 100);
 }
 
 export function handleSelectAndScroll(e: React.MouseEvent | React.SyntheticEvent) {
