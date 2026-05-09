@@ -563,11 +563,48 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
                   </motion.div>
                 )}
               </AnimatePresence>
+
+              {/* Added Estilo do Vídeo in Step 3 for single take */}
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Estilo do Vídeo</p>
+                <Tabs value={videoStyles.find(s => s.id === state.videoStyle)?.category || "outros"} onValueChange={(val) => {
+                  const firstStyleInCat = videoStyles.find(s => (s as any).category === val);
+                  if (firstStyleInCat) updateState({ videoStyle: firstStyleInCat.id });
+                }} className="w-full">
+                  <TabsList className="grid grid-cols-4 h-9 bg-background/60 p-1 mb-4">
+                    {videoStyleCategories.map(cat => (
+                      <TabsTrigger key={cat.id} value={cat.id} className="text-[10px] font-bold h-7">
+                        {cat.label}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+
+                  {videoStyleCategories.map(cat => (
+                    <TabsContent key={cat.id} value={cat.id} className="mt-0">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {videoStyles.filter(v => (v as any).category === cat.id && visibleVideoStyleIds.includes(v.id)).map((v) => {
+                          const Icon = v.icon;
+                          const sel = state.videoStyle === v.id;
+                          return (
+                            <div key={v.id} onClick={() => updateState({ videoStyle: v.id })} className={`${glassSelectable(sel)} p-3 flex flex-col items-center text-center transition-all`}>
+                              <div className={`w-8 h-8 rounded-lg flex items-center justify-center mb-1.5 ${
+                                sel ? "bg-gradient-to-br from-primary to-purple-600 text-white shadow-lg" : "bg-accent"
+                              }`}><Icon size={14} /></div>
+                              <p className="font-bold text-[10px]">{v.label}</p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </TabsContent>
+                  ))}
+                </Tabs>
+              </div>
               
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Melhorias opcionais</p>
                 <div className="flex flex-wrap gap-1.5">
                   {enhancements.map((e) => {
+                    if (e === "Cabelo real") return null; // Remove as requested
                     const sel = enhance.includes(e);
                     return (
                       <button key={e} onClick={() => setEnhance(sel ? enhance.filter((x) => x !== e) : [...enhance, e])}
