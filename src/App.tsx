@@ -45,7 +45,6 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   render() {
     if (this.state.hasError) {
       return (
-      return (
         <div style={{
           minHeight: '100vh',
           display: 'flex',
@@ -76,7 +75,6 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
             </button>
           </div>
         </div>
-      );
       );
     }
 
