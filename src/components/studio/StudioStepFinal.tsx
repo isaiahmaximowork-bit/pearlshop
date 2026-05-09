@@ -30,8 +30,8 @@ import camDemo from "@/assets/camera/demo.webp";
 
 // === Constants ===
 const cameraStyles = [
-  { id: "frente", label: "De Frente", desc: "Avatar olhando para câmera", img: camFrente },
   { id: "pov", label: "Mãos (POV)", desc: "Vista em primeira pessoa", img: camPov },
+  { id: "frente", label: "De Frente", desc: "Avatar olhando para câmera", img: camFrente },
 ];
 
 const videoStyles: { id: VideoStyle; label: string; desc: string; icon: any }[] = [
@@ -70,8 +70,8 @@ const CATEGORY_VISIBILITY: Record<string, string[]> = {
   fitness: ["Vestindo o produto", "Segurando o produto", "Selfie"],
 };
 const CAMERA_INTERACTION_VISIBILITY: Record<string, string[]> = {
-  frente: ["Vestindo o produto", "Segurando o produto", "Selfie no espelho", "Selfie"],
-  pov: ["Segurando o produto", "Selfie"],
+  frente: ["Vestindo o produto", "Segurando o produto", "Selfie no espelho", "Selfie", "Unboxing"],
+  pov: ["Segurando o produto", "Unboxing"],
 };
 const CATEGORY_VIDEOSTYLE_VISIBILITY: Record<string, VideoStyle[]> = {
   clothing: ["ugc_autentico", "publicitario", "viral_tiktok", "dancinha", "close_up", "mirror_selfie", "hook_mao_camera"],
@@ -84,11 +84,11 @@ const CATEGORY_VIDEOSTYLE_VISIBILITY: Record<string, VideoStyle[]> = {
   fitness: ["ugc_autentico", "publicitario", "viral_tiktok", "dancinha", "close_up", "mirror_selfie"],
 };
 
-const allInteractionModes = ["Vestindo o produto", "Segurando o produto", "Selfie no espelho", "Selfie"];
+const allInteractionModes = ["Vestindo o produto", "Segurando o produto", "Selfie no espelho", "Selfie", "Unboxing"];
 const avatarPoses = ["De frente", "De lado", "3/4", "Sentado(a)", "Andando", "Personalizado"];
 const enhancements = [
   "Luz natural", "Ultra-nitidez 8K", "Mãos perfeitas", "Brilho natural",
-  "Tecido real", "Cabelo real", "Anti-IA", "Profundidade", "Grão foto",
+  "Tecido real", "Anti-IA", "Profundidade", "Grão foto",
 ];
 
 const scenarioOptionsPt = [
@@ -516,14 +516,25 @@ export function StudioStepFinal({ state, updateState, onAdvance }: Props) {
             <p className="text-xs text-muted-foreground mb-5">Avatar + Produto + Cenário → foto realista</p>
             <div className="space-y-5">
               <PillGroup label="Modo de interação" options={visibleInteractionModes} value={interaction} onChange={setInteraction} />
-              <div>
-                <PillGroup label="Pose do avatar" options={avatarPoses} value={pose} onChange={setPose} />
-                {pose === "Personalizado" && (
-                  <input value={customPose} onChange={(e) => setCustomPose(e.target.value)}
-                    placeholder="Descreva a pose desejada..."
-                    className="w-full mt-3 h-10 rounded-xl bg-card/60 backdrop-blur-md border border-border/60 px-3 text-sm focus:outline-none focus:border-primary" />
+              
+              <AnimatePresence mode="wait">
+                {state.cameraStyle === "frente" && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <PillGroup label="Pose do avatar" options={avatarPoses} value={pose} onChange={setPose} />
+                    {pose === "Personalizado" && (
+                      <input value={customPose} onChange={(e) => setCustomPose(e.target.value)}
+                        placeholder="Descreva a pose desejada..."
+                        className="w-full mt-3 h-10 rounded-xl bg-card/60 backdrop-blur-md border border-border/60 px-3 text-sm focus:outline-none focus:border-primary" />
+                    )}
+                  </motion.div>
                 )}
-              </div>
+              </AnimatePresence>
+              
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Melhorias opcionais</p>
                 <div className="flex flex-wrap gap-1.5">
@@ -788,7 +799,20 @@ function TakeAccordion({ index, take, onUpdate, onAutoGenerate, onGenerateImage,
                   <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Mesclar com IA</p>
                   <div className="space-y-3">
                     <PillGroup label="Modo de interação" options={interactions} value={take.interaction || interactions[0]} onChange={(v) => onUpdate({ interaction: v })} />
-                    <PillGroup label="Pose do avatar" options={avatarPoses} value={take.pose || avatarPoses[0]} onChange={(v) => onUpdate({ pose: v })} />
+                    
+                    <AnimatePresence mode="wait">
+                      {(take.cameraStyle || "frente") === "frente" && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <PillGroup label="Pose do avatar" options={avatarPoses} value={take.pose || avatarPoses[0]} onChange={(v) => onUpdate({ pose: v })} />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                    
                     <div>
                       <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Melhorias opcionais</p>
                       <div className="flex flex-wrap gap-1.5">

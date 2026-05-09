@@ -89,9 +89,14 @@ Mapeie a "interaction" e "cameraStyle" para um framing OBRIGATÓRIO:
 → Exemplo: "taking a mirror selfie, side profile, looking at own reflection in the mirror, mirror reflection visible"
 
 "unboxing" / "Unboxing":
-→ CLOSE-UP
-→ Embalagem visível
-→ Exemplo: "unboxing the {productName}, close-up shot, hands visible"
+→ CLOSE-UP / MACRO SHOT
+→ Product being taken out of its packaging or being presented in its open box.
+→ Packaging must be visible, brand-new feel.
+→ Hands visible interacting with the box and {productName}.
+→ High attention to detail on textures (cardboard, plastic, product surface).
+→ Lighting: Bright, clean, "studio-like" commercial lighting.
+→ Framing: Close-up focus on the product and hands.
+→ Exemplo: "unboxing the {productName}, close-up macro shot, hands visible carefully removing product from a premium packaging box, soft studio lighting, ultra-realistic textures"
 
 Outros:
 → MEDIUM SHOT
