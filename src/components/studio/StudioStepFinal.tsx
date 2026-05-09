@@ -32,7 +32,6 @@ import camDemo from "@/assets/camera/demo.webp";
 const cameraStyles = [
   { id: "frente", label: "De Frente", desc: "Avatar olhando para câmera", img: camFrente },
   { id: "pov", label: "Mãos (POV)", desc: "Vista em primeira pessoa", img: camPov },
-  { id: "demo", label: "Demonstração", desc: "Foco no produto em uso", img: camDemo },
 ];
 
 const videoStyles: { id: VideoStyle; label: string; desc: string; icon: any }[] = [
@@ -73,7 +72,6 @@ const CATEGORY_VISIBILITY: Record<string, string[]> = {
 const CAMERA_INTERACTION_VISIBILITY: Record<string, string[]> = {
   frente: ["Vestindo o produto", "Segurando o produto", "Selfie no espelho", "Selfie"],
   pov: ["Segurando o produto", "Selfie"],
-  demo: ["Segurando o produto", "Vestindo o produto", "Selfie"],
 };
 const CATEGORY_VIDEOSTYLE_VISIBILITY: Record<string, VideoStyle[]> = {
   clothing: ["ugc_autentico", "publicitario", "viral_tiktok", "dancinha", "close_up", "mirror_selfie", "hook_mao_camera"],
