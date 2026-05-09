@@ -98,13 +98,15 @@ const Studio = () => {
       const saved = safeStorage.getItem("pearlshop-studio-state");
       if (saved) {
         const parsed = JSON.parse(saved);
-        // Ensure critical fields are initialized if missing from old saved state
-        return { ...initialState, ...parsed };
+        // Ensure state is a plain object and merge with initial state
+        if (parsed && typeof parsed === 'object') {
+          return { ...initialState, ...parsed };
+        }
       }
-      return initialState;
+      return { ...initialState };
     } catch (e) {
       console.error("Error parsing studio state:", e);
-      return initialState;
+      return { ...initialState };
     }
   });
 
