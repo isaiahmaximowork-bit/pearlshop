@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Wand2, Copy, ChevronDown, ExternalLink, Sparkles,
   Loader2, Download, X, Rocket, Film, Megaphone, ThumbsUp, BookOpen,
-  FolderOpen, HelpCircle,
+  FolderOpen, HelpCircle, Camera, Zap, Music, Eye, Smartphone, Hand,
 } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type { StudioState } from "@/pages/app/Studio";
 import { findAvatar } from "./avatars";
+import type { VideoStyle } from "./types";
 import { defaultTake } from "./types";
 
 const voiceOptions = {
@@ -25,6 +26,27 @@ const voiceOptions = {
   voiceTone: { label: "Tom de Voz", options: ["natural", "expressivo", "calmo", "intenso"] },
   voiceEnergy: { label: "Energia", options: ["baixa", "media", "alta"] },
   voiceStyle: { label: "Estilo", options: ["conversacional", "narrativo", "publicitario"] },
+};
+
+const videoStyles: { id: VideoStyle; label: string; desc: string; icon: any }[] = [
+  { id: "ugc_autentico", label: "UGC Autêntico", desc: "Estilo natural, gravação caseira", icon: Camera },
+  { id: "publicitario", label: "Publicitário", desc: "Visual polido e cinematográfico", icon: Sparkles },
+  { id: "viral_tiktok", label: "Viral TikTok", desc: "Cortes rápidos, dinâmico", icon: Zap },
+  { id: "dancinha", label: "Dancinha", desc: "Movimentos rítmicos com produto", icon: Music },
+  { id: "close_up", label: "Close-up", desc: "Expressões faciais íntimas", icon: Eye },
+  { id: "mirror_selfie", label: "Mirror Selfie", desc: "Reveal de outfit no espelho", icon: Smartphone },
+  { id: "hook_mao_camera", label: "Hook Mão", desc: "Dedo na câmera → reveal", icon: Hand },
+];
+
+const CATEGORY_VIDEOSTYLE_VISIBILITY: Record<string, VideoStyle[]> = {
+  clothing: ["ugc_autentico", "publicitario", "viral_tiktok", "dancinha", "close_up", "mirror_selfie", "hook_mao_camera"],
+  footwear: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "hook_mao_camera"],
+  accessories: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "hook_mao_camera"],
+  beauty: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "mirror_selfie", "hook_mao_camera"],
+  electronics: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up", "hook_mao_camera"],
+  home: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up"],
+  food_beverage: ["ugc_autentico", "publicitario", "viral_tiktok", "close_up"],
+  fitness: ["ugc_autentico", "publicitario", "viral_tiktok", "dancinha", "close_up", "mirror_selfie"],
 };
 
 const scriptTemplates = [
@@ -252,11 +274,43 @@ export function StudioStepPrompt({ state, updateState }: Props) {
     : state.videoFormat === "3:4" ? "aspect-[3/4] w-48"
     : "aspect-[9/16] w-56";
 
+  const productCategory = (state.productCategory || "").toLowerCase();
+  const visibleVideoStyleIds = CATEGORY_VIDEOSTYLE_VISIBILITY[productCategory] || videoStyles.map(v => v.id);
+  const visibleVideoStyles = videoStyles.filter(v => visibleVideoStyleIds.includes(v.id));
+
   return (
     <div className="space-y-5 max-w-4xl mx-auto">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-black tracking-tight mb-2">Prompt Final</h2>
-        <p className="text-muted-foreground">Configure a voz, roteiro e gere o prompt para o Veo 3.</p>
+        <p className="text-muted-foreground">Configure o estilo, voz, roteiro e gere o prompt para o Veo 3.</p>
+      </div>
+
+      {/* Estilo do Vídeo */}
+      <div className={`${glassCard} p-6`}>
+        <div className="flex items-center gap-2 mb-1">
+          <Camera size={18} className="text-primary" />
+          <h3 className="font-bold tracking-tight">Estilo do Vídeo</h3>
+        </div>
+        <p className="text-xs text-muted-foreground mb-4">Tom geral da produção que a IA deve seguir</p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {visibleVideoStyles.map((v) => {
+            const Icon = v.icon;
+            const sel = state.videoStyle === v.id;
+            return (
+              <div key={v.id} onClick={() => updateState({ videoStyle: v.id })}
+                className={`p-4 rounded-xl border transition-all cursor-pointer ${
+                  sel ? "bg-primary/10 border-primary ring-1 ring-primary shadow-lg shadow-primary/20"
+                    : "bg-card/40 border-border/60 hover:border-primary/40 hover:bg-card/60"
+                }`}>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${
+                  sel ? "bg-gradient-to-br from-primary to-purple-600 text-white" : "bg-accent"
+                }`}><Icon size={18} /></div>
+                <p className="font-bold text-sm">{v.label}</p>
+                <p className="text-[10px] text-muted-foreground mt-1 leading-snug">{v.desc}</p>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {progress?.active && (
