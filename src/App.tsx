@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, RefreshCw } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -27,7 +27,7 @@ import UgcBuilder from "./pages/app/UgcBuilder.tsx";
 import Turbinar from "./pages/app/Turbinar.tsx";
 import StorePage from "./pages/StorePage.tsx";
 import AvisoLegal from "./pages/AvisoLegal.tsx";
-import React from "react";
+import React, { Suspense } from "react";
 import { logError } from "@/lib/safari-compat";
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: Error | null, errorInfo: React.ErrorInfo | null }> {
@@ -92,22 +92,47 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
               Ocorreu um erro inesperado. Tente recarregar o estúdio.
             </p>
 
-            <button 
-              onClick={() => window.location.reload()}
-              style={{
-                padding: '16px 32px',
-                backgroundColor: '#ef4444',
-                color: 'white',
-                border: 'none',
-                borderRadius: '16px',
-                fontWeight: '900',
-                cursor: 'pointer',
-                fontSize: '16px',
-                boxShadow: '0 10px 15px -3px rgba(239, 68, 68, 0.4)'
-              }}
-            >
-              Recarregar Estúdio
-            </button>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <button 
+                onClick={() => window.location.reload()}
+                style={{
+                  padding: '16px 32px',
+                  backgroundColor: '#ef4444',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '16px',
+                  fontWeight: '900',
+                  cursor: 'pointer',
+                  fontSize: '16px',
+                  boxShadow: '0 10px 15px -3px rgba(239, 68, 68, 0.4)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+              >
+                <RefreshCw size={18} />
+                Recarregar Estúdio
+              </button>
+              
+              <button 
+                onClick={() => {
+                  localStorage.clear();
+                  window.location.reload();
+                }}
+                style={{
+                  padding: '16px 24px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                  color: 'white',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '16px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                }}
+              >
+                Limpar Cache e Reiniciar
+              </button>
+            </div>
 
             {/* Hidden Debug Info - visible on click or specific action if needed */}
             <details style={{ marginTop: '48px', textAlign: 'left', cursor: 'pointer' }}>
@@ -141,40 +166,46 @@ const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<Index />} />
-            <Route path="/loja/:slug" element={<StorePage />} />
-            <Route path="/aviso-legal" element={<AvisoLegal />} />
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Suspense fallback={
+              <div className="min-h-screen flex items-center justify-center bg-[#020105]">
+                <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+              </div>
+            }>
+              <Routes>
+                {/* Public routes */}
+                <Route path="/" element={<Index />} />
+                <Route path="/loja/:slug" element={<StorePage />} />
+                <Route path="/aviso-legal" element={<AvisoLegal />} />
 
-            {/* Auth routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-              <Route index element={<AppHome />} />
-              <Route path="meus-produtos" element={<MeusProdutos />} />
-              <Route path="produtos" element={<Produtos />} />
-              <Route path="opcoes" element={<Opcoes />} />
-              <Route path="conexoes" element={<Conexoes />} />
-              <Route path="minha-loja" element={<StoreSettings />} />
-              <Route path="perfil" element={<EditarPerfil />} />
-              <Route path="studio" element={<Studio />} />
-              <Route path="historico" element={<Historico />} />
-              <Route path="ugc-builder" element={<UgcBuilder />} />
-              <Route path="turbinar" element={<Turbinar />} />
-              <Route path="admin" element={<Admin />} />
-            </Route>
-            <Route path="/app/builder" element={<ProtectedRoute><Builder /></ProtectedRoute>} />
+                {/* Auth routes */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/app" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+                  <Route index element={<AppHome />} />
+                  <Route path="meus-produtos" element={<MeusProdutos />} />
+                  <Route path="produtos" element={<Produtos />} />
+                  <Route path="opcoes" element={<Opcoes />} />
+                  <Route path="conexoes" element={<Conexoes />} />
+                  <Route path="minha-loja" element={<StoreSettings />} />
+                  <Route path="perfil" element={<EditarPerfil />} />
+                  <Route path="studio" element={<Studio />} />
+                  <Route path="historico" element={<Historico />} />
+                  <Route path="ugc-builder" element={<UgcBuilder />} />
+                  <Route path="turbinar" element={<Turbinar />} />
+                  <Route path="admin" element={<Admin />} />
+                </Route>
+                <Route path="/app/builder" element={<ProtectedRoute><Builder /></ProtectedRoute>} />
 
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
   </ErrorBoundary>
 );
